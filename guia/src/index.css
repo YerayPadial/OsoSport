@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Opcional: Aplicar la fuente base y el tamaño de fuente a toda la app */
+
 body {
   font-size: 18px; 
   -webkit-font-smoothing: antialiased;

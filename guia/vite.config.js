@@ -10,48 +10,48 @@ export default defineConfig({
     
     // <-- 2. AÑADIR TODA ESTA CONFIGURACIÓN
     VitePWA({
-      registerType: 'autoUpdate', // Se actualiza sola [cite: 250]
+      registerType: 'autoUpdate',
       
       // Configuración del manifest.json (para el icono y nombre)
       manifest: {
-        name: 'OsoSport Gym', // [cite: 213]
-        short_name: 'OsoSport', // [cite: 214]
-        description: 'Rutinas de gimnasio de OsoSport Gym', // [cite: 215]
-        theme_color: '#2B7D32', // [cite: 216]
-        background_color: '#FFFFFF', // [cite: 217]
-        display: 'standalone', // [cite: 218]
-        orientation: 'portrait', // [cite: 219]
-        start_url: '/guia/', // <-- Modificado para tu URL
-        scope: '/guia/',     // <-- Modificado para tu URL
+        name: 'OsoSport Gym', 
+        short_name: 'OsoSport', 
+        description: 'Rutinas de gimnasio de OsoSport Gym', 
+        theme_color: '#2B7D32', 
+        background_color: '#FFFFFF', 
+        display: 'standalone', 
+        orientation: 'portrait', 
+        start_url: '/guia/',  
+        scope: '/guia/',     
         icons: [
           {
-            src: '/guia/icons/icon-192.png', // [cite: 224]
-            sizes: '192x192', // [cite: 225]
-            type: 'image/png', // [cite: 226]
-            purpose: 'any maskable', // [cite: 227]
+            src: '/guia/icons/icon-192.png', 
+            sizes: '192x192', 
+            type: 'image/png', 
+            purpose: 'any maskable', 
           },
           {
-            src: '/guia/icons/icon-512.png', // [cite: 229]
-            sizes: '512x512', // [cite: 230]
-            type: 'image/png', // [cite: 231]
-            purpose: 'any maskable', // [cite: 232]
+            src: '/guia/icons/icon-512.png', 
+            sizes: '512x512', 
+            type: 'image/png', 
+            purpose: 'any maskable', 
           },
         ],
       },
       
       // Configuración del Service Worker (para funcionar offline)
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,jpg,svg}'], // [cite: 252]
+        globPatterns: ['**/*.{js,css,html,ico,png,jpg,svg}'], 
         runtimeCaching: [
           {
-            // Cachear los vídeos [cite: 254-256]
+            // Cachear los vídeos]
             urlPattern: /^https:\/\/padiyera\.com\/guia\/videos\/.*\.mp4/i,
-            handler: 'CacheFirst', // [cite: 256]
+            handler: 'CacheFirst', 
             options: {
-              cacheName: 'video-cache', // [cite: 258]
+              cacheName: 'video-cache', 
               expiration: {
-                maxEntries: 50, // [cite: 260]
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 días [cite: 261]
+                maxEntries: 50, 
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 días
               },
             },
           },
