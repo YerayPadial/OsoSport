@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import Header from "./components/layout/Header.jsx";
-import HomeScreen from "./screens/HomeScreen.jsx";
+import Header from "./components/layout/Header";
+import HomeScreen from "./screens/HomeScreen";
+import LevelScreen from "./screens/LevelScreen";
+import ExerciseListScreen from "./screens/ExerciseListScreen";
+import ExerciseDetailScreen from "./screens/ExerciseDetailScreen";
 
 function App() {
+  // El estado que controla toda la navegación
   const [navigation, setNavigation] = useState({
-    screen: "home", // Pantalla actual'
-    nivelId: null, // ID del nivel seleccionado (1, 2, o 3)
-    dia: null, // Día seleccionado (ej: "Lunes y Jueves")
-    ejercicioId: null, // ID del ejercicio (ej: "n1_01")
+    screen: "home",
+    nivelId: null,
+    dia: null,
+    ejercicioId: null,
   });
 
   // --- FUNCIONES DE NAVEGACIÓN ---
@@ -22,13 +26,65 @@ function App() {
     });
   };
 
-  // Se llama cuando el usuario pulsa una LevelCard
+  // Se llama desde HomeScreen -> LevelCard
   const handleSelectLevel = (id) => {
     setNavigation({
       ...navigation,
-      screen: "level", 
+      screen: "level",
       nivelId: id,
     });
+  };
+
+  // Se llama desde LevelScreen -> Botón Volver
+  const handleGoBackToHome = () => {
+    handleGoHome();
+  };
+
+  // Se llama desde LevelScreen -> DayCard (Nivel 2 o 3)
+  const handleSelectDay = (diaNombre) => {
+    setNavigation({
+      ...navigation,
+      screen: "exerciseList",
+      dia: diaNombre,
+    });
+  };
+
+  // Se llama desde LevelScreen (Nivel 1) o ExerciseListScreen (Nivel 2/3)
+  const handleSelectExercise = (ejercicioId) => {
+    setNavigation({
+      ...navigation,
+      screen: "exerciseDetail",
+      ejercicioId: ejercicioId,
+    });
+  };
+
+  // Se llama desde ExerciseListScreen -> Botón Volver
+  const handleGoBackToLevel = () => {
+    setNavigation({
+      ...navigation,
+      screen: "level",
+      dia: null,
+      ejercicioId: null,
+    });
+  };
+
+  // Se llama desde ExerciseDetailScreen -> Botón Volver
+  const handleGoBackFromDetail = () => {
+    // Si venimos de un día (Nivel 2 o 3), volvemos a 'exerciseList'
+    if (navigation.dia) {
+      setNavigation({
+        ...navigation,
+        screen: "exerciseList",
+        ejercicioId: null,
+      });
+    } else {
+      // Si no (Nivel 1), volvemos a 'level'
+      setNavigation({
+        ...navigation,
+        screen: "level",
+        ejercicioId: null,
+      });
+    }
   };
 
   // --- RENDERIZADO DE PANTALLAS ---
@@ -40,36 +96,30 @@ function App() {
         return <HomeScreen onSelectLevel={handleSelectLevel} />;
 
       case "level":
-        // Próximamente: crearemos LevelScreen
-        // return <LevelScreen navigation={navigation} ... />;
         return (
-          <div className="p-4">
-            <h1 className="text-2xl">
-              Próximamente: Nivel {navigation.nivelId}
-            </h1>
-            <button
-              onClick={handleGoHome}
-              className="p-2 bg-blue-500 text-white rounded mt-4"
-            >
-              Volver
-            </button>
-          </div>
+          <LevelScreen
+            navigation={navigation}
+            onSelectDay={handleSelectDay}
+            onSelectExercise={handleSelectExercise}
+            onGoBack={handleGoBackToHome}
+          />
+        );
+
+      case "exerciseList":
+        return (
+          <ExerciseListScreen
+            navigation={navigation}
+            onSelectExercise={handleSelectExercise}
+            onGoBack={handleGoBackToLevel}
+          />
         );
 
       case "exerciseDetail":
-        // Próximamente: crearemos ExerciseDetailScreen
-        // return <ExerciseDetailScreen navigation={navigation} ... />;
         return (
-          <div className="p-4">
-            <h1 className="text-2xl">Próximamente: Detalle de Ejercicio</h1>
-            {/* Corrección: Corregir la etiqueta de cierre del botón */}
-            <button
-              onClick={handleGoHome}
-              className="p-2 bg-blue-500 text-white rounded mt-4"
-            >
-              Volver
-            </button>
-          </div>
+          <ExerciseDetailScreen
+            navigation={navigation}
+            onGoBack={handleGoBackFromDetail}
+          />
         );
 
       default:

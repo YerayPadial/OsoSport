@@ -41,7 +41,7 @@ const LevelScreen = ({
             <ExerciseCard
               key={ejercicio.id}
               ejercicio={ejercicio}
-              numero={index + 1} // Usamos el índice + 1 como número
+              numero={index + 1} 
               onClick={onSelectExercise}
             />
           ))}

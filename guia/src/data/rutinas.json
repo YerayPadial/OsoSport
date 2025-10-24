@@ -22,9 +22,9 @@
           "grupoMuscular": "Core",
           "specs": "3x20 rep",
           "video": "/videos/abdominal-encogimiento.mp4",
-          "thumbnail": "/thumbnails/abdominal-encogimiento.jpg",
+          "thumbnail": "/thumbnails/image.png",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Mantén la espalda baja pegada al suelo para evitar lesiones."]
         },
         {
           "id": "n1_02",
