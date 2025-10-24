@@ -1,49 +1,46 @@
 import React from "react";
+import { ArrowRight } from "lucide-react";
 
-// 1. Mapeo para las clases de ACENTO.
-// Ya no necesitamos 'hover:' aquí, lo controlará la tarjeta.
-const accentClasses = {
-  1: "bg-nivel-1", // Verde
-  2: "bg-nivel-2", // Naranja
-  3: "bg-nivel-3", // Rojo
+const bgClasses = {
+  1: "bg-nivel-1",
+  2: "bg-nivel-2",
+  3: "bg-nivel-3",
 };
 
 const LevelCard = ({ nivel, onClick }) => {
-  // 2. Obtenemos la clase de acento, o un color por defecto
-  const accentColor = accentClasses[nivel.id] || "bg-gray-500";
+  const bgColor = bgClasses[nivel.id] || "bg-gray-500";
 
   return (
     <button
       onClick={() => onClick(nivel.id)}
       className={`
-        w-full p-5 rounded-2xl shadow-lg bg-white
-        flex items-center gap-5 
-        text-left transition-all duration-300 transform 
-        hover:shadow-xl hover:-translate-y-1 active:scale-98
+        w-full p-6 rounded-2xl 
+        flex justify-between items-center 
+        text-white text-left 
+        shadow-lg transition-all duration-300 transform 
+        hover:scale-105 active:scale-98
         min-h-touch-target
+        relative overflow-hidden
+        ${bgColor}
       `}
       aria-label={`Seleccionar nivel ${nivel.nombre}`}
     >
-      {/* 4. BLOQUE DE ACENTO (El Número) */}
-      <div
-        className={`
-          ${accentColor}
-          w-20 h-20 rounded-2xl 
-          flex items-center justify-center 
-          flex-shrink-0
-        `}
-      >
-        <span className="text-5xl font-black text-white">{nivel.id}</span>
-      </div>
+      <span className="absolute -right-2 bottom-0 z-0 text-9xl font-black text-white/10 select-none">
+        {nivel.id}
+      </span>
 
-      {/* 5. BLOQUE DE TEXTO */}
-      <div className="flex-grow">
-        <span className="block text-2xl font-bold text-gray-900">
-          {nivel.nombre}
+      <div className="z-10">
+        <span className="block text-3xl font-black">{nivel.nombre}</span>
+        <span className="block text-xl font-normal text-white/80 mt-1">
+         Nivel {nivel.id}
         </span>
-        <span className="block text-lg font-normal text-gray-600 mt-1">
+        <span className="block text-xl font-normal text-white/80 mt-1">
           {nivel.duracion}
         </span>
+      </div>
+
+      <div className="z-10 flex-shrink-0 w-12 h-12 rounded-full bg-white/30 flex items-center justify-center">
+        <ArrowRight className="w-6 h-6 text-white" />
       </div>
     </button>
   );

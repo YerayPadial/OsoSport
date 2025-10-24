@@ -8,25 +8,21 @@ export default {
   ],
   theme: {
     extend: {
-      
-    
       fontFamily: {
         sans: ['Open Sans', 'Lato', ...defaultTheme.fontFamily.sans],
       },
-
       colors: {
-        // Tus colores de nivel están perfectos.
-        'nivel-1': '#2E7D32',
-        'nivel-2': '#E65100',
-        'nivel-3': '#C62828',
+        'nivel-1': '#22C55E',
+        'nivel-2': '#F59E0B',
+        'nivel-3': '#DC2626',
+        'fondo-oscuro': '#1F2937', 
       },
       fontSize: {
-        // Esto está perfecto como lo tienes.
         'base': '18px',
         'sm': '16px',
       },
       minHeight: {
-        'touch-target': '60px', // ¡Genial para accesibilidad!
+        'touch-target': '60px',
       },
       minWidth: {
         'touch-target': '60px',

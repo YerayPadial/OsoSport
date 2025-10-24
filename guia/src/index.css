@@ -2,11 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
   font-size: 18px; 
-  background-color: #FFFFFF;
-  color: #333333;
+  background-color: #1F2937;
+  color: #F3F4F6;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -1,28 +1,33 @@
 import React from "react";
-import { Home } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 
-// Este componente recibirá el estado de navegación y una función para volver al inicio
+const Logo = () => (
+  <div className="flex items-center gap-2">
+    <Dumbbell className="w-8 h-8 text-white" />
+    <div className="flex flex-col -space-y-2">
+      <span className="text-2xl font-black text-white">OSOSPORT</span>
+      <span className="text-xl font-light text-white">GYM</span>
+    </div>
+  </div>
+);
+
 const Header = ({ navigation, onGoHome }) => {
-  const logoUrl = "/guia/logo-ososport.jpeg";
+  const isHome = navigation.screen === "home";
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white shadow-md">
-      <div className="flex items-center justify-between h-20 px-4 max-w-4xl mx-auto">
-        {/* Logo */}
-        <img
-          src={logoUrl}
-          alt="Logo de OsoSport Gym"
-          className="h-12 w-auto" 
-        />
-
-        {/* Botón de Volver a Inicio (solo si no estamos en 'home') */}
-        {navigation.screen !== "home" && (
+    <header className="sticky top-0 z-50 w-full bg-fondo-oscuro border-b border-gray-700">
+      <div className="flex items-center h-20 px-4 max-w-4xl mx-auto">
+        {isHome ? (
+          <div className="cursor-default" aria-label="Estás en el inicio">
+            <Logo />
+          </div>
+        ) : (
           <button
             onClick={onGoHome}
-            className="flex items-center justify-center p-3 bg-gray-100 rounded-full min-w-touch-target min-h-touch-target"
+            className="transition-opacity hover:opacity-80 active:opacity-60"
             aria-label="Volver al inicio"
           >
-            <Home className="w-6 h-6 text-gray-800" />
+            <Logo />
           </button>
         )}
       </div>

@@ -1,20 +1,21 @@
 import React from "react";
 import rutinasData from "../data/rutinas.json";
 import LevelCard from "../components/ui/LevelCard";
+import { Dumbbell } from "lucide-react";
 
 const HomeScreen = ({ onSelectLevel }) => {
   return (
-    <div className="bg-white min-h-screen p-4 max-w-4xl mx-auto">
-      <h1 className="text-4xl font-black text-gray-900 mb-2">
-        Selecciona tu nivel
-      </h1>
-      <p className="text-xl text-gray-600 mb-8">
-        Comienza con la rutina que mejor se adapte a ti.
-      </p>
+    <div className="bg-fondo-oscuro min-h-screen p-4 pt-8">
+      <header className="text-center mb-10">
+        <div className="flex justify-center items-center gap-3">
+          <span className="text-4xl font-black text-white">Elige tu nivel</span>
+        </div>
+        <h1 className="text-2xl font-semibold text-gray-200 mt-4">
+          Crece con nosotros, suerte en tu entrenamiento!
+        </h1>
+      </header>
 
-      {/* 4. Creamos un espacio para las tarjetas */}
-      <div className="space-y-5">
-        {/* 5. Mapeamos los niveles */}
+      <div className="max-w-lg mx-auto space-y-5">
         {rutinasData.niveles.map((nivel) => (
           <LevelCard key={nivel.id} nivel={nivel} onClick={onSelectLevel} />
         ))}
