@@ -1,7 +1,7 @@
 import React from "react";
 import rutinasData from "../data/rutinas.json";
-import ExerciseCard from "../components/ui/ExerciseCard.jsx";
-import DayCard from "../components/ui/DayCard.jsx";
+import ExerciseCard from "../components/ui/ExerciseCard";
+import DayCard from "../components/ui/DayCard";
 import { ArrowLeft } from "lucide-react";
 
 const LevelScreen = ({
@@ -18,11 +18,11 @@ const LevelScreen = ({
   // Si no se encuentra el nivel, mostramos un error
   if (!nivelActual) {
     return (
-      <div className="p-4">
+      <div className="bg-white min-h-screen p-4">
         <h1 className="text-2xl text-red-500">Error: Nivel no encontrado</h1>
         <button
           onClick={onGoBack}
-          className="mt-4 p-3 bg-gray-200 rounded-lg flex items-center gap-2 min-h-touch-target"
+          className="mt-4 p-3 bg-gray-100 text-gray-700 font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver
@@ -31,9 +31,8 @@ const LevelScreen = ({
     );
   }
 
-  // 2. Función para renderizar el contenido basado en la estructura del JSON
+  // 2. Función para renderizar el contenido
   const renderContent = () => {
-    // CASO 1: Nivel 1 ("Full Body") - Mostrar lista de ejercicios
     if (nivelActual.estructura === "Full Body") {
       return (
         <div className="space-y-4">
@@ -41,26 +40,22 @@ const LevelScreen = ({
             <ExerciseCard
               key={ejercicio.id}
               ejercicio={ejercicio}
-              numero={index + 1} 
+              numero={index + 1}
               onClick={onSelectExercise}
+              nivelId={nivelActual.id}
             />
           ))}
         </div>
       );
     }
 
-    // CASO 2: Nivel 2 o 3 ("Dividida...") - Mostrar tarjetas de días
-    // Usamos 'Set' para obtener una lista de días únicos (ej: "Lunes", "Martes", etc.)
     const diasUnicos = [...new Set(nivelActual.ejercicios.map((e) => e.dia))];
-
-    // Encontrar la descripción para cada día (ej: "Pectorales y Bíceps" para el Lunes)
     const diasConDescripcion = diasUnicos.map((dia) => {
       const primerEjercicioDelDia = nivelActual.ejercicios.find(
         (e) => e.dia === dia
       );
       return {
         nombre: dia,
-        // Usamos la descripción del primer ejercicio de ese día
         descripcion: primerEjercicioDelDia.descripcion,
       };
     });
@@ -81,11 +76,11 @@ const LevelScreen = ({
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="bg-white min-h-screen p-4 max-w-4xl mx-auto">
       {/* Botón de Volver */}
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-gray-100 rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="mb-4 p-3 bg-gray-100 text-gray-700 font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Niveles
@@ -98,7 +93,11 @@ const LevelScreen = ({
       >
         {nivelActual.nombre}
       </h1>
-      <p className="text-xl text-gray-700 mb-6">{nivelActual.calentamiento}</p>
+
+      {/* TIPOGRAFÍA: Texto grande (20px), gris oscuro y con "aire" */}
+      <p className="text-xl text-gray-700 mb-6 leading-relaxed">
+        {nivelActual.calentamiento}
+      </p>
 
       {/* Contenido (Ejercicios o Días) */}
       {renderContent()}

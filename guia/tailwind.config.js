@@ -1,25 +1,32 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", 
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
+      
+    
+      fontFamily: {
+        sans: ['Open Sans', 'Lato', ...defaultTheme.fontFamily.sans],
+      },
+
       colors: {
-        // Colores de los niveles según la documentación (con corrección de accesibilidad)
-        'nivel-1': '#2E7D32', 
-        'nivel-2': '#E65100', 
-        'nivel-3': '#C62828', 
+        // Tus colores de nivel están perfectos.
+        'nivel-1': '#2E7D32',
+        'nivel-2': '#E65100',
+        'nivel-3': '#C62828',
       },
       fontSize: {
-        // Definimos los tamaños de fuente base para accesibilidad
-        'base': '18px',     
-        'sm': '16px',       
+        // Esto está perfecto como lo tienes.
+        'base': '18px',
+        'sm': '16px',
       },
       minHeight: {
-        // Zona táctil mínima de 60px para accesibilidad
-        'touch-target': '60px',
+        'touch-target': '60px', // ¡Genial para accesibilidad!
       },
       minWidth: {
         'touch-target': '60px',

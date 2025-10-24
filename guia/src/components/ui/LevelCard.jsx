@@ -1,39 +1,50 @@
 import React from "react";
 
-// Mapeo para conectar el ID del nivel con el color de Tailwind
-const colorClasses = {
-  1: "bg-nivel-1 hover:bg-green-800", // Verde
-  2: "bg-nivel-2 hover:bg-orange-700", // Naranja
-  3: "bg-nivel-3 hover:bg-red-800", // Rojo
+// 1. Mapeo para las clases de ACENTO.
+// Ya no necesitamos 'hover:' aquí, lo controlará la tarjeta.
+const accentClasses = {
+  1: "bg-nivel-1", // Verde
+  2: "bg-nivel-2", // Naranja
+  3: "bg-nivel-3", // Rojo
 };
 
 const LevelCard = ({ nivel, onClick }) => {
-  // Obtenemos la clase de color correcta, o un color por defecto
-  const color = colorClasses[nivel.id] || "bg-gray-500 hover:bg-gray-600";
+  // 2. Obtenemos la clase de acento, o un color por defecto
+  const accentColor = accentClasses[nivel.id] || "bg-gray-500";
 
   return (
     <button
       onClick={() => onClick(nivel.id)}
-      // Aplicamos las clases de Tailwind
       className={`
-            w-full p-6 rounded-2xl shadow-lg text-white 
-            font-bold text-left transition-all duration-200 
-            transform active:scale-98 min-h-touch-target
-            flex flex-col justify-center
-            ${color}
-          `}
+        w-full p-5 rounded-2xl shadow-lg bg-white
+        flex items-center gap-5 
+        text-left transition-all duration-300 transform 
+        hover:shadow-xl hover:-translate-y-1 active:scale-98
+        min-h-touch-target
+      `}
       aria-label={`Seleccionar nivel ${nivel.nombre}`}
     >
-      {/* Número del Nivel */}
-      <span className="text-6xl font-black">{nivel.id}</span>
+      {/* 4. BLOQUE DE ACENTO (El Número) */}
+      <div
+        className={`
+          ${accentColor}
+          w-20 h-20 rounded-2xl 
+          flex items-center justify-center 
+          flex-shrink-0
+        `}
+      >
+        <span className="text-5xl font-black text-white">{nivel.id}</span>
+      </div>
 
-      {/* Nombre del Nivel */}
-      <span className="text-3xl mt-1">{nivel.nombre}</span>
-
-      {/* Duración */}
-      <span className="text-lg font-normal opacity-90 mt-2">
-        {nivel.duracion}
-      </span>
+      {/* 5. BLOQUE DE TEXTO */}
+      <div className="flex-grow">
+        <span className="block text-2xl font-bold text-gray-900">
+          {nivel.nombre}
+        </span>
+        <span className="block text-lg font-normal text-gray-600 mt-1">
+          {nivel.duracion}
+        </span>
+      </div>
     </button>
   );
 };

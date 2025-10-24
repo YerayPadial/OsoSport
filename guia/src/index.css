@@ -5,6 +5,9 @@
 
 body {
   font-size: 18px; 
+  background-color: #FFFFFF;
+  color: #333333;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

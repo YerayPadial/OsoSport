@@ -31,16 +31,17 @@ const VideoPlayer = ({ src, poster }) => {
   }, []);
 
   return (
+    // ESTILO LIMPIO: Los bordes redondeados y la sombra son perfectos.
     <div className="w-full aspect-video bg-black rounded-2xl shadow-xl overflow-hidden">
       <video
         ref={videoRef}
         poster={poster} // Muestra la miniatura (thumbnail) mientras carga
         loop
         muted
-        autoPlay={isInView} // <-- Solo reproduce si isInView es true
-        playsInline // Esencial para que funcione en iPhones
+        autoPlay={isInView}
+        playsInline
         className="w-full h-full object-cover"
-        controls // Añadimos controles para que el usuario pueda pausar, etc.
+        controls
       >
         {/* Solo añadimos el <source> cuando el vídeo está a la vista */}
         {isInView && <source src={src} type="video/mp4" />}
