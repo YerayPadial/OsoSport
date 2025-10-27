@@ -7,6 +7,7 @@ const bgClasses = {
   3: "bg-nivel-3",
 };
 
+// Componente para mostrar una tarjeta de nivel en la pantalla de inicio
 const LevelCard = ({ nivel, onClick }) => {
   const bgColor = bgClasses[nivel.id] || "bg-gray-500";
 

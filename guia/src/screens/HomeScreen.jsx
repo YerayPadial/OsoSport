@@ -3,6 +3,7 @@ import rutinasData from "../data/rutinas.json";
 import LevelCard from "../components/ui/LevelCard";
 import { Dumbbell } from "lucide-react";
 
+// Pantalla principal para seleccionar el nivel de entrenamiento
 const HomeScreen = ({ onSelectLevel }) => {
   return (
     <div className="bg-fondo-oscuro min-h-screen p-4 pt-8">

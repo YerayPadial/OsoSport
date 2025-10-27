@@ -4,25 +4,24 @@ import ExerciseCard from "../components/ui/ExerciseCard";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft } from "lucide-react";
 
+//Pantalla para listar ejercicios que no tienen dias o seleccionar dias
 const LevelScreen = ({
   navigation,
   onSelectDay,
   onSelectExercise,
   onGoBack,
 }) => {
-  // 1. Encontrar el nivel actual usando el nivelId del estado
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
   );
 
-  // Si no se encuentra el nivel, mostramos un error
   if (!nivelActual) {
     return (
-      <div className="bg-white min-h-screen p-4">
-        <h1 className="text-2xl text-red-500">Error: Nivel no encontrado</h1>
+      <div className="bg-fondo-oscuro min-h-screen p-4">
+        <h1 className="text-2xl text-red-400">Error: Nivel no encontrado</h1>
         <button
           onClick={onGoBack}
-          className="mt-4 p-3 bg-gray-100 text-gray-700 font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+          className="mt-4 p-3 bg-gray-700 text-white font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver
@@ -31,7 +30,6 @@ const LevelScreen = ({
     );
   }
 
-  // 2. Función para renderizar el contenido
   const renderContent = () => {
     if (nivelActual.estructura === "Full Body") {
       return (
@@ -76,17 +74,15 @@ const LevelScreen = ({
   };
 
   return (
-    <div className="bg-white min-h-screen p-4 max-w-4xl mx-auto">
-      {/* Botón de Volver */}
+    <div className="bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-gray-100 text-gray-700 font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="mb-4 p-3 bg-gray-700 text-white font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Niveles
       </button>
 
-      {/* Título del Nivel */}
       <h1
         className="text-4xl font-black mb-2"
         style={{ color: nivelActual.color }}
@@ -94,12 +90,10 @@ const LevelScreen = ({
         {nivelActual.nombre}
       </h1>
 
-      {/* TIPOGRAFÍA: Texto grande (20px), gris oscuro y con "aire" */}
-      <p className="text-xl text-gray-700 mb-6 leading-relaxed">
+      <p className="text-xl text-gray-300 mb-6 leading-relaxed">
         {"Calentamiento en " + nivelActual.calentamiento}
       </p>
 
-      {/* Contenido (Ejercicios o Días) */}
       {renderContent()}
     </div>
   );

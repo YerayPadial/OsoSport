@@ -3,8 +3,8 @@ import rutinasData from "../data/rutinas.json";
 import ExerciseCard from "../components/ui/ExerciseCard";
 import { ArrowLeft } from "lucide-react";
 
+// Screen para lista de ejercicios de un día específico
 const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
-  // ... (Lógica de filtrado) ...
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
   );
@@ -12,16 +12,15 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
     nivelActual?.ejercicios.filter((ej) => ej.dia === navigation.dia) || [];
   const colorNivel = nivelActual?.color || "#2B7D32";
 
-  // Si no se encuentra el nivel, mostramos un error
   if (!nivelActual || !ejerciciosDelDia) {
     return (
-      <div className="bg-white min-h-screen p-4">
-        <h1 className="text-2xl text-red-500">
+      <div className="bg-fondo-oscuro min-h-screen p-4">
+        <h1 className="text-2xl text-red-400">
           Error: No se encontraron ejercicios
         </h1>
         <button
           onClick={onGoBack}
-          className="mt-4 p-3 bg-gray-100 text-gray-700 font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+          className="mt-4 p-3 bg-gray-700 text-white font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver
@@ -31,11 +30,11 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
   }
 
   return (
-    <div className="bg-white min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
       {/* --- BOTÓN DE VOLVER --- */}
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-gray-100 text-gray-700 font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="mb-4 p-3 bg-gray-700 text-white font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Días

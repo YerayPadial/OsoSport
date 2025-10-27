@@ -1,7 +1,7 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
-
+// Componente para mostrar una tarjeta de ejercicio
 // Creamos un mapa de estilos para los colores de nivel.
 const colorStyles = {
   1: {
@@ -66,7 +66,7 @@ const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
         <div
           className={`
             absolute top-0 left-0 
-            w-10 h-10 
+            w-11 h-11 
             rounded-br-full 
             flex items-center justify-center 
             text-white text-lg font-extrabold 

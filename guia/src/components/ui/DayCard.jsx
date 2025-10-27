@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
+// Componente para mostrar una tarjeta de día
 const DayCard = ({ dia, descripcion, color, onClick }) => {
   // Mapeo de colores para el borde
   const borderColors = {
