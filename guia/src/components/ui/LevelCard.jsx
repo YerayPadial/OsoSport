@@ -32,10 +32,7 @@ const LevelCard = ({ nivel, onClick }) => {
       <div className="z-10">
         <span className="block text-3xl font-black">{nivel.nombre}</span>
         <span className="block text-xl font-normal text-white/80 mt-1">
-         Nivel {nivel.id}
-        </span>
-        <span className="block text-xl font-normal text-white/80 mt-1">
-          {nivel.duracion}
+         Nivel {nivel.id} &nbsp;|&nbsp; {nivel.duracion}
         </span>
       </div>
 

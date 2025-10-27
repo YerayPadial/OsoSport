@@ -96,7 +96,7 @@ const LevelScreen = ({
 
       {/* TIPOGRAFÍA: Texto grande (20px), gris oscuro y con "aire" */}
       <p className="text-xl text-gray-700 mb-6 leading-relaxed">
-        {nivelActual.calentamiento}
+        {"Calentamiento en " + nivelActual.calentamiento}
       </p>
 
       {/* Contenido (Ejercicios o Días) */}

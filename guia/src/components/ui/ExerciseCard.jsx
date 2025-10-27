@@ -2,7 +2,7 @@ import React from "react";
 import { ChevronRight } from "lucide-react";
 
 
-// Creamos un mapa de estilos.
+// Creamos un mapa de estilos para los colores de nivel.
 const colorStyles = {
   1: {
     // Verde
@@ -24,10 +24,8 @@ const colorStyles = {
   },
 };
 
-// 2. Aceptamos la nueva prop: 'nivelId'
 const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
-  // 3. Seleccionamos el set de colores correcto.
-  // Si 'nivelId' no se proporciona, usamos el '1' (verde) como reserva.
+  // Seleccionamos el set de colores correcto. Si 'nivelId' no está, usamos '1' (verde).
   const colors = colorStyles[nivelId] || colorStyles[1];
 
   const thumbnailUrl = `/guia${ejercicio.thumbnail}`;
@@ -41,29 +39,45 @@ const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
         min-h-touch-target transition-all duration-200 
         transform active:scale-98 border-2 border-transparent 
         outline-none
-        ${colors.border}  {/* 4. Aplicamos el borde dinámico */}
+        ${colors.border}  
       `}
       aria-label={`Ver ejercicio ${ejercicio.nombre}`}
     >
-      {/* Círculo con el número */}
+      {/* Contenedor del Círculo. */}
       <div
         className={`
-          flex-shrink-0 w-16 h-16 
-          text-white text-3xl font-bold 
-          rounded-full flex items-center justify-center
-          ${colors.bg}  {/* 5. Aplicamos el fondo dinámico */}
+          flex-shrink-0 
+          w-20 h-20 sm:w-24 sm:h-24 
+          rounded-full 
+          bg-gray-300 overflow-hidden 
+          relative 
+          flex items-center justify-center
         `}
+        style={{
+          backgroundImage: `url(${thumbnailUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+        role="img"
+        aria-label={`Miniatura de ${ejercicio.nombre}`}
       >
-        {numero}
+        {/* Número de Ejercicio superpuesto sobre la Miniatura */}
+        <div
+          className={`
+            absolute top-0 left-0 
+            w-10 h-10 
+            rounded-br-full 
+            flex items-center justify-center 
+            text-white text-lg font-extrabold 
+            z-10
+            ${colors.bg} {/* Usamos el color de nivel como fondo de la etiqueta del número */}
+            shadow-lg
+          `}
+        >
+          {numero}
+        </div>
       </div>
-
-      {/* Miniatura (Thumbnail) */}
-      <img
-        src={thumbnailUrl}
-        alt={`Miniatura de ${ejercicio.nombre}`}
-        className="flex-shrink-0 w-20 h-20 object-cover rounded-lg bg-gray-200"
-        loading="lazy"
-      />
 
       {/* Información del ejercicio */}
       <div className="flex-1 text-left overflow-hidden">
@@ -72,8 +86,6 @@ const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
         </h3>
         <p className="text-base text-gray-600 truncate">{ejercicio.musculo}</p>
         <p className={`text-lg font-bold mt-1 truncate ${colors.text}`}>
-          {" "}
-          {/* 6. Aplicamos el texto dinámico */}
           {ejercicio.specs}
         </p>
       </div>
