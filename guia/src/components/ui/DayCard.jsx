@@ -4,8 +4,9 @@ import { ChevronRight } from "lucide-react";
 // 1. Mapeo de ID a clases de Tailwind
 const colorClasses = {
   1: { border: "border-nivel-1", text: "text-nivel-1" },
-  2: { border: "border-nivel-2", text: "text-nivel-2" },
-  3: { border: "border-nivel-3", text: "text-nivel-3" },
+  2: { border: "border-nivel-1Fem", text: "text-nivel-1Fem" },
+  3: { border: "border-nivel-2", text: "text-nivel-2" },
+  4: { border: "border-nivel-3", text: "text-nivel-3" },
 };
 
 // 2. Recibe 'nivelId'

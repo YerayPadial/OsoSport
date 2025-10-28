@@ -3,8 +3,9 @@ import { ArrowRight } from "lucide-react";
 
 const bgClasses = {
   1: "bg-nivel-1",
-  2: "bg-nivel-2",
-  3: "bg-nivel-3",
+  2: "bg-nivel-1Fem",
+  3: "bg-nivel-2",
+  4: "bg-nivel-3",
 };
 
 // Componente para mostrar una tarjeta de nivel en la pantalla de inicio
@@ -26,14 +27,14 @@ const LevelCard = ({ nivel, onClick }) => {
       `}
       aria-label={`Seleccionar nivel ${nivel.nombre}`}
     >
-      <span className="absolute -right-2 bottom-0 z-0 text-9xl font-black text-white/10 select-none">
-        {nivel.id}
+      <span className="absolute -right-2 bottom-0 z-0 text-9xl font-black text-white/15 select-none">
+        {nivel.dificultad}
       </span>
 
       <div className="z-10">
         <span className="block text-3xl font-black">{nivel.nombre}</span>
         <span className="block text-xl font-normal text-white/80 mt-1">
-         Nivel {nivel.id} &nbsp;|&nbsp; {nivel.duracion}
+         Nivel {nivel.dificultad + " | " + nivel.sexo}
         </span>
       </div>
 

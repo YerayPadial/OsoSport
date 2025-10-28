@@ -9,11 +9,16 @@ const colorStyles = {
     border: "hover:border-nivel-1 focus:border-nivel-1",
   },
   2: {
+    bg: "bg-nivel-1Fem",
+    text: "text-nivel-1Fem",
+    border: "hover:border-nivel-1Fem focus:border-nivel-1Fem",
+  },
+  3: {
     bg: "bg-nivel-2",
     text: "text-nivel-2",
     border: "hover:border-nivel-2 focus:border-nivel-2",
   },
-  3: {
+  4: {
     bg: "bg-nivel-3",
     text: "text-nivel-3",
     border: "hover:border-nivel-3 focus:border-nivel-3",

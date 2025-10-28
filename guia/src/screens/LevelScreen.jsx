@@ -8,8 +8,9 @@ import { ArrowLeft } from "lucide-react";
 
 const titleColorClasses = {
   1: "text-nivel-1",
-  2: "text-nivel-2",
-  3: "text-nivel-3",
+  2: "text-nivel-1Fem",
+  3: "text-nivel-2",
+  4: "text-nivel-3",
 };
 
 const LevelScreen = ({
