@@ -4,8 +4,8 @@
   "niveles": [
     {
       "id": 1,
-      "nombre": "Principiantes",
-      "slug": "principiantes",
+      "nombre": "Principiantes 👨",
+      "slug": "principiantes 👨",
       "duracion": "1 mes",
       "estructura": "Full Body",
       "calentamiento": "Bicicleta 10 minutos",
@@ -285,7 +285,7 @@
         },
         {
           "id": "n2_10",
-          "numero": 10,
+          "numero": 1,
           "dia": "Martes y Viernes",
           "nombre": "Jalón tras nuca",
           "nombreCorto": "Jalón Nuca",
@@ -299,7 +299,7 @@
         },
         {
           "id": "n2_11",
-          "numero": 11,
+          "numero": 2,
           "dia": "Martes y Viernes",
           "nombre": "Remo mancuerna",
           "nombreCorto": "Remo Mancuerna",
@@ -313,7 +313,7 @@
         },
         {
           "id": "n2_12",
-          "numero": 12,
+          "numero": 3,
           "dia": "Martes y Viernes",
           "nombre": "Sentadillas",
           "nombreCorto": "Sentadillas",
@@ -327,7 +327,7 @@
         },
         {
           "id": "n2_13",
-          "numero": 13,
+          "numero": 4,
           "dia": "Martes y Viernes",
           "nombre": "Extensiones (Cuádriceps)",
           "nombreCorto": "Ext. Cuádriceps",
@@ -341,7 +341,7 @@
         },
         {
           "id": "n2_14",
-          "numero": 14,
+          "numero": 5,
           "dia": "Martes y Viernes",
           "nombre": "Peso muerto",
           "nombreCorto": "Peso Muerto",
@@ -355,7 +355,7 @@
         },
         {
           "id": "n2_15",
-          "numero": 15,
+          "numero": 6,
           "dia": "Martes y Viernes",
           "nombre": "Gemelos sentado",
           "nombreCorto": "Gemelos Sentado",
@@ -369,7 +369,7 @@
         },
         {
           "id": "n2_16",
-          "numero": 16,
+          "numero": 7,
           "dia": "Martes y Viernes",
           "nombre": "Press francés",
           "nombreCorto": "Press Francés",
@@ -383,7 +383,7 @@
         },
         {
           "id": "n2_17",
-          "numero": 17,
+          "numero": 8,
           "dia": "Martes y Viernes",
           "nombre": "Jalón de tríceps",
           "nombreCorto": "Jalón Tríceps",
@@ -512,7 +512,7 @@
         },
         {
           "id": "n3_08",
-          "numero": 8,
+          "numero": 1,
           "dia": "Martes",
           "nombre": "Dominadas",
           "nombreCorto": "Dominadas",
@@ -526,7 +526,7 @@
         },
         {
           "id": "n3_09",
-          "numero": 9,
+          "numero": 2,
           "dia": "Martes",
           "nombre": "Jalón tras nuca",
           "nombreCorto": "Jalón Nuca",
@@ -540,7 +540,7 @@
         },
         {
           "id": "n3_10",
-          "numero": 10,
+          "numero": 3,
           "dia": "Martes",
           "nombre": "Remo barra",
           "nombreCorto": "Remo Barra",
@@ -554,7 +554,7 @@
         },
         {
           "id": "n3_11",
-          "numero": 11,
+          "numero": 4,
           "dia": "Martes",
           "nombre": "Remo mancuerna",
           "nombreCorto": "Remo Mancuerna",
@@ -568,7 +568,7 @@
         },
         {
           "id": "n3_12",
-          "numero": 12,
+          "numero": 5,
           "dia": "Martes",
           "nombre": "Press francés",
           "nombreCorto": "Press Francés",
@@ -582,7 +582,7 @@
         },
         {
           "id": "n3_13",
-          "numero": 13,
+          "numero": 6,
           "dia": "Martes",
           "nombre": "Francés de pie",
           "nombreCorto": "Francés Pie",
@@ -596,7 +596,7 @@
         },
         {
           "id": "n3_14",
-          "numero": 14,
+          "numero": 7,
           "dia": "Martes",
           "nombre": "Jalón de tríceps",
           "nombreCorto": "Jalón Tríceps",
@@ -610,7 +610,7 @@
         },
         {
           "id": "n3_15",
-          "numero": 15,
+          "numero": 1,
           "dia": "Miércoles",
           "nombre": "Sentadillas",
           "nombreCorto": "Sentadillas",
@@ -624,7 +624,7 @@
         },
         {
           "id": "n3_16",
-          "numero": 16,
+          "numero": 2,
           "dia": "Miércoles",
           "nombre": "Prensa",
           "nombreCorto": "Prensa",
@@ -638,7 +638,7 @@
         },
         {
           "id": "n3_17",
-          "numero": 17,
+          "numero": 3,
           "dia": "Miércoles",
           "nombre": "Extensiones",
           "nombreCorto": "Extensiones",
@@ -652,7 +652,7 @@
         },
         {
           "id": "n3_18",
-          "numero": 18,
+          "numero": 4,
           "dia": "Miércoles",
           "nombre": "Femoral",
           "nombreCorto": "Femoral",
@@ -666,7 +666,7 @@
         },
         {
           "id": "n3_19",
-          "numero": 19,
+          "numero": 5,
           "dia": "Miércoles",
           "nombre": "Gemelos",
           "nombreCorto": "Gemelos",
@@ -680,7 +680,7 @@
         },
         {
           "id": "n3_20",
-          "numero": 20,
+          "numero": 6,
           "dia": "Miércoles",
           "nombre": "Press militar",
           "nombreCorto": "Press Militar",
@@ -694,7 +694,7 @@
         },
         {
           "id": "n3_21",
-          "numero": 21,
+          "numero": 7,
           "dia": "Miércoles",
           "nombre": "Elevaciones laterales",
           "nombreCorto": "Elev. Laterales",
@@ -708,7 +708,7 @@
         },
         {
           "id": "n3_22",
-          "numero": 22,
+          "numero": 8,
           "dia": "Miércoles",
           "nombre": "Elevaciones frontales",
           "nombreCorto": "Elev. Frontales",
