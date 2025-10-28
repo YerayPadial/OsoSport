@@ -4,6 +4,13 @@ import VideoPlayer from "../components/ui/VideoPlayer";
 import { ArrowLeft, CheckCircle, Info, Zap } from "lucide-react";
 
 // Screen para detalle de un ejercicio específico
+
+const titleColorClasses = {
+  1: "text-nivel-1",
+  2: "text-nivel-2",
+  3: "text-nivel-3",
+};
+
 const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
@@ -11,6 +18,9 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const ejercicioActual = nivelActual?.ejercicios.find(
     (ej) => ej.id === navigation.ejercicioId
   );
+
+  const titleClass =
+    (nivelActual && titleColorClasses[nivelActual.id]) || "text-white";
 
   if (!ejercicioActual || !nivelActual) {
     return (
@@ -49,7 +59,7 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
       <VideoPlayer src={videoUrl} poster={thumbnailUrl} />
 
       <div className="p-4 max-w-4xl mx-auto">
-        <h1 className="text-4xl font-black mt-4" style={{ color: colorNivel }}>
+        <h1 className={`text-4xl font-black mt-4 ${titleClass}`}>
           {ejercicioActual.nombre}
         </h1>
         <p className="text-2xl font-bold text-gray-200 mt-2 mb-8">

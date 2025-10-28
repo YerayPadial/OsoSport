@@ -4,13 +4,22 @@ import ExerciseCard from "../components/ui/ExerciseCard";
 import { ArrowLeft } from "lucide-react";
 
 // Screen para lista de ejercicios de un día específico
+
+const titleColorClasses = {
+  1: "text-nivel-1",
+  2: "text-nivel-2",
+  3: "text-nivel-3",
+};
+
 const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
   );
   const ejerciciosDelDia =
     nivelActual?.ejercicios.filter((ej) => ej.dia === navigation.dia) || [];
-  const colorNivel = nivelActual?.color || "#2B7D32";
+
+  // Obtenemos la clase de color basada en el ID
+  const titleClass = titleColorClasses[navigation.nivelId] || "text-white";
 
   if (!nivelActual || !ejerciciosDelDia) {
     return (
@@ -41,10 +50,10 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
       </button>
 
       {/* --- TÍTULO --- */}
-      <h1 className="text-4xl font-black mb-6" style={{ color: colorNivel }}>
+      <h1 className={`text-4xl font-black mb-6 ${titleClass}`}>
         {navigation.dia}
       </h1>
-
+      
       {/* --- LISTA DE EJERCICIOS --- */}
       <div className="space-y-4">
         {ejerciciosDelDia.map((ejercicio) => (

@@ -5,6 +5,13 @@ import DayCard from "../components/ui/DayCard";
 import { ArrowLeft } from "lucide-react";
 
 //Pantalla para listar ejercicios que no tienen dias o seleccionar dias
+
+const titleColorClasses = {
+  1: "text-nivel-1",
+  2: "text-nivel-2",
+  3: "text-nivel-3",
+};
+
 const LevelScreen = ({
   navigation,
   onSelectDay,
@@ -29,6 +36,8 @@ const LevelScreen = ({
       </div>
     );
   }
+
+  const titleClass = titleColorClasses[nivelActual.id] || "text-white";
 
   const renderContent = () => {
     if (nivelActual.estructura === "Full Body") {
@@ -65,7 +74,7 @@ const LevelScreen = ({
             key={diaInfo.nombre}
             dia={diaInfo.nombre}
             descripcion={diaInfo.descripcion}
-            color={nivelActual.color}
+            nivelId={nivelActual.id}
             onClick={onSelectDay}
           />
         ))}
@@ -83,10 +92,7 @@ const LevelScreen = ({
         Volver a Niveles
       </button>
 
-      <h1
-        className="text-4xl font-black mb-2"
-        style={{ color: nivelActual.color }}
-      >
+      <h1 className={`text-4xl font-black mb-2 ${titleClass}`}>
         {nivelActual.nombre}
       </h1>
 
