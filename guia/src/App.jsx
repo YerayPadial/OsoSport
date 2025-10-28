@@ -129,7 +129,7 @@ function App() {
 
   return (
     // Usamos un fondo gris claro para la app
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header navigation={navigation} onGoHome={handleGoHome} />
       <main>{renderScreen()}</main>
     </div>
