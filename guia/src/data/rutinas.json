@@ -4,12 +4,12 @@
   "niveles": [
     {
       "id": 1,
-      "nombre": "Principiantes 👨",
-      "slug": "principiantes 👨",
+      "nombre": "Principiantes (Hombres)",
+      "slug": "principiantes-hombres",
       "duracion": "1 mes",
       "estructura": "Full Body",
-      "calentamiento": "Bicicleta 10 minutos",
-      "enfriamiento": "Ergómetro: De 10 a 15 minutos",
+      "calentamiento": "bicicleta 10 minutos",
+      "enfriamiento": "Bicicleta o Cinta: De 10 a 15 minutos",
       "notas": [],
       "ejercicios": [
         {
@@ -93,13 +93,13 @@
         {
           "id": "n1_07",
           "numero": 7,
-          "nombre": "Femoral Tumbado",
-          "nombreCorto": "Femoral Tumbado",
+          "nombre": "Femoral",
+          "nombreCorto": "Femoral",
           "musculo": "Femoral",
           "grupoMuscular": "Pierna",
           "specs": "3x15 rep",
-          "video": "/videos/femoral-tumbado.mp4",
-          "thumbnail": "/thumbnails/femoral-tumbado.jpg",
+          "video": "/videos/femoral.mp4",
+          "thumbnail": "/thumbnails/femoral.jpg",
           "descripcion": "Rutina completa para principiantes.",
           "consejos": []
         },
@@ -140,6 +140,152 @@
           "video": "/videos/gemelos-pie.mp4",
           "thumbnail": "/thumbnails/gemelos-pie.jpg",
           "descripcion": "Rutina completa para principiantes.",
+          "consejos": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "nombre": "Principiantes (Mujeres)",
+      "slug": "principiantes-mujeres",
+      "color": "#DB2777",
+      "duracion": "1 mes",
+      "estructura": "Full Body",
+      "calentamiento": "bicicleta 10 minutos",
+      "enfriamiento": "Bicicleta o Cinta: De 10 a 15 minutos",
+      "notas": [
+        "Rutina Full Body pensada para mujeres que comienzan en el entrenamiento, enfocada en tonificar el abdomen, piernas y glúteos, sin descuidar la parte superior (pecho, tríceps y gemelos).",
+        "El objetivo es mejorar la forma física general, fortalecer el core y definir las piernas."
+      ],
+      "ejercicios": [
+        {
+          "id": "n2_01",
+          "numero": 1,
+          "nombre": "Abdominal (encogimiento)",
+          "nombreCorto": "Encogimiento",
+          "musculo": "Abdomen",
+          "grupoMuscular": "Core",
+          "specs": "3x20 rep",
+          "video": "/videos/abdominal-encogimiento.mp4",
+          "thumbnail": "/thumbnails/image.png",
+          "descripcion": "Fortalece el abdomen superior.",
+          "consejos": []
+        },
+        {
+          "id": "n2_02",
+          "numero": 2,
+          "nombre": "Abdominal (elevaciones)",
+          "nombreCorto": "Elevaciones",
+          "musculo": "Abdomen",
+          "grupoMuscular": "Core",
+          "specs": "3x15 rep",
+          "video": "/videos/abdominal-elevaciones.mp4",
+          "thumbnail": "/thumbnails/abdominal-elevaciones.jpg",
+          "descripcion": "Enfocado en el abdomen inferior.",
+          "consejos": []
+        },
+        {
+          "id": "n2_03",
+          "numero": 3,
+          "nombre": "Press banca",
+          "nombreCorto": "Press Banca",
+          "musculo": "Pectoral",
+          "grupoMuscular": "Pecho",
+          "specs": "3x15 rep",
+          "video": "/videos/press-banca.mp4",
+          "thumbnail": "/thumbnails/press-banca.jpg",
+          "descripcion": "Tonificación de pectorales y tríceps.",
+          "consejos": []
+        },
+        {
+          "id": "n2_04",
+          "numero": 4,
+          "nombre": "Extensiones de cuádriceps",
+          "nombreCorto": "Ext. Cuádriceps",
+          "musculo": "Cuádriceps",
+          "grupoMuscular": "Pierna",
+          "specs": "3x15 rep",
+          "video": "/videos/extensiones-cuadriceps.mp4",
+          "thumbnail": "/thumbnails/extensiones-cuadriceps.jpg",
+          "descripcion": "Activa la parte frontal de las piernas.",
+          "consejos": []
+        },
+        {
+          "id": "n2_05",
+          "numero": 5,
+          "nombre": "Sentadilla sumo",
+          "nombreCorto": "Sent. Sumo",
+          "musculo": "Glúteos y Aductores",
+          "grupoMuscular": "Pierna / Glúteos",
+          "specs": "4x20 rep",
+          "video": "/videos/sentadilla-sumo.mp4",
+          "thumbnail": "/thumbnails/sentadilla-sumo.jpg",
+          "descripcion": "Tonifica glúteos y aductores.",
+          "consejos": []
+        },
+        {
+          "id": "n2_06",
+          "numero": 6,
+          "nombre": "Tijeras (zancadas alternas)",
+          "nombreCorto": "Zancadas",
+          "musculo": "Cuádriceps/Glúteos",
+          "grupoMuscular": "Pierna / Glúteos",
+          "specs": "4x12 rep",
+          "video": "/videos/tijeras-zancadas.mp4",
+          "thumbnail": "/thumbnails/tijeras-zancadas.jpg",
+          "descripcion": "Trabaja equilibrio y fuerza unilateral.",
+          "consejos": []
+        },
+        {
+          "id": "n2_07",
+          "numero": 7,
+          "nombre": "Abductores en máquina",
+          "nombreCorto": "Abductores",
+          "musculo": "Abductor",
+          "grupoMuscular": "Pierna",
+          "specs": "4x15 rep",
+          "video": "/videos/abductores-maquina.mp4",
+          "thumbnail": "/thumbnails/abductores-maquina.jpg",
+          "descripcion": "Fortalece la zona externa de las piernas.",
+          "consejos": []
+        },
+        {
+          "id": "n2_08",
+          "numero": 8,
+          "nombre": "Femoral",
+          "nombreCorto": "Femoral",
+          "musculo": "Femoral",
+          "grupoMuscular": "Pierna",
+          "specs": "3x15 rep",
+          "video": "/videos/femoral.mp4",
+          "thumbnail": "/thumbnails/femoral.jpg",
+          "descripcion": "Enfocado en la parte posterior del muslo.",
+          "consejos": []
+        },
+        {
+          "id": "n2_09",
+          "numero": 9,
+          "nombre": "Gemelos de pie",
+          "nombreCorto": "Gemelos Pie",
+          "musculo": "Gemelos",
+          "grupoMuscular": "Pierna",
+          "specs": "3x15 rep",
+          "video": "/videos/gemelos-pie.mp4",
+          "thumbnail": "/thumbnails/gemelos-pie.jpg",
+          "descripcion": "Define y fortalece los gemelos.",
+          "consejos": []
+        },
+        {
+          "id": "n2_10",
+          "numero": 10,
+          "nombre": "Extensiones de tríceps",
+          "nombreCorto": "Ext. Tríceps",
+          "musculo": "Tríceps",
+          "grupoMuscular": "Brazos",
+          "specs": "3x12 rep",
+          "video": "/videos/extensiones-triceps.mp4",
+          "thumbnail": "/thumbnails/extensiones-triceps.jpg",
+          "descripcion": "Mejora la tonificación del brazo.",
           "consejos": []
         }
       ]
