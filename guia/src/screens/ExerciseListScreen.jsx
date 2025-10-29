@@ -1,7 +1,7 @@
 import React from "react";
 import rutinasData from "../data/rutinas.json";
 import ExerciseCard from "../components/ui/ExerciseCard";
-import { ArrowLeft, Flame, Snowflake } from "lucide-react";
+import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
 
 // Screen para lista de ejercicios de un día específico
 
@@ -57,7 +57,9 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
         {navigation.dia}
       </h1>
 
-      {(nivelActual.calentamiento || nivelActual.enfriamiento) && (
+      {(nivelActual.calentamiento ||
+        nivelActual.enfriamiento ||
+        (nivelActual.notas && nivelActual.id == 4)) && (
         <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
           {/* Sección de Calentamiento (solo si existe) */}
           {nivelActual.calentamiento && (
@@ -93,6 +95,37 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
               </div>
             </div>
           )}
+
+          {/* Sección de notas (solo si existe) */}
+          {nivelActual.notas &&
+            nivelActual.id == 4 &&
+            nivelActual.notas.length > 0 && (
+              <>
+                {/* Separador */}
+                {(nivelActual.calentamiento || nivelActual.enfriamiento) && (
+                  <hr className="border-borde-claro dark:border-borde-oscuro" />
+                )}
+
+                <div className="flex items-start gap-3">
+                  <ClipboardList className="w-7 h-7 text-yellow-500 flex-shrink-0 mt-1" />
+                  <div>
+                    <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
+                      Notas Importantes
+                    </h2>
+                    <ul className="list-disc list-inside space-y-1 mt-1">
+                      {nivelActual.notas.map((nota, index) => (
+                        <li
+                          key={index}
+                          className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed"
+                        >
+                          {nota}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </>
+            )}
         </div>
       )}
 
