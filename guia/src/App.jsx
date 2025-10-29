@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./components/layout/Header";
 import HomeScreen from "./screens/HomeScreen";
 import LevelScreen from "./screens/LevelScreen";
@@ -13,6 +13,25 @@ function App() {
     dia: null,
     ejercicioId: null,
   });
+
+  // --- 1. ESTADO DEL TEMA ---
+  // El modo oscuro es el predeterminado
+  const [theme, setTheme] = useState("dark");
+
+  // --- 2. EFECTO PARA ACTUALIZAR EL HTML ---
+  useEffect(() => {
+    const root = document.documentElement; //etiqueta <html>
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme]); // Se ejecuta cada vez que 'theme' cambia
+
+  // --- 3. FUNCIÓN PARA CAMBIAR EL 'theme'---
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   // --- FUNCIONES DE NAVEGACIÓN ---
 
@@ -128,9 +147,14 @@ function App() {
   };
 
   return (
-    // Usamos un fondo gris claro para la app
-    <div className="min-h-screen">
-      <Header navigation={navigation} onGoHome={handleGoHome} />
+    // --- 4. APLICA COLORES BASE ---
+    <div className="min-h-screen bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro">
+      <Header
+        navigation={navigation}
+        onGoHome={handleGoHome}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
       <main>{renderScreen()}</main>
     </div>
   );

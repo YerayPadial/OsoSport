@@ -6,12 +6,14 @@ import { Dumbbell } from "lucide-react";
 // Pantalla principal para seleccionar el nivel de entrenamiento
 const HomeScreen = ({ onSelectLevel }) => {
   return (
-    <div className="bg-fondo-oscuro min-h-screen p-4 pt-8">
+    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 pt-8">
       <header className="text-center mb-10">
         <div className="flex justify-center items-center gap-3">
-          <span className="text-4xl font-black text-white">Elige tu nivel</span>
+          <span className="text-4xl font-black text-texto-claro dark:text-texto-oscuro">
+            Elige tu nivel
+          </span>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-200 mt-4">
+        <h1 className="text-2xl font-semibold text-texto-secundario-claro dark:text-texto-secundario-oscuro mt-4">
           Crece con nosotros, suerte en tu entrenamiento!
         </h1>
       </header>

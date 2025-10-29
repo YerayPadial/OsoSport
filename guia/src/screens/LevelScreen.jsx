@@ -7,10 +7,10 @@ import { ArrowLeft } from "lucide-react";
 //Pantalla para listar ejercicios que no tienen dias o seleccionar dias
 
 const titleColorClasses = {
-  1: "text-nivel-1",
-  2: "text-nivel-1Fem",
-  3: "text-nivel-2",
-  4: "text-nivel-3",
+  1: "text-nivel-1-claro dark:text-nivel-1-oscuro",
+  2: "text-nivel-1Fem-claro dark:text-nivel-1Fem-oscuro",
+  3: "text-nivel-2-claro dark:text-nivel-2-oscuro",
+  4: "text-nivel-3-claro dark:text-nivel-3-oscuro",
 };
 
 const LevelScreen = ({
@@ -25,11 +25,11 @@ const LevelScreen = ({
 
   if (!nivelActual) {
     return (
-      <div className="bg-fondo-oscuro min-h-screen p-4">
+      <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4">
         <h1 className="text-2xl text-red-400">Error: Nivel no encontrado</h1>
         <button
           onClick={onGoBack}
-          className="mt-4 p-3 bg-gray-700 text-white font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+          className="mt-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver
@@ -38,7 +38,9 @@ const LevelScreen = ({
     );
   }
 
-  const titleClass = titleColorClasses[nivelActual.id] || "text-white";
+  const titleClass =
+    titleColorClasses[nivelActual.id] ||
+    "text-texto-claro dark:text-texto-oscuro";
 
   const renderContent = () => {
     if (nivelActual.estructura === "Full Body") {
@@ -84,10 +86,10 @@ const LevelScreen = ({
   };
 
   return (
-    <div className="bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-gray-700 text-white font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="mb-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Niveles
@@ -97,7 +99,7 @@ const LevelScreen = ({
         {nivelActual.nombre}
       </h1>
 
-      <p className="text-xl text-gray-300 mb-6 leading-relaxed">
+      <p className="text-xl text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-6 leading-relaxed">
         {"Calentamiento en " + nivelActual.calentamiento}
       </p>
 

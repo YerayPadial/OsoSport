@@ -2,10 +2,10 @@ import React from "react";
 import { ArrowRight } from "lucide-react";
 
 const bgClasses = {
-  1: "bg-nivel-1",
-  2: "bg-nivel-1Fem",
-  3: "bg-nivel-2",
-  4: "bg-nivel-3",
+  1: "bg-nivel-1-claro dark:bg-nivel-1-oscuro",
+  2: "bg-nivel-1Fem-claro dark:bg-nivel-1Fem-oscuro",
+  3: "bg-nivel-2-claro dark:bg-nivel-2-oscuro",
+  4: "bg-nivel-3-claro dark:bg-nivel-3-oscuro",
 };
 
 // Componente para mostrar una tarjeta de nivel en la pantalla de inicio
@@ -15,11 +15,11 @@ const LevelCard = ({ nivel, onClick }) => {
   return (
     <button
       onClick={() => onClick(nivel.id)}
-      className={`
-        w-full p-6 rounded-2xl 
-        flex justify-between items-center 
+  className={`
+        w-full p-6 rounded-2xl
+        flex justify-between items-center
         text-white text-left 
-        shadow-lg transition-all duration-300 transform 
+        shadow-lg transition-all duration-300 transform
         hover:scale-105 active:scale-98
         min-h-touch-target
         relative overflow-hidden

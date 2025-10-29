@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 body {
-  font-size: 18px; 
-  background-color: #1F2937;
-  color: #F3F4F6;
+  font-size: 18px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
