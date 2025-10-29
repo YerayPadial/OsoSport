@@ -14,7 +14,7 @@ const HomeScreen = ({ onSelectLevel }) => {
           </span>
         </div>
         <h1 className="text-2xl font-semibold text-texto-secundario-claro dark:text-texto-secundario-oscuro mt-4">
-          Crece con nosotros, suerte en tu entrenamiento!
+          Crece con nosotros ¡Suerte en tu entrenamiento!
         </h1>
       </header>
 

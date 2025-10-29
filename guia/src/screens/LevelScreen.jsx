@@ -99,44 +99,45 @@ const LevelScreen = ({
         {nivelActual.nombre}
       </h1>
 
-      {(nivelActual.calentamiento || nivelActual.enfriamiento) && (
-        <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
-          {/* Sección de Calentamiento (solo si existe) */}
-          {nivelActual.calentamiento && (
-            <div className="flex items-start gap-3">
-              <Flame className="w-7 h-7 text-nivel-2-claro dark:text-nivel-2-oscuro flex-shrink-0 mt-1" />
-              <div>
-                <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
-                  Calentamiento
-                </h2>
-                <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
-                  {nivelActual.calentamiento}
-                </p>
+      {(nivelActual.calentamiento || nivelActual.enfriamiento) &&
+        nivelActual.id <= 2 && (
+          <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
+            {/* Sección de Calentamiento (solo si existe) */}
+            {nivelActual.calentamiento && (
+              <div className="flex items-start gap-3">
+                <Flame className="w-7 h-7 text-nivel-2-claro dark:text-nivel-2-oscuro flex-shrink-0 mt-1" />
+                <div>
+                  <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
+                    Calentamiento
+                  </h2>
+                  <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
+                    {nivelActual.calentamiento}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Separador (solo si AMBOS existen) */}
-          {nivelActual.calentamiento && nivelActual.enfriamiento && (
-            <hr className="border-borde-claro dark:border-borde-oscuro" />
-          )}
+            {/* Separador (solo si AMBOS existen) */}
+            {nivelActual.calentamiento && nivelActual.enfriamiento && (
+              <hr className="border-borde-claro dark:border-borde-oscuro" />
+            )}
 
-          {/* Sección de Enfriamiento (solo si existe) */}
-          {nivelActual.enfriamiento && (
-            <div className="flex items-start gap-3">
-              <Snowflake className="w-7 h-7 text-blue-500 flex-shrink-0 mt-1" />
-              <div>
-                <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
-                  Enfriamiento
-                </h2>
-                <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
-                  {nivelActual.enfriamiento}
-                </p>
+            {/* Sección de Enfriamiento (solo si existe) */}
+            {nivelActual.enfriamiento && (
+              <div className="flex items-start gap-3">
+                <Snowflake className="w-7 h-7 text-blue-500 flex-shrink-0 mt-1" />
+                <div>
+                  <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
+                    Enfriamiento
+                  </h2>
+                  <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
+                    {nivelActual.enfriamiento}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
 
       {renderContent()}
     </div>
