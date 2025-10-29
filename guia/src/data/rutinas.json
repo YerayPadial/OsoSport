@@ -10,8 +10,8 @@
       "slug": "principiantes-hombres",
       "duracion": "1 mes",
       "estructura": "Full Body",
-      "calentamiento": "bicicleta 10 minutos",
-      "enfriamiento": "Bicicleta o Cinta: De 10 a 15 minutos",
+      "calentamiento": "Calentamiento en bicicleta 10 minutos.",
+      "enfriamiento": "Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.",
       "notas": [],
       "ejercicios": [
         {
@@ -155,8 +155,8 @@
       "color": "#DB2777",
       "duracion": "1 mes",
       "estructura": "Full Body",
-      "calentamiento": "bicicleta 10 minutos",
-      "enfriamiento": "Bicicleta o Cinta: De 10 a 15 minutos",
+      "calentamiento": "Calentamiento en bicicleta 10 minutos.",
+      "enfriamiento": "Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.",
       "notas": [
         "Rutina Full Body pensada para mujeres que comienzan en el entrenamiento, enfocada en tonificar el abdomen, piernas y glúteos, sin descuidar la parte superior (pecho, tríceps y gemelos).",
         "El objetivo es mejorar la forma física general, fortalecer el core y definir las piernas."
@@ -302,8 +302,8 @@
       "slug": "intermedia",
       "duracion": "2 a 3 meses",
       "estructura": "Dividida (Lunes/Jueves y Martes/Viernes)",
-      "calentamiento": "Ergómetro 10 minutos",
-      "enfriamiento": "",
+      "calentamiento": "Calentamiento en bicicleta 10 minutos.",
+      "enfriamiento": "Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.",
       "notas": [
         "Lunes y Jueves: Pectoral, Hombro, Bíceps, Abdomen",
         "Martes y Viernes: Dorsales, Cuádriceps, Femoral y Gemelos, Tríceps"
@@ -557,8 +557,8 @@
       "slug": "avanzada", 
       "duracion": "4 a 6 meses",
       "estructura": "Dividida (Lunes, Martes, Miércoles - se repite el ciclo)",
-      "calentamiento": "Bicicleta 10 minutos",
-      "enfriamiento": "",
+      "calentamiento": "Calentamiento en bicicleta 10 minutos.",
+      "enfriamiento": "Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.",
       "notas": [
         "Abdomen: Tres ejercicios de 20 repeticiones, días alternos",
         "Lunes: Pectorales y Bíceps",
