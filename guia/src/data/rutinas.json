@@ -148,7 +148,7 @@
     },
     {
       "id": 2,
-      "dificultad": 1,
+      "dificultad": "1",
       "sexo": "Mujer",
       "nombre": "Principiantes",
       "slug": "principiantes-mujeres",
