@@ -54,7 +54,7 @@ export default defineConfig({
             options: {
               cacheName: 'local-videos-cache',
               expiration: {
-                maxEntries: 10, // Guarda los últimos 10 vídeos vistos
+                maxEntries: 60, // Guarda los últimos 10 vídeos vistos
                 maxAgeSeconds: 30 * 24 * 60 * 60, // 30 días
               },
               rangeRequests: true, // ¡Importante para streaming!
