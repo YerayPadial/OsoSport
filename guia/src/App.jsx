@@ -4,6 +4,7 @@ import HomeScreen from "./screens/HomeScreen";
 import LevelScreen from "./screens/LevelScreen";
 import ExerciseListScreen from "./screens/ExerciseListScreen";
 import ExerciseDetailScreen from "./screens/ExerciseDetailScreen";
+import InstallPrompt from "./components/ui/InstallPrompt";
 
 function App() {
   // El estado que controla toda la navegación
@@ -156,6 +157,7 @@ function App() {
         toggleTheme={toggleTheme}
       />
       <main>{renderScreen()}</main>
+      <InstallPrompt />
     </div>
   );
 }
