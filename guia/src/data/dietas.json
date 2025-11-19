@@ -1,0 +1,268 @@
+{
+  "planes": [
+    {
+      "id": 5,
+      "nombre": "Ganar Peso",
+      "descripcion": "Dieta de superávit calórico (Hipertrofia)",
+      "dias": [
+        {
+          "nombre": "Lunes",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["100g Avena cocida con leche entera", "1 Plátano troceado", "2 Huevos enteros revueltos"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Sandwich integral de pavo y queso", "Puñado de nueces (30g)"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["200g Pechuga de pollo a la plancha", "150g Arroz integral", "Ensalada mixta con aceite de oliva"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Batido de proteína (Whey) con leche", "1 Manzana grande", "Tortitas de arroz (2 uds)"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["200g Salmón al horno", "200g Patata asada", "Brócoli al vapor con aceite"]
+            }
+          ]
+        },
+        {
+          "nombre": "Martes",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["2 Tostadas integrales grandes", "Medio aguacate untado", "100g Pechuga de pavo", "Zumo de naranja natural"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["200g Queso fresco batido", "Miel y almendras", "1 Pera"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Plato de lentejas estofadas con verduras", "150g Filete de ternera magra", "Pan integral"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Bowl de yogur griego con granola", "Frutos rojos"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["200g Merluza o pescado blanco", "Batata (Boniato) al horno", "Espárragos trigueros"]
+            }
+          ]
+        },
+        {
+          "nombre": "Miércoles",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Tortitas de avena (3 claras + 1 huevo + 80g avena)", "Crema de cacahuete", "Café con leche"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Bocadillo pequeño de atún al natural", "1 Plátano"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Pasta integral (150g) con carne picada magra y tomate", "Queso rallado", "Ensalada verde"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Batido de proteínas", "Barrita de cereales", "Puñado de avellanas"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Tortilla de 3 huevos con patata cocida", "Ensalada de tomate y orégano", "Yogur natural"]
+            }
+          ]
+        },
+        {
+          "nombre": "Jueves",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Porridge de avena con leche y cacao puro", "Trozos de chocolate negro 85%", "2 Huevos cocidos"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Tostada con requesón y mermelada light", "Manzana"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Garbanzos salteados con espinacas", "Pollo asado (cuarto trasero)", "Pan integral"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Sandwich de jamón serrano (sin grasa)", "Tomate restregado"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Emperador o Atún a la plancha", "Arroz basmati (100g)", "Verduras salteadas"]
+            }
+          ]
+        },
+        {
+          "nombre": "Viernes",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Revuelto de huevos (3) con jamón york", "2 Tostadas integrales con aceite", "Pieza de fruta"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Yogur griego con avena y miel", "Nueces"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Estofado de pavo con patatas", "Menestra de verduras", "Pan"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Batido de plátano, leche y proteína", "Crema de cacahuete"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Hamburguesa casera de ternera (pan brioche)", "Queso light", "Patatas gajo al horno (sin freír)"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "nombre": "Perder Peso",
+      "descripcion": "Déficit calórico y alta proteína (Definición)",
+      "dias": [
+        {
+          "nombre": "Lunes",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Café solo o Té verde", "1 Tostada integral con tomate triturado", "2 lonchas de pavo"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["1 Manzana verde", "3 Nueces"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Gran ensalada variada (lechuga, pepino, cebolla)", "1 Lata de atún al natural", "80g Quinoa cocida"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Yogur natural 0% grasa", "Canela"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Filete de pescado blanco (merluza/bacalao)", "Brócoli y coliflor al vapor", "Infusión relajante"]
+            }
+          ]
+        },
+        {
+          "nombre": "Martes",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["40g Copos de avena con agua (gachas)", "Canela y stevia", "3 Claras de huevo cocidas"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["1 Kiwi", "Té verde"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Pechuga de pollo a la plancha con limón", "Parrillada de verduras (pimiento, calabacín)", "Pequeña guarnición de arroz blanco (40g)"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Queso fresco batido 0%", "3 Almendras crudas"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Tortilla francesa (1 huevo + 2 claras)", "Espinacas salteadas", "Tomate picado"]
+            }
+          ]
+        },
+        {
+          "nombre": "Miércoles",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Revuelto de claras con champiñones", "Café con leche desnatada", "1 Mandarina"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Rodaja de piña natural", "Infusión"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Judías verdes cocidas con ajo", "Filete de ternera magra a la plancha", "1 patata pequeña cocida"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Lata de berberechos o mejillones al natural", "Pepincillos"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Crema de calabacín (sin nata)", "Sepia o calamar a la plancha con ajo y perejil"]
+            }
+          ]
+        },
+        {
+          "nombre": "Jueves",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Tostada de pan de centeno", "Queso de untar light", "Salmón ahumado (1 loncha)"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Gelatina 0% azúcar", "Un puñado pequeño de arándanos"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Ensalada de lentejas (con pimiento, cebolla, tomate)", "Huevo duro picado", "Vinagreta ligera"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Batido de proteína isolada con agua"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Pechuga de pavo a la plancha", "Espárragos blancos", "Ensalada de rúcula"]
+            }
+          ]
+        },
+        {
+          "nombre": "Viernes",
+          "comidas": [
+            {
+              "tipo": "Desayuno",
+              "alimentos": ["Tortitas fit (claras de huevo y un poco de avena)", "Siropre cero calorías", "Café solo"]
+            },
+            {
+              "tipo": "Media Mañana",
+              "alimentos": ["Yogur proteico", "2 Nueces"]
+            },
+            {
+              "tipo": "Almuerzo",
+              "alimentos": ["Wok de verduras (zanahoria, calabacín, brotes)", "Tiras de pollo", "Salsa de soja baja en sodio"]
+            },
+            {
+              "tipo": "Merienda",
+              "alimentos": ["Queso burgos desnatado", "1 loncha de pavo"]
+            },
+            {
+              "tipo": "Cena",
+              "alimentos": ["Salmón a la plancha (grasas saludables)", "Judías verdes o Bimi al vapor", "Infusión"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Header from "./components/layout/Header";
+import InstallPrompt from "./components/ui/InstallPrompt";
+import SideMenu from "./components/layout/SideMenu";
 import HomeScreen from "./screens/HomeScreen";
 import LevelScreen from "./screens/LevelScreen";
 import ExerciseListScreen from "./screens/ExerciseListScreen";
 import ExerciseDetailScreen from "./screens/ExerciseDetailScreen";
-import InstallPrompt from "./components/ui/InstallPrompt";
+import DietasHomeScreen from "./screens/DietasHomeScreen";
+import DietasPlanScreen from "./screens/DietasPlanScreen";
+import DietasDetailScreen from "./screens/DietasDetailScreen";
 
 function App() {
-  // El estado que controla toda la navegación
-  const [navigation, setNavigation] = useState({
-    screen: "home",
-    nivelId: null,
-    dia: null,
-    ejercicioId: null,
-  });
-
   // --- 1. ESTADO DEL TEMA ---
   // El modo oscuro es el predeterminado
   const [theme, setTheme] = useState("dark");
@@ -34,51 +30,68 @@ function App() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  // --- FUNCIONES DE NAVEGACIÓN ---
+  //Estado del menú lateral
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
-  // Ir a la pantalla de inicio
-  const handleGoHome = () => {
+  // --- ESTADO DE NAVEGACIÓN ---
+
+  // 'mainView' decide si vemos 'rutinas' o 'dietas'
+  const [mainView, setMainView] = useState("rutinas");
+
+  // 'navigation' controla la pantalla *dentro* de la vista principal
+  const [navigation, setNavigation] = useState({
+    screen: "home", // home, level, exerciseList, exerciseDetail, dietHome, dietPlan, dietDetail
+    // Para Rutinas
+    nivelId: null,
+    dia: null,
+    ejercicioId: null,
+    // Para Dietas
+    planId: null,
+    diaDieta: null,
+  });
+
+  // --- FUNCIONES DE NAVEGACIÓN  ---
+
+  const resetNavigation = (view) => {
+    const defaultScreen = view === "rutinas" ? "home" : "dietHome";
     setNavigation({
-      screen: "home",
+      screen: defaultScreen,
       nivelId: null,
       dia: null,
       ejercicioId: null,
+      planId: null,
+      diaDieta: null,
     });
   };
 
-  // Se llama desde HomeScreen -> LevelCard
+  // Se llama al cambiar en el SideMenu
+  const handleSelectMainView = (view) => {
+    setMainView(view); // 'rutinas' o 'dietas'
+    resetNavigation(view);
+    setIsMenuOpen(false); // Cerrar el menú
+  };
+
+  // Se llama al pulsar el Logo en el Header
+  const handleLogoClick = () => {
+    resetNavigation(mainView);
+  };
+
+  // --- NAVEGACIÓN RUTINAS ---
   const handleSelectLevel = (id) => {
-    setNavigation({
-      ...navigation,
-      screen: "level",
-      nivelId: id,
-    });
+    setNavigation({ ...navigation, screen: "level", nivelId: id });
   };
-
-  // Se llama desde LevelScreen -> Botón Volver
   const handleGoBackToHome = () => {
-    handleGoHome();
+    setNavigation({ ...navigation, screen: "home", nivelId: null, dia: null });
   };
-
-  // Se llama desde LevelScreen -> DayCard (Nivel 2 o 3)
   const handleSelectDay = (diaNombre) => {
-    setNavigation({
-      ...navigation,
-      screen: "exerciseList",
-      dia: diaNombre,
-    });
+    setNavigation({ ...navigation, screen: "exerciseList", dia: diaNombre });
   };
-
-  // Se llama desde LevelScreen (Nivel 1) o ExerciseListScreen (Nivel 2/3)
   const handleSelectExercise = (ejercicioId) => {
-    setNavigation({
-      ...navigation,
-      screen: "exerciseDetail",
-      ejercicioId: ejercicioId,
-    });
+    setNavigation({ ...navigation, screen: "exerciseDetail", ejercicioId });
   };
-
-  // Se llama desde ExerciseListScreen -> Botón Volver
   const handleGoBackToLevel = () => {
     setNavigation({
       ...navigation,
@@ -87,74 +100,108 @@ function App() {
       ejercicioId: null,
     });
   };
-
-  // Se llama desde ExerciseDetailScreen -> Botón Volver
   const handleGoBackFromDetail = () => {
-    // Si venimos de un día (Nivel 2 o 3), volvemos a 'exerciseList'
-    if (navigation.dia) {
-      setNavigation({
-        ...navigation,
-        screen: "exerciseList",
-        ejercicioId: null,
-      });
-    } else {
-      // Si no (Nivel 1), volvemos a 'level'
-      setNavigation({
-        ...navigation,
-        screen: "level",
-        ejercicioId: null,
-      });
-    }
+    const screen = navigation.dia ? "exerciseList" : "level";
+    setNavigation({ ...navigation, screen: screen, ejercicioId: null });
+  };
+
+  // --- NAVEGACIÓN DIETAS ---
+  const handleSelectPlan = (planId) => {
+    setNavigation({ ...navigation, screen: "dietPlan", planId: planId });
+  };
+  const handleGoBackToDietHome = () => {
+    setNavigation({
+      ...navigation,
+      screen: "dietHome",
+      planId: null,
+      diaDieta: null,
+    });
+  };
+  const handleSelectDietDay = (diaNombre) => {
+    setNavigation({ ...navigation, screen: "dietDetail", diaDieta: diaNombre });
+  };
+  const handleGoBackToDietPlan = () => {
+    setNavigation({ ...navigation, screen: "dietPlan", diaDieta: null });
   };
 
   // --- RENDERIZADO DE PANTALLAS ---
-
-  // Función para decidir qué pantalla mostrar
   const renderScreen = () => {
-    switch (navigation.screen) {
-      case "home":
-        return <HomeScreen onSelectLevel={handleSelectLevel} />;
+    const { screen } = navigation;
 
-      case "level":
-        return (
-          <LevelScreen
-            navigation={navigation}
-            onSelectDay={handleSelectDay}
-            onSelectExercise={handleSelectExercise}
-            onGoBack={handleGoBackToHome}
-          />
-        );
+    // Vistas de Rutinas
+    if (mainView === "rutinas") {
+      switch (screen) {
+        case "home":
+          return <HomeScreen onSelectLevel={handleSelectLevel} />;
+        case "level":
+          return (
+            <LevelScreen
+              navigation={navigation}
+              onSelectDay={handleSelectDay}
+              onSelectExercise={handleSelectExercise}
+              onGoBack={handleGoBackToHome}
+            />
+          );
+        case "exerciseList":
+          return (
+            <ExerciseListScreen
+              navigation={navigation}
+              onSelectExercise={handleSelectExercise}
+              onGoBack={handleGoBackToLevel}
+            />
+          );
+        case "exerciseDetail":
+          return (
+            <ExerciseDetailScreen
+              navigation={navigation}
+              onGoBack={handleGoBackFromDetail}
+            />
+          );
+        default:
+          return <HomeScreen onSelectLevel={handleSelectLevel} />;
+      }
+    }
 
-      case "exerciseList":
-        return (
-          <ExerciseListScreen
-            navigation={navigation}
-            onSelectExercise={handleSelectExercise}
-            onGoBack={handleGoBackToLevel}
-          />
-        );
-
-      case "exerciseDetail":
-        return (
-          <ExerciseDetailScreen
-            navigation={navigation}
-            onGoBack={handleGoBackFromDetail}
-          />
-        );
-
-      default:
-        return <HomeScreen onSelectLevel={handleSelectLevel} />;
+    // Vistas de Dietas
+    if (mainView === "dietas") {
+      switch (screen) {
+        case "dietHome":
+          return <DietasHomeScreen onSelectPlan={handleSelectPlan} />;
+        case "dietPlan":
+          return (
+            <DietasPlanScreen
+              navigation={navigation}
+              onSelectDay={handleSelectDietDay}
+              onGoBack={handleGoBackToDietHome}
+            />
+          );
+        case "dietDetail":
+          return (
+            <DietasDetailScreen
+              navigation={navigation}
+              onGoBack={handleGoBackToDietPlan}
+            />
+          );
+        default:
+          return <DietasHomeScreen onSelectPlan={handleSelectPlan} />;
+      }
     }
   };
 
   return (
-    // --- 4. APLICA COLORES BASE ---
     <div className="min-h-screen bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro">
       <Header
         navigation={navigation}
-        onGoHome={handleGoHome}
+        onLogoClick={handleLogoClick}
         theme={theme}
         toggleTheme={toggleTheme}
+        onMenuClick={toggleMenu}
+      />
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={toggleMenu}
+        onSelectView={handleSelectMainView}
+        currentView={mainView}
       />
       <main>{renderScreen()}</main>
       <InstallPrompt />

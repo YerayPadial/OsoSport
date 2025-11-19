@@ -19,6 +19,14 @@ const colorClasses = {
     border: "border-nivel-3-claro dark:border-nivel-3-oscuro",
     text: "text-nivel-3-claro dark:text-nivel-3-oscuro",
   },
+  5: {
+    border: "border-dieta-ganar-claro dark:border-dieta-ganar-oscuro",
+    text: "text-dieta-ganar-claro dark:text-dieta-ganar-oscuro",
+  },
+  6: {
+    border: "border-dieta-perder-claro dark:border-dieta-perder-oscuro",
+    text: "text-dieta-perder-claro dark:text-dieta-perder-oscuro",
+  },
 };
 // 2. Recibe 'nivelId'
 const DayCard = ({ dia, descripcion, nivelId, onClick }) => {

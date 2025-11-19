@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSOSPORTGYM - La Nueva Era del Fitness en San Juan del Puerto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066FF;
+            --primary-dark: #0052CC;
+            --secondary: #00D4FF;
+            --dark: #0A0E27;
+            --darker: #050814;
+            --light: #F8FAFC;
+            --gray: #64748B;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark);
+            overflow-x: hidden;
+            background: var(--darker);
+        }
+
+        /* HEADER FLOTANTE */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            padding: 15px 5%;
+            background: rgba(10, 14, 39, 0.95);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .phone-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+        }
+
+        .phone-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 102, 255, 0.4);
+        }
+
+        /* SECCIÓN HERO MODERNA */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, var(--darker) 0%, #0A1628 100%);
+            overflow: hidden;
+            padding: 120px 5% 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.15) 0%, transparent 70%);
+            top: -400px;
+            right: -200px;
+            border-radius: 50%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            bottom: -300px;
+            left: -200px;
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- .hero-badge eliminado --- */
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease 0.2s both;
+            margin-top: 30px; /* Añadido para compensar el badge eliminado */
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(18px, 2vw, 24px);
+            color: var(--gray);
+            font-weight: 400;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .cta-primary {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 102, 255, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 102, 255, 0.4);
+        }
+
+        .cta-secondary {
+            padding: 18px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* TRANSFORMACIÓN ELEGANTE */
+        .transformation {
+            padding: 120px 5%;
+            background: var(--light);
+            position: relative;
+        }
+
+        .section-header {
+            max-width: 700px;
+            margin: 0 auto 80px;
+            text-align: center;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(0, 102, 255, 0.1);
+            color: var(--primary);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            color: var(--dark);
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .section-description {
+            font-size: 18px;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* --- .transformation-grid modificado --- */
+        .transformation-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Cambiado de 1fr 1fr */
+            gap: 0; /* Cambiado de 60px */
+            max-width: 700px; /* Centrado y alineado con el header */
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .transformation-content {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #334155;
+            text-align: left; /* O 'center' si lo prefieres */
+        }
+
+        .transformation-content p {
+            margin-bottom: 20px;
+        }
+
+        .signature {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(0, 102, 255, 0.1);
+            font-style: italic;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* --- .badge-card (y sus hijos) eliminados --- */
+        
+        /* --- SECCIÓN LEAD MAGNET ELIMINADA --- */
+
+        /* GALERÍA MINIMALISTA */
+        .gallery {
+            padding: 120px 5%;
+            background: white;
+        }
+
+        .carousel-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            position: relative;
+        }
+
+        .carousel {
+            border-radius: 24px;
+            overflow: hidden;
+            height: 600px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+            position: relative; /* Importante para los slides */
+        }
+
+        /* --- .carousel-slide modificado --- */
+        .carousel-slide {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            position: absolute; /* Apilados uno sobre otro */
+            top: 0;
+            left: 0;
+            opacity: 0; /* Ocultos por defecto */
+            transition: opacity 1s ease-in-out; /* Animación de fundido */
+            z-index: 1;
+        }
+
+        .carousel-slide.active {
+            opacity: 1; /* Mostrar slide activo */
+            z-index: 2;
+        }
+
+        /* --- @keyframes zoomIn eliminado --- */
+
+        /* --- .slide-overlay (y sus hijos) eliminados/ocultados --- */
+        .slide-overlay {
+           display: none;
+        }
+
+        /* --- .carousel-slide:nth-child() eliminados --- */
+        /* Las imágenes se ponen en el HTML */
+       
+        .carousel-dots {
+            text-align: center;
+            margin-top: 30px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .dot {
+            width: 40px;
+            height: 4px;
+            margin: 0 6px;
+            background: rgba(0, 102, 255, 0.2);
+            border-radius: 2px;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--primary);
+            width: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 80px auto 0;
+        }
+
+        .feature-card {
+            padding: 40px 30px;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 20px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* VALORES PREMIUM */
+        .values {
+            padding: 120px 5%;
+            background: var(--light);
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .value-card {
+            padding: 50px;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.12);
+        }
+
+        .value-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+        }
+
+        .value-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 16px;
+        }
+
+        .value-description {
+            font-size: 16px;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* FOOTER SOFISTICADO */
+        .footer {
+            padding: 120px 5% 60px;
+            background: var(--darker);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto 80px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 80px;
+        }
+
+        .map-wrapper {
+            border-radius: 20px;
+            overflow: hidden;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+        
+        /* Inserta aquí tu iframe de Google Maps si lo tienes */
+        .map-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .contact-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .contact-block {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-block:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+        }
+
+        .contact-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--gray);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .contact-value {
+            font-size: 20px;
+            color: white;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .phone-cta {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .phone-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .footer-cta {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .transformation-grid, /* Ya estaba en 1fr, pero se mantiene */
+            .footer-content,
+            .values-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .features-grid { /* .benefits-grid fue eliminado */
+                grid-template-columns: 1fr;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .carousel {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <div class="logo">OSOSPORTGYM</div>
+        <a href="tel:656331979" class="phone-header">
+            <span>📞</span>
+            <span>656 33 19 79</span>
+        </a>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            
+            <h1>La Nueva Era del Fitness<br>en San Juan del Puerto</h1>
+            <p class="hero-subtitle">
+                Instalaciones completamente renovadas. Tecnología de vanguardia.<br>
+                Tu mejor versión comienza aquí.
+            </p>
+            <div class="cta-group">
+                <a href="https://wa.me/34656331979" target="_blank" class="cta-primary">¡Contacta por WhatsApp! 💬</a>
+                <a href="#gallery" class="cta-secondary">Ver Instalaciones</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="transformation" id="transformation">
+        <div class="section-header">
+            <span class="section-label">Compromiso Local</span>
+            <h2 class="section-title">Solo lo Mejor para Nuestra Comunidad</h2>
+        </div>
+        <div class="transformation-grid">
+            <div class="transformation-content">
+                <p>Hemos invertido en San Juan del Puerto porque creemos en nuestra gente. OSOSPORT no es solo un gimnasio: es nuestro compromiso renovado con tu salud, tus objetivos y tus resultados.</p>
+                <p>Cada detalle ha sido pensado para ofrecerte la mejor experiencia de entrenamiento. Desde equipamiento de última generación hasta espacios diseñados para inspirarte cada día.</p>
+                <div class="signature">— El equipo Ososport, tu gimnasio de confianza</div>
+            </div>
+            
+            </div>
+    </section>
+
+    <section class="gallery" id="gallery">
+        <div class="section-header">
+            <span class="section-label">Instalaciones Premium</span>
+            <h2 class="section-title">Equipamiento Totalmente Renovado</h2>
+            <p class="section-description">Descubre nuestras instalaciones renovadas diseñadas para maximizar tus resultados</p>
+        </div>
+
+        <div class="carousel-container">
+            <div class="carousel">
+
+                <div class="carousel-slide active" style="background-image: url('https://via.placeholder.com/1200x600/334155/FFFFFF?text=Tu+Foto+1+(M%C3%A1quinas)');">
+                    </div>
+                <div class="carousel-slide" style="background-image: url('https://via.placeholder.com/1200x600/475569/FFFFFF?text=Tu+Foto+2+(Zona+Peso+Libre)');">
+                </div>
+                <div class="carousel-slide" style="background-image: url('https://via.placeholder.com/1200x600/334155/FFFFFF?text=Tu+Foto+3+(Vestuarios)');">
+                </div>
+            </div>
+            
+            <div class="carousel-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏋️</div>
+                <div class="feature-title">Zona de Musculación</div>
+                <div class="feature-description">Máquinas restauradas y calibradas para un rendimiento óptimo.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤸</div>
+                <div class="feature-title">Peso Libre y Funcional</div>
+                <div class="feature-description">Espacio amplio y renovado para que entrenes sin límites.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"> cardio</div>
+                <div class="feature-title">Zona Cardiovascular</div>
+                <div class="feature-description">Equipamiento revisado y listo para poner a prueba tu resistencia.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="values">
+        <div class="section-header">
+            <span class="section-label">Nuestra Filosofía</span>
+            <h2 class="section-title">Esto es lo que nos Mueve</h2>
+        </div>
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon">🤝</div>
+                <div class="value-title">Comunidad</div>
+                <div class="value-description">Más que un gimnasio, somos una familia. Un ambiente cercano y de apoyo donde todos remamos en la misma dirección.</div>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">🏆</div>
+                <div class="value-title">Resultados</div>
+                <div class="value-description">Tus objetivos son los nuestros. Te damos las herramientas y el espacio para que consigas esa transformación que buscas.</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="map-wrapper">
+                [AQUÍ VA EL MAPA DE GOOGLE]
+            </div>
+            <div class="contact-blocks">
+                <div class="contact-block">
+                    <div class="contact-label">Dirección</div>
+                    <div class="contact-value">Tu Calle, Nº XX<br>San Juan del Puerto, Huelva</div>
+                </div>
+                <div class="contact-block">
+                    <div class="contact-label">Horario</div>
+                    <div class="contact-value">Lunes a Viernes: 7:00 - 22:00<br>Sábados: 9:00 - 14:00</div>
+                </div>
+                <div class="contact-block">
+                    <div class="contact-label">Teléfono</div>
+                    <div class="contact-value">656 33 19 79</div>
+                    <a href="tel:656331979" class="phone-cta">Llamar Ahora</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            © 2024 OSOSPORTGYM • Todos los derechos reservados.
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- 1. Script para el Header Fijo ---
+            window.addEventListener('scroll', function() {
+                const header = document.getElementById('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // --- 2. Script para el Carrusel Automático ---
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.dot');
+            const totalSlides = slides.length;
+
+            if (totalSlides > 0) {
+                // Función para mostrar un slide específico
+                function showSlide(index) {
+                    // Quitar 'active' de todos
+                    slides.forEach(slide => slide.classList.remove('active'));
+                    dots.forEach(dot => dot.classList.remove('active'));
+
+                    // Añadir 'active' al slide y dot actual
+                    slides[index].classList.add('active');
+                    dots[index].classList.add('active');
+                }
+
+                // Función para pasar al siguiente slide
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    showSlide(currentSlide);
+                }
+
+                // Clic en los dots para navegación manual
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentSlide = index;
+                        showSlide(currentSlide);
+                    });
+                });
+
+                // Iniciar el carrusel automático (cambia cada 5 segundos)
+                setInterval(nextSlide, 5000);
+
+                // Mostrar el primer slide al cargar
+                showSlide(0);
+            }
+
+        });
+    </script>
+
+</body>
+</html>

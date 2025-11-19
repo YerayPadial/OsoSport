@@ -23,7 +23,10 @@ export default {
         'tarjeta-oscura': '#374151',    
         'texto-oscuro': '#F3F4F6',      
         'texto-secundario-oscuro': '#D1D5DB', 
-        'borde-oscuro': '#374151',      
+        'borde-oscuro': '#374151',  
+        
+        'dieta-ganar-oscuro': '#14B8A6', 
+        'dieta-perder-oscuro': '#8B5CF6', 
 
         // --- COLORES CLAROS ---
         'nivel-1-claro': '#166534',     
@@ -36,6 +39,9 @@ export default {
         'texto-claro': '#1F2937',       
         'texto-secundario-claro': '#4B5563', 
         'borde-claro': '#E5E7EB',
+
+        'dieta-ganar-claro': '#0D9488',
+        'dieta-perder-claro': '#6D28D9',
       },
       fontSize: {
         'base': '18px',

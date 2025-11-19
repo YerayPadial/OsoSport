@@ -1,5 +1,5 @@
 import React from "react";
-import { Dumbbell, Sun, Moon } from "lucide-react";
+import { Dumbbell, Sun, Moon, Menu } from "lucide-react";
 
 const Logo = () => (
   <div className="flex items-center gap-2">
@@ -15,8 +15,15 @@ const Logo = () => (
   </div>
 );
 
-const Header = ({ navigation, onGoHome, theme, toggleTheme }) => {
-  const isHome = navigation.screen === "home";
+const Header = ({
+  navigation,
+  onLogoClick,
+  theme,
+  toggleTheme,
+  onMenuClick,
+}) => {
+  const isHome =
+    navigation.screen === "home" || navigation.screen === "dietHome";
 
   return (
     <header className="sticky top-0 z-50 w-full bg-tarjeta-clara dark:bg-fondo-oscuro border-b border-borde-claro dark:border-borde-oscuro">
@@ -28,28 +35,50 @@ const Header = ({ navigation, onGoHome, theme, toggleTheme }) => {
           </div>
         ) : (
           <button
-            onClick={onGoHome}
+            onClick={onLogoClick}
             className="transition-opacity hover:opacity-80 active:opacity-60"
             aria-label="Volver al inicio"
           >
             <Logo />
           </button>
         )}
-
-        {/* Botón theme*/}
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
-          aria-label={
-            theme === "dark" ? "Activar modo claro" : "Activar modo oscuro"
+        <div className="flex items-center gap-2">
+          {/* Botón theme*/}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
+            aria-label={
+              theme === "dark" ? "Activar modo claro" : "Activar modo oscuro"
+            }
+          >
+            {theme === "dark" ? (
+              <Sun className="w-6 h-6" />
+            ) : (
+              <Moon className="w-6 h-6" />
+            )}
+          </button>
+          {/* Botón menú*/}
+          {
+            /*
+            
+            <button
+            onClick={onMenuClick}
+            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
+            aria-label="Abrir menú de navegación"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+            
+            */
           }
-        >
-          {theme === "dark" ? (
-            <Sun className="w-6 h-6" />
-          ) : (
-            <Moon className="w-6 h-6" />
-          )}
-        </button>
+          <button
+            onClick={onMenuClick}
+            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
+            aria-label="Abrir menú de navegación"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
       </div>
     </header>
   );
