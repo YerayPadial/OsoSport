@@ -25,7 +25,7 @@
           "video": "/videos/abdominal-encogimiento.mp4",
           "thumbnail": "/thumbnails/image.png",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": ["Mantén la espalda baja pegada al suelo para evitar lesiones."]
+          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
         },
         {
           "id": "n1_02",
@@ -38,7 +38,7 @@
           "video": "/videos/abdominal-elevaciones.mp4",
           "thumbnail": "/thumbnails/abdominal-elevaciones.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Presiona tu espalda baja contra el suelo. Si se arquea, flexiona las rodillas o reduce el rango de movimiento."]
         },
         {
           "id": "n1_03",
@@ -51,7 +51,7 @@
           "video": "/videos/press-banca.mp4",
           "thumbnail": "/thumbnails/press-banca.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Retrae las escápulas (junta los omóplatos) y pégalos al banco. Baja la barra al esternón controladamente, con los codos en un ángulo de 45-75 grados, no a 90."]
         },
         {
           "id": "n1_04",
@@ -64,7 +64,7 @@
           "video": "/videos/jalon-nuca.mp4",
           "thumbnail": "/thumbnails/jalon-nuca.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Mantén el torso totalmente vertical y el pecho fuera. Baja la barra solo hasta la base de la nuca o la altura de las orejas. No fuerces el cuello hacia adelante."]
         },
         {
           "id": "n1_05",
@@ -77,7 +77,7 @@
           "video": "/videos/press-militar.mp4",
           "thumbnail": "/thumbnails/press-militar.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Contrae glúteos y abdomen para estabilizar el tronco. Empuja la barra \"a través de la cabeza\" una vez que supera la frente, terminando con los brazos bloqueados."]
         },
         {
           "id": "n1_06",
@@ -90,7 +90,7 @@
           "video": "/videos/extensiones-cuadriceps.mp4",
           "thumbnail": "/thumbnails/extensiones-cuadriceps.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Ajusta la almohadilla justo por encima del tobillo. Evita usar impulso; el movimiento debe ser fluido y controlado desde la rodilla."]
         },
         {
           "id": "n1_07",
@@ -103,7 +103,7 @@
           "video": "/videos/femoral.mp4",
           "thumbnail": "/thumbnails/femoral.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Mantén la cadera pegada al banco durante todo el ejercicio. Si se levanta, estás usando la espalda baja y no los isquiotibiales."]
         },
         {
           "id": "n1_08",
@@ -116,7 +116,7 @@
           "video": "/videos/curl-barra.mp4",
           "thumbnail": "/thumbnails/curl-barra.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Fija los codos a tus costados. No los muevas hacia adelante ni uses la espalda para balancearte. Sube y baja de forma controlada."]
         },
         {
           "id": "n1_09",
@@ -129,7 +129,7 @@
           "video": "/videos/extensiones-triceps.mp4",
           "thumbnail": "/thumbnails/extensiones-triceps.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": ["Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."]
         },
         {
           "id": "n1_10",
@@ -142,7 +142,7 @@
           "video": "/videos/gemelos-pie.mp4",
           "thumbnail": "/thumbnails/gemelos-pie.jpg",
           "descripcion": "Rutina completa para principiantes.",
-          "consejos": []
+          "consejos": [" Empuja con los dedos gordos del pie. Evita que los tobillos rueden hacia afuera. Controla la bajada para maximizar el estiramiento."]
         }
       ]
     },
@@ -173,7 +173,7 @@
           "video": "/videos/abdominal-encogimiento.mp4",
           "thumbnail": "/thumbnails/image.png",
           "descripcion": "Fortalece el abdomen superior.",
-          "consejos": []
+          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
         },
         {
           "id": "n2_02",
@@ -186,7 +186,7 @@
           "video": "/videos/abdominal-elevaciones.mp4",
           "thumbnail": "/thumbnails/abdominal-elevaciones.jpg",
           "descripcion": "Enfocado en el abdomen inferior.",
-          "consejos": []
+          "consejos": ["Presiona tu espalda baja contra el suelo. Si se arquea, flexiona las rodillas o reduce el rango de movimiento."]
         },
         {
           "id": "n2_03",
@@ -199,7 +199,7 @@
           "video": "/videos/press-banca.mp4",
           "thumbnail": "/thumbnails/press-banca.jpg",
           "descripcion": "Tonificación de pectorales y tríceps.",
-          "consejos": []
+          "consejos": ["Retrae las escápulas (junta los omóplatos) y pégalos al banco. Baja la barra al esternón controladamente, con los codos en un ángulo de 45-75 grados, no a 90."]
         },
         {
           "id": "n2_04",
@@ -212,7 +212,7 @@
           "video": "/videos/extensiones-cuadriceps.mp4",
           "thumbnail": "/thumbnails/extensiones-cuadriceps.jpg",
           "descripcion": "Activa la parte frontal de las piernas.",
-          "consejos": []
+          "consejos": ["Ajusta la almohadilla justo por encima del tobillo. Evita usar impulso; el movimiento debe ser fluido y controlado desde la rodilla."]
         },
         {
           "id": "n2_05",
@@ -225,7 +225,7 @@
           "video": "/videos/sentadilla-sumo.mp4",
           "thumbnail": "/thumbnails/sentadilla-sumo.jpg",
           "descripcion": "Tonifica glúteos y aductores.",
-          "consejos": []
+          "consejos": ["Puntas de los pies y rodillas apuntando hacia afuera. Baja \"sentándote entre tus talones\" y mantén el pecho erguido."]
         },
         {
           "id": "n2_06",
@@ -238,7 +238,7 @@
           "video": "/videos/tijeras-zancadas.mp4",
           "thumbnail": "/thumbnails/tijeras-zancadas.jpg",
           "descripcion": "Trabaja equilibrio y fuerza unilateral.",
-          "consejos": []
+          "consejos": [" Da un paso largo y baja hasta que ambas rodillas formen 90 grados. Empuja con el talón de la pierna delantera para volver a la posición inicial."]
         },
         {
           "id": "n2_07",
@@ -251,7 +251,7 @@
           "video": "/videos/abductores-maquina.mp4",
           "thumbnail": "/thumbnails/abductores-maquina.jpg",
           "descripcion": "Fortalece la zona externa de las piernas.",
-          "consejos": []
+          "consejos": ["Controla la fase negativa (al cerrar). No dejes que las placas choquen; mantén la tensión constante en la parte externa de tus glúteos."]
         },
         {
           "id": "n2_08",
@@ -264,7 +264,7 @@
           "video": "/videos/femoral.mp4",
           "thumbnail": "/thumbnails/femoral.jpg",
           "descripcion": "Enfocado en la parte posterior del muslo.",
-          "consejos": []
+          "consejos": ["Mantén la cadera pegada al banco durante todo el ejercicio. Si se levanta, estás usando la espalda baja y no los isquiotibiales."]
         },
         {
           "id": "n2_09",
@@ -277,7 +277,7 @@
           "video": "/videos/gemelos-pie.mp4",
           "thumbnail": "/thumbnails/gemelos-pie.jpg",
           "descripcion": "Define y fortalece los gemelos.",
-          "consejos": []
+          "consejos": ["Empuja con los dedos gordos del pie. Evita que los tobillos rueden hacia afuera. Controla la bajada para maximizar el estiramiento."]
         },
         {
           "id": "n2_10",
@@ -290,7 +290,7 @@
           "video": "/videos/extensiones-triceps.mp4",
           "thumbnail": "/thumbnails/extensiones-triceps.jpg",
           "descripcion": "Mejora la tonificación del brazo.",
-          "consejos": []
+          "consejos": ["Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."]
         }
       ]
     },
@@ -321,7 +321,7 @@
           "video": "/videos/press-banca.mp4",
           "thumbnail": "/thumbnails/press-banca.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Retrae las escápulas (junta los omóplatos) y pégalos al banco. Baja la barra al esternón controladamente, con los codos en un ángulo de 45-75 grados, no a 90."]
         },
         {
           "id": "n2_02",
@@ -335,7 +335,7 @@
           "video": "/videos/aperturas.mp4",
           "thumbnail": "/thumbnails/aperturas.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["No bajes los codos más allá de la línea de tus hombros. Piensa en \"abrazar un árbol\", manteniendo una ligera flexión en el codo, no en \"presionar\"."]
         },
         {
           "id": "n2_03",
@@ -349,7 +349,7 @@
           "video": "/videos/press-militar.mp4",
           "thumbnail": "/thumbnails/press-militar.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Contrae glúteos y abdomen para estabilizar el tronco. Empuja la barra \"a través de la cabeza\" una vez que supera la frente, terminando con los brazos bloqueados"]
         },
         {
           "id": "n2_04",
@@ -363,7 +363,7 @@
           "video": "/videos/elevaciones-laterales.mp4",
           "thumbnail": "/thumbnails/elevaciones-laterales.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Lidera el movimiento con los codos, no con las muñecas. Levanta los brazos hacia los lados como si \"vertieras dos jarras de agua\", no subas más allá del hombro."]
         },
         {
           "id": "n2_05",
@@ -377,7 +377,7 @@
           "video": "/videos/curl-barra.mp4",
           "thumbnail": "/thumbnails/curl-barra.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Fija los codos a tus costados. No los muevas hacia adelante ni uses la espalda para balancearte. Sube y baja de forma controlada."]
         },
         {
           "id": "n2_06",
@@ -391,7 +391,7 @@
           "video": "/videos/curl-scott.mp4",
           "thumbnail": "/thumbnails/curl-scott.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["No extiendas completamente el codo en la parte inferior para proteger la articulación. Mantén los tríceps pegados al banco en todo momento."]
         },
         {
           "id": "n2_07",
@@ -405,7 +405,7 @@
           "video": "/videos/banco-vertical.mp4",
           "thumbnail": "/thumbnails/banco-vertical.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Presiona tu zona lumbar con fuerza contra el respaldo. Contrae el abdomen antes de subir las piernas y levántalas rectas solo hasta el punto en que puedas mantener la lumbar pegada."]
         },
         {
           "id": "n2_08",
@@ -419,7 +419,7 @@
           "video": "/videos/abdominal-elevaciones.mp4",
           "thumbnail": "/thumbnails/abdominal-elevaciones.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Presiona tu espalda baja contra el suelo. Si se arquea, flexiona las rodillas o reduce el rango de movimiento."]
         },
         {
           "id": "n2_09",
@@ -433,7 +433,7 @@
           "video": "/videos/abdominal-encogimiento.mp4",
           "thumbnail": "/thumbnails/abdominal-encogimiento.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Exhala con fuerza al subir y contrae el abdomen al máximo. El movimiento es corto; enfócate en flexionar la columna torácica."]
         },
         {
           "id": "n2_10",
@@ -447,7 +447,7 @@
           "video": "/videos/jalon-nuca.mp4",
           "thumbnail": "/thumbnails/jalon-nuca.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Mantén el torso totalmente vertical y el pecho fuera. Baja la barra solo hasta la base de la nuca o la altura de las orejas. No fuerces el cuello hacia adelante."]
         },
         {
           "id": "n2_11",
@@ -461,7 +461,7 @@
           "video": "/videos/remo-mancuerna.mp4",
           "thumbnail": "/thumbnails/remo-mancuerna.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": [" Tira de la mancuerna hacia tu cadera, no hacia tu axila, y rota el torso lo mínimo posible. Contrae el dorsal en la cima del movimiento."]
         },
         {
           "id": "n2_12",
@@ -475,7 +475,7 @@
           "video": "/videos/sentadillas.mp4",
           "thumbnail": "/thumbnails/sentadillas.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Inicia el movimiento echando la cadera hacia atrás. Rompe la paralela (cadera por debajo de la rodilla) y mantén el pecho erguido y la espalda neutra."]
         },
         {
           "id": "n2_13",
@@ -489,7 +489,7 @@
           "video": "/videos/extensiones-cuadriceps.mp4",
           "thumbnail": "/thumbnails/extensiones-cuadriceps.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Concéntrate en apretar el cuádriceps en la parte superior. Sostén la contracción 1-2 segundos antes de bajar controladamente."]
         },
         {
           "id": "n2_14",
@@ -503,7 +503,7 @@
           "video": "/videos/peso-muerto.mp4",
           "thumbnail": "/thumbnails/peso-muerto.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Mantén la cadera pegada al banco durante todo el ejercicio. Si se levanta, estás usando la espalda baja y no los isquiotibiales."]
         },
         {
           "id": "n2_15",
@@ -517,7 +517,7 @@
           "video": "/videos/gemelos-sentado.mp4",
           "thumbnail": "/thumbnails/gemelos-sentado.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Trabaja el sóleo. Asegúrate de bajar completamente para estirar y subir al máximo, sin rebotes en la parte inferior."]
         },
         {
           "id": "n2_16",
@@ -531,7 +531,7 @@
           "video": "/videos/press-frances.mp4",
           "thumbnail": "/thumbnails/press-frances.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Fija los hombros. El movimiento debe ser una bisagra solo en los codos. Mantén los codos apuntando al techo."]
         },
         {
           "id": "n2_17",
@@ -545,7 +545,7 @@
           "video": "/videos/jalon-triceps.mp4",
           "thumbnail": "/thumbnails/jalon-triceps.jpg",
           "descripcion": "",
-          "consejos": []
+          "consejos": ["Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."]
         }
       ]
     },
@@ -576,7 +576,7 @@
           "video": "/videos/press-banca.mp4",
           "thumbnail": "/thumbnails/press-banca.jpg",
           "descripcion": "Día Lunes: Pectorales y Bíceps",
-          "consejos": []
+          "consejos": ["Retrae las escápulas (junta los omóplatos) y pégalos al banco. Baja la barra al esternón controladamente, con los codos en un ángulo de 45-75 grados, no a 90."]
         },
         {
           "id": "n3_02",
@@ -590,7 +590,7 @@
           "video": "/videos/press-superior.mp4",
           "thumbnail": "/thumbnails/press-superior.jpg",
           "descripcion": "Día Lunes: Pectorales y Bíceps",
-          "consejos": []
+          "consejos": ["Ajusta el banco a 30-45 grados. Lleva la barra a la parte alta del pecho (clavícula) y empuja hacia arriba y ligeramente hacia atrás."]
         },
         {
           "id": "n3_03",
@@ -604,7 +604,7 @@
           "video": "/videos/fondos-paralela.mp4",
           "thumbnail": "/thumbnails/fondos-paralela.jpg",
           "descripcion": "Día Lunes: Pectorales y Bíceps",
-          "consejos": []
+          "consejos": ["Inclina el torso ligeramente hacia adelante para enfocar el pectoral. Baja hasta que los hombros estén ligeramente por debajo de los codos, manteniendo los codos cerca."]
         },
         {
           "id": "n3_04",
@@ -618,7 +618,7 @@
           "video": "/videos/apertura.mp4",
           "thumbnail": "/thumbnails/apertura.jpg",
           "descripcion": "Día Lunes: Pectorales y Bíceps",
-          "consejos": []
+          "consejos": ["No bajes los codos más allá de la línea de tus hombros. Piensa en \"abrazar un árbol\", manteniendo una ligera flexión en el codo, no en \"presionar\"."]
         },
         {
           "id": "n3_05",
@@ -632,7 +632,7 @@
           "video": "/videos/curl-barra.mp4",
           "thumbnail": "/thumbnails/curl-barra.jpg",
           "descripcion": "Día Lunes: Pectorales y Bíceps",
-          "consejos": []
+          "consejos": ["Fija los codos a tus costados. No los muevas hacia adelante ni uses la espalda para balancearte. Sube y baja de forma controlada."]
         },
         {
           "id": "n3_06",
@@ -660,7 +660,7 @@
           "video": "/videos/curl-scott.mp4",
           "thumbnail": "/thumbnails/curl-scott.jpg",
           "descripcion": "Día Lunes: Pectorales y Bíceps",
-          "consejos": []
+          "consejos": ["No extiendas completamente el codo en la parte inferior para proteger la articulación. Mantén los tríceps pegados al banco en todo momento."]
         },
         {
           "id": "n3_08",
@@ -674,7 +674,7 @@
           "video": "/videos/dominadas.mp4",
           "thumbnail": "/thumbnails/dominadas.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Inicia el movimiento retrayendo las escápulas (hombros hacia atrás y abajo). Tira con los dorsales, no solo con los brazos, y lleva el pecho a la barra."]
         },
         {
           "id": "n3_09",
@@ -688,7 +688,7 @@
           "video": "/videos/jalon-nuca.mp4",
           "thumbnail": "/thumbnails/jalon-nuca.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Mantén el torso totalmente vertical y el pecho fuera. Baja la barra solo hasta la base de la nuca o la altura de las orejas. No fuerces el cuello hacia adelante."]
         },
         {
           "id": "n3_10",
@@ -702,7 +702,7 @@
           "video": "/videos/remo-barra.mp4",
           "thumbnail": "/thumbnails/remo-barra.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Mantén el torso casi paralelo al suelo y la espalda recta. Tira de la barra hacia la parte baja del abdomen (ombligo), contrayendo los dorsales, no los bíceps."]
         },
         {
           "id": "n3_11",
@@ -716,7 +716,7 @@
           "video": "/videos/remo-mancuerna.mp4",
           "thumbnail": "/thumbnails/remo-mancuerna.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Tira de la mancuerna hacia tu cadera, no hacia tu axila, y rota el torso lo mínimo posible. Contrae el dorsal en la cima del movimiento."]
         },
         {
           "id": "n3_12",
@@ -730,7 +730,7 @@
           "video": "/videos/press-frances.mp4",
           "thumbnail": "/thumbnails/press-frances.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Fija los hombros. El movimiento debe ser una bisagra solo en los codos. Mantén los codos apuntando al techo."]
         },
         {
           "id": "n3_13",
@@ -744,7 +744,7 @@
           "video": "/videos/frances-de-pie.mp4",
           "thumbnail": "/thumbnails/frances-de-pie.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Aprieta el abdomen y los glúteos para mantener la espalda recta. No arquees la zona lumbar al empujar la barra hacia arriba."]
         },
         {
           "id": "n3_14",
@@ -758,7 +758,7 @@
           "video": "/videos/jalon-triceps.mp4",
           "thumbnail": "/thumbnails/jalon-triceps.jpg",
           "descripcion": "Día Martes: Dorsales y Tríceps",
-          "consejos": []
+          "consejos": ["Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."]
         },
         {
           "id": "n3_15",
@@ -772,7 +772,7 @@
           "video": "/videos/sentadillas.mp4",
           "thumbnail": "/thumbnails/sentadillas.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Inicia el movimiento echando la cadera hacia atrás. Rompe la paralela (cadera por debajo de la rodilla) y mantén el pecho erguido y la espalda neutra."]
         },
         {
           "id": "n3_16",
@@ -786,7 +786,7 @@
           "video": "/videos/prensa.mp4",
           "thumbnail": "/thumbnails/prensa.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Baja las rodillas hacia el pecho, pero nunca dejes que tu zona lumbar o glúteos se despeguen del asiento. Empuja con toda la planta del pie."]
         },
         {
           "id": "n3_17",
@@ -800,7 +800,7 @@
           "video": "/videos/extensiones.mp4",
           "thumbnail": "/thumbnails/extensiones.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Concéntrate en apretar el cuádriceps en la parte superior. Sostén la contracción 1-2 segundos antes de bajar controladamente."]
         },
         {
           "id": "n3_18",
@@ -814,7 +814,7 @@
           "video": "/videos/femoral.mp4",
           "thumbnail": "/thumbnails/femoral.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Mantén la cadera pegada al banco durante todo el ejercicio. Si se levanta, estás usando la espalda baja y no los isquiotibiales."]
         },
         {
           "id": "n3_19",
@@ -828,7 +828,7 @@
           "video": "/videos/gemelos.mp4",
           "thumbnail": "/thumbnails/gemelos.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Haz una pausa en la parte superior, apretando el gemelo al máximo. Baja lentamente, sintiendo el estiramiento completo en la parte inferior."]
         },
         {
           "id": "n3_20",
@@ -842,7 +842,7 @@
           "video": "/videos/press-militar.mp4",
           "thumbnail": "/thumbnails/press-militar.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Contrae glúteos y abdomen para estabilizar el tronco. Empuja la barra \"a través de la cabeza\" una vez que supera la frente, terminando con los brazos bloqueados"]
         },
         {
           "id": "n3_21",
@@ -856,7 +856,7 @@
           "video": "/videos/elevaciones-laterales.mp4",
           "thumbnail": "/thumbnails/elevaciones-laterales.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Lidera el movimiento con los codos, no con las muñecas. Levanta los brazos hacia los lados como si \"vertieras dos jarras de agua\", no subas más allá del hombro."]
         },
         {
           "id": "n3_22",
@@ -870,7 +870,7 @@
           "video": "/videos/elevaciones-frontales.mp4",
           "thumbnail": "/thumbnails/elevaciones-frontales.jpg",
           "descripcion": "Día Miércoles: Piernas y Hombros",
-          "consejos": []
+          "consejos": ["Sube la mancuerna solo hasta la altura del hombro, con el codo ligeramente flexionado. No uses el impulso de las piernas."]
         }
       ]
     }
