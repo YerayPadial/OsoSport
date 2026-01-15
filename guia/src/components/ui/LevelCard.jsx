@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowRight } from "lucide-react";
 
 const bgClasses = {
+  5: "bg-nivel-0-claro dark:bg-nivel-0-oscuro",
   1: "bg-nivel-1-claro dark:bg-nivel-1-oscuro",
   2: "bg-nivel-1Fem-claro dark:bg-nivel-1Fem-oscuro",
   3: "bg-nivel-2-claro dark:bg-nivel-2-oscuro",

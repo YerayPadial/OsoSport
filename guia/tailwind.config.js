@@ -14,6 +14,7 @@ export default {
       },
       colors: {
  // --- COLORES OSCUROS ---
+        'nivel-0-oscuro': '#9CA3AF',
         'nivel-1-oscuro': '#22C55E',
         'nivel-1Fem-oscuro': '#9756e8',
         'nivel-2-oscuro': '#F59E0B',
@@ -29,6 +30,7 @@ export default {
         'dieta-perder-oscuro': '#8B5CF6', 
 
         // --- COLORES CLAROS ---
+        'nivel-0-claro': '#4B5563',
         'nivel-1-claro': '#166534',     
         'nivel-1Fem-claro': '#6b21a8',   
         'nivel-2-claro': '#B45309',     

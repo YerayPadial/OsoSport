@@ -70,14 +70,14 @@ const Header = ({
           </button>
             
             */
-          }
-          <button
+            <button
             onClick={onMenuClick}
             className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
             aria-label="Abrir menú de navegación"
           >
             <Menu className="w-6 h-6" />
           </button>
+          }
         </div>
       </div>
     </header>

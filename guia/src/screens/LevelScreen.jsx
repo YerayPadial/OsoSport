@@ -2,7 +2,7 @@ import React from "react";
 import rutinasData from "../data/rutinas.json";
 import ExerciseCard from "../components/ui/ExerciseCard";
 import DayCard from "../components/ui/DayCard";
-import { ArrowLeft, Flame, Snowflake } from "lucide-react";
+import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
 
 //Pantalla para listar ejercicios que no tienen dias o seleccionar dias
 
@@ -99,45 +99,76 @@ const LevelScreen = ({
         {nivelActual.nombre}
       </h1>
 
-      {(nivelActual.calentamiento || nivelActual.enfriamiento) &&
-        nivelActual.id <= 2 && (
-          <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
-            {/* Sección de Calentamiento (solo si existe) */}
-            {nivelActual.calentamiento && (
+      {nivelActual.estructura === "Full Body" && (nivelActual.calentamiento ||
+        nivelActual.enfriamiento ||
+        (nivelActual.notas && nivelActual.notas.length > 0)) && (
+        <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
+          
+          {/* Sección de Calentamiento */}
+          {nivelActual.calentamiento && (
+            <div className="flex items-start gap-3">
+              <Flame className="w-7 h-7 text-nivel-2-claro dark:text-nivel-2-oscuro flex-shrink-0 mt-1" />
+              <div>
+                <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
+                  Calentamiento
+                </h2>
+                <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
+                  {nivelActual.calentamiento}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Separador si hay calentamiento y enfriamiento */}
+          {nivelActual.calentamiento && nivelActual.enfriamiento && (
+            <hr className="border-borde-claro dark:border-borde-oscuro" />
+          )}
+
+          {/* Sección de Enfriamiento */}
+          {nivelActual.enfriamiento && (
+            <div className="flex items-start gap-3">
+              <Snowflake className="w-7 h-7 text-blue-500 flex-shrink-0 mt-1" />
+              <div>
+                <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
+                  Enfriamiento
+                </h2>
+                <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
+                  {nivelActual.enfriamiento}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* 3. AÑADIDO: Bloque para renderizar las notas */}
+          {nivelActual.notas && nivelActual.notas.length > 0 && (
+            <>
+              {/* Separador si hay algo antes de las notas */}
+              {(nivelActual.calentamiento || nivelActual.enfriamiento) && (
+                <hr className="border-borde-claro dark:border-borde-oscuro" />
+              )}
+
               <div className="flex items-start gap-3">
-                <Flame className="w-7 h-7 text-nivel-2-claro dark:text-nivel-2-oscuro flex-shrink-0 mt-1" />
+                <ClipboardList className="w-7 h-7 text-yellow-500 flex-shrink-0 mt-1" />
                 <div>
                   <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
-                    Calentamiento
+                    Notas Importantes
                   </h2>
-                  <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
-                    {nivelActual.calentamiento}
-                  </p>
+                  <ul className="list-disc list-inside space-y-1 mt-1">
+                    {nivelActual.notas.map((nota, index) => (
+                      <li
+                        key={index}
+                        className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed"
+                      >
+                        {nota}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            )}
-
-            {/* Separador (solo si AMBOS existen) */}
-            {nivelActual.calentamiento && nivelActual.enfriamiento && (
-              <hr className="border-borde-claro dark:border-borde-oscuro" />
-            )}
-
-            {/* Sección de Enfriamiento (solo si existe) */}
-            {nivelActual.enfriamiento && (
-              <div className="flex items-start gap-3">
-                <Snowflake className="w-7 h-7 text-blue-500 flex-shrink-0 mt-1" />
-                <div>
-                  <h2 className="text-xl font-bold text-texto-claro dark:text-texto-oscuro">
-                    Enfriamiento
-                  </h2>
-                  <p className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
-                    {nivelActual.enfriamiento}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
+      )}
 
       {renderContent()}
     </div>

@@ -27,6 +27,12 @@ const colorStyles = {
     border:
       "hover:border-nivel-3-claro dark:hover:border-nivel-3-oscuro focus:border-nivel-3-claro dark:focus:border-nivel-3-oscuro",
   },
+  5: {
+    bg: "bg-nivel-0-claro dark:bg-nivel-0-oscuro",
+    text: "text-nivel-0-claro dark:text-nivel-0-oscuro",
+    border:
+      "hover:border-nivel-0-claro dark:hover:border-nivel-0-oscuro focus:border-nivel-0-claro dark:focus:border-nivel-0-oscuro",
+  },
 };
 
 const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {

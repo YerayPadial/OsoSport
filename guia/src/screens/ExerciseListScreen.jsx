@@ -59,7 +59,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
 
       {(nivelActual.calentamiento ||
         nivelActual.enfriamiento ||
-        (nivelActual.notas && nivelActual.id == 4)) && (
+        (nivelActual.notas && nivelActual.notas.length > 0)) && (
         <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
           {/* Sección de Calentamiento (solo si existe) */}
           {nivelActual.calentamiento && (
@@ -97,9 +97,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
           )}
 
           {/* Sección de notas (solo si existe) */}
-          {nivelActual.notas &&
-            nivelActual.id == 4 &&
-            nivelActual.notas.length > 0 && (
+          {nivelActual.notas && nivelActual.notas.length > 0 && (
               <>
                 {/* Separador */}
                 {(nivelActual.calentamiento || nivelActual.enfriamiento) && (
