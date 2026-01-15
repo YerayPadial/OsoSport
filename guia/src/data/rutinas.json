@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "updated_at": "2025-10-22",
   "niveles": [
-        {
+      {
       "id": 5,
       "dificultad": "0",
       "sexo": "Unisex",
@@ -24,7 +24,7 @@
           "video": "/videos/cinta-2.mp4",
           "thumbnail": "/thumbnails/cinta-2.png",
           "descripcion": "Rutina completa para bajar de peso.",
-          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
+          "consejos": ["Mantén la mirada al frente y los hombros relajados. Evita sujetarte de los pasamanos para aumentar la activación del core y el gasto calórico."]
         },
            {
           "id": "n4_02",
@@ -37,7 +37,7 @@
           "video": "/videos/eliptica-2.mp4",
           "thumbnail": "/thumbnails/eliptica-2.png",
           "descripcion": "Rutina completa para bajar de peso.",
-          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
+          "consejos": ["Mantén los talones pegados a los pedales para activar los glúteos. Usa los bastones móviles con fuerza para trabajar también la espalda y los brazos."]
         },
            {
           "id": "n4_03",
@@ -50,7 +50,7 @@
           "video": "/videos/skierg-2.mp4",
           "thumbnail": "/thumbnails/skierg-2.png",
           "descripcion": "Rutina completa para bajar de peso.",
-          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
+          "consejos": ["Extiéndete por completo arriba y usa tu peso corporal al bajar. La fuerza debe nacer de una contracción abdominal explosiva, no solo de tirar con los brazos."]
         },
            {
           "id": "n4_04",
@@ -63,7 +63,7 @@
           "video": "/videos/air-bike-2.mp4",
           "thumbnail": "/thumbnails/air-bike-2.png",
           "descripcion": "Rutina completa para bajar de peso.",
-          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
+          "consejos": ["No solo pedalees: empuja y tracciona con los brazos agresivamente. La resistencia de la máquina aumenta cuanto más rápido te mueves, así que mantén el ritmo."]
         },
            {
           "id": "n4_05",
@@ -76,7 +76,7 @@
           "video": "/videos/ergometro-2.mp4",
           "thumbnail": "/thumbnails/ergometro-2.png",
           "descripcion": "Rutina completa para bajar de peso.",
-          "consejos": ["Mantén la barbilla despegada del pecho y la zona lumbar pegada al suelo. Sube contrayendo el abdomen, no tirando del cuello."]
+          "consejos": ["Sigue la secuencia: Piernas, cuerpo, brazos. Empuja fuerte con los pies antes de inclinarte atrás y tirar del manillar hacia la boca del estómago."]
         }
       ]
     },
