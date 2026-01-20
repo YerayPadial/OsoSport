@@ -323,7 +323,7 @@
           "id": "n2_07",
           "numero": 7,
           "nombre": "Curl femoral trasero (máquina)",
-          "nombreCorto": "Femoral",
+          "nombreCorto": "Curl Femoral",
           "musculo": "Femoral",
           "grupoMuscular": "Pierna",
           "specs": "4x15 rep",
@@ -333,10 +333,10 @@
           "consejos": ["Controla la fase negativa (al bajar). No dejes que las placas choquen; mantén la tensión constante en la parte externa de tus glúteos."]
         },
         {
-          "id": "n2_07",
+          "id": "n2_08",
           "numero": 8,
-          "nombre": "Aductor (máquina)",
-          "nombreCorto": "Aductor",
+          "nombre": "Aductores (máquina)",
+          "nombreCorto": "Aductores",
           "musculo": "Aductor",
           "grupoMuscular": "Pierna",
           "specs": "4x15 rep",
@@ -346,20 +346,20 @@
           "consejos": ["Controla la fase negativa (al abrir). No dejes que las placas choquen; mantén la tensión constante en la parte interna."]
         },
         {
-          "id": "n2_07",
+          "id": "n2_09",
           "numero": 9,
           "nombre": "Abductores exterior (máquina)",
           "nombreCorto": "Abductores",
           "musculo": "Abductor",
           "grupoMuscular": "Pierna",
           "specs": "4x15 rep",
-          "video": "/videos/abductores-exterior.mp4",
-          "thumbnail": "/thumbnails/abductores-exterior.png",
+          "video": "/videos/abductor-exterior.mp4",
+          "thumbnail": "/thumbnails/abductor-exterior.png",
           "descripcion": "Fortalece la zona externa de las piernas.",
           "consejos": ["Controla la fase negativa (al cerrar). No dejes que las placas choquen; mantén la tensión constante en la parte externa."]
         },
         {
-          "id": "n2_08",
+          "id": "n2_10",
           "numero": 10,
           "nombre": "Femoral",
           "nombreCorto": "Femoral",
@@ -372,7 +372,7 @@
           "consejos": ["Mantén la cadera pegada al banco durante todo el ejercicio. Si se levanta, estás usando la espalda baja y no los isquiotibiales."]
         },
         {
-          "id": "n2_09",
+          "id": "n2_11",
           "numero": 11,
           "nombre": "Gemelos de pie",
           "nombreCorto": "Gemelos Pie",
@@ -385,7 +385,7 @@
           "consejos": ["Empuja con los dedos gordos del pie. Evita que los tobillos rueden hacia afuera. Controla la bajada para maximizar el estiramiento."]
         },
         {
-          "id": "n2_10",
+          "id": "n2_12",
           "numero": 12,
           "nombre": "Extensiones de tríceps",
           "nombreCorto": "Ext. Tríceps",
