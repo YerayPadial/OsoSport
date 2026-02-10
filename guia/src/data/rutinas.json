@@ -366,8 +366,8 @@
           "musculo": "Femoral",
           "grupoMuscular": "Pierna",
           "specs": "3x15 rep",
-          "video": "/videos/femoral.mp4",
-          "thumbnail": "/thumbnails/femoral.png",
+          "video": "/videos/femoral-2.mp4",
+          "thumbnail": "/thumbnails/femoral-2.png",
           "descripcion": "Enfocado en la parte posterior del muslo.",
           "consejos": ["Mantén la cadera pegada al banco durante todo el ejercicio. Si se levanta, estás usando la espalda baja y no los isquiotibiales."]
         },
@@ -379,8 +379,8 @@
           "musculo": "Gemelos",
           "grupoMuscular": "Pierna",
           "specs": "3x15 rep",
-          "video": "/videos/gemelos-pie.mp4",
-          "thumbnail": "/thumbnails/gemelos-pie.png",
+          "video": "/videos/gemelos-pie-2.mp4",
+          "thumbnail": "/thumbnails/gemelos-pie-2.png",
           "descripcion": "Define y fortalece los gemelos.",
           "consejos": ["Empuja con los dedos gordos del pie. Evita que los tobillos rueden hacia afuera. Controla la bajada para maximizar el estiramiento."]
         },
@@ -392,8 +392,8 @@
           "musculo": "Tríceps",
           "grupoMuscular": "Brazos",
           "specs": "3x12 rep",
-          "video": "/videos/extensiones-triceps.mp4",
-          "thumbnail": "/thumbnails/extensiones-triceps.png",
+          "video": "/videos/extensiones-triceps-2.mp4",
+          "thumbnail": "/thumbnails/extensiones-triceps-2.png",
           "descripcion": "Mejora la tonificación del brazo.",
           "consejos": ["Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."]
         }
