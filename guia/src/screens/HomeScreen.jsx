@@ -5,7 +5,7 @@ import { Dumbbell } from "lucide-react";
 
 const HomeScreen = ({ onSelectLevel }) => {
   // Lista de IDs que quieres mostrar
-  const idsVisibles = [1, 2, 5];
+  const idsVisibles = [1, 2, 3, 5];
 
   return (
     <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 pt-8">
@@ -22,8 +22,6 @@ const HomeScreen = ({ onSelectLevel }) => {
 
       <div className="max-w-lg mx-auto space-y-5">
         {rutinasData.niveles
-          // 👇 AQUÍ ESTÁ EL CAMBIO:
-          // Solo mostramos el nivel si su ID está incluido en la lista [1, 2, 5]
           .filter((nivel) => idsVisibles.includes(nivel.id))
           .map((nivel) => (
             <LevelCard key={nivel.id} nivel={nivel} onClick={onSelectLevel} />

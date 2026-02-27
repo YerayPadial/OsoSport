@@ -17,7 +17,6 @@ const DietasDetailScreen = ({ navigation, onGoBack }) => {
   );
 
   if (!planActual || !diaActual) {
-    // ... (Manejo de error)
     return <div>Error: Día de dieta no encontrado</div>;
   }
 
