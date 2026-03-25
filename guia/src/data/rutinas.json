@@ -387,6 +387,36 @@
         {
           "id": "n2_12",
           "numero": 12,
+          "nombre": "Jalón tras nuca",
+          "nombreCorto": "Jalón Nuca",
+          "musculo": "Dorsal",
+          "grupoMuscular": "Espalda",
+          "specs": "3x12 rep",
+          "video": "/videos/jalon-nuca2.mp4",
+          "thumbnail": "/thumbnails/jalon-nuca-2.png",
+          "descripcion": "Trabaja la amplitud de la espalda y los dorsales.",
+          "consejos": [
+            "Mantén el torso recto. Tira de la barra hacia la nuca controlando el movimiento. Nota: Si sientes molestias en los hombros, es recomendable hacer el jalón por delante."
+          ]
+        },
+        {
+          "id": "n2_13",
+          "numero": 13,
+          "nombre": "Curl de bíceps con barra Z",
+          "nombreCorto": "Curl Barra Z",
+          "musculo": "Bíceps",
+          "grupoMuscular": "Brazos",
+          "specs": "3x10 rep",
+          "video": "/videos/curl-barra-2.mp4",
+          "thumbnail": "/thumbnails/curl-barra-2.png",
+          "descripcion": "Aumenta el volumen y la fuerza de los bíceps reduciendo la tensión en las muñecas.",
+          "consejos": [
+            "Mantén los codos pegados a los costados. Evita balancear el cuerpo hacia atrás para tomar impulso. Aprieta el bíceps en la parte superior del movimiento."
+          ]
+        },
+        {
+          "id": "n2_14",
+          "numero": 14,
           "nombre": "Extensiones de tríceps",
           "nombreCorto": "Ext. Tríceps",
           "musculo": "Tríceps",
@@ -395,7 +425,24 @@
           "video": "/videos/extensiones-triceps-2.mp4",
           "thumbnail": "/thumbnails/extensiones-triceps-2.png",
           "descripcion": "Mejora la tonificación del brazo.",
-          "consejos": ["Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."]
+          "consejos": [
+            "Fija los codos a los costados. Al final de la extensión, rota ligeramente las muñecas hacia afuera (con cuerda) o hacia abajo (con barra) para una contracción máxima."
+          ]
+        },
+        {
+          "id": "n2_15",
+          "numero": 15,
+          "nombre": "Press militar",
+          "nombreCorto": "Press Militar",
+          "musculo": "Hombros",
+          "grupoMuscular": "Tren Superior",
+          "specs": "3x10 rep",
+          "video": "/videos/press-militar-2.mp4",
+          "thumbnail": "/thumbnails/press-militar-2.png",
+          "descripcion": "Desarrolla la fuerza, el volumen y la estabilidad de los hombros.",
+          "consejos": [
+            "Mantén el abdomen contraído para proteger la zona lumbar. Empuja el peso en línea recta hacia arriba y evita arquear la espalda en exceso. Baja de forma controlada hasta la altura de los ojos."
+          ]
         }
       ]
     },
