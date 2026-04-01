@@ -31,18 +31,32 @@ const VideoPlayer = ({ src, poster }) => {
     };
   }, []);
 
+  // Función para pausar o reproducir el vídeo al hacer clic/tocar sobre él
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
+
   return (
-    // ESTILO LIMPIO: Los bordes redondeados y la sombra son perfectos.
-    <div className="w-full aspect-video bg-black rounded-2xl shadow-xl overflow-hidden">
+    // Hemos añadido "cursor-pointer" y el evento "onClick" al contenedor
+    <div 
+      className="w-full aspect-video bg-black rounded-2xl shadow-xl overflow-hidden cursor-pointer"
+      onClick={togglePlay}
+    >
       <video
         ref={videoRef}
         poster={poster} // Muestra la miniatura (thumbnail) mientras carga
         loop
-        muted
+        muted // Mantiene el vídeo silenciado por defecto
         autoPlay={isInView}
         playsInline
-        className="w-full h-full object-cover"
-        controls
+        controls // <-- Vuelven los controles para poder ampliar a pantalla completa
+        className="w-full h-full object-cover hide-audio-button" // <-- Añadimos esta clase para el CSS
       >
         {/* Solo añadimos el <source> cuando el vídeo está a la vista */}
         {isInView && <source src={src} type="video/mp4" />}

@@ -8,3 +8,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Ocultar botón de volumen y barra de volumen en navegadores WebKit (Chrome, Safari, iOS, Android) */
+video.hide-audio-button::-webkit-media-controls-mute-button,
+video.hide-audio-button::-webkit-media-controls-volume-slider {
+  display: none !important;
+}

@@ -5,7 +5,7 @@ import { Dumbbell } from "lucide-react";
 
 const HomeScreen = ({ onSelectLevel }) => {
   // Lista de IDs que quieres mostrar
-  const idsVisibles = [1, 2, 3, 5]; // id 4 para la rutina avanzada
+  const idsVisibles = [1, 2, 3, 4, 5];
 
   return (
     <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 pt-8">
