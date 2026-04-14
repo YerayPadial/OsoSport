@@ -19,14 +19,18 @@ const colorClasses = {
     border: "border-nivel-3-claro dark:border-nivel-3-oscuro",
     text: "text-nivel-3-claro dark:text-nivel-3-oscuro",
   }, 
+  5: {
+    border: "border-nivel-0-claro dark:border-nivel-0-oscuro",
+    text: "text-nivel-0-claro dark:text-nivel-0-oscuro",
+  },
   //El id 5 y 6 en las day card, queda reservado para mi otro data de dietas con id 5 y 6 
   //no colisiona con exercise list ni mi otro data porque solo se usa en  rutinas, en cambio dayCard se usa en ambas para definir dias 
   // estan todas las tarjetas aunque algunas como la 1, 2 y 7 no tienen dias pero las dejo por si en un futuro quiero agregar dias a esas rutinas
-  5: {
+  11: {
     border: "border-dieta-ganar-claro dark:border-dieta-ganar-oscuro",
     text: "text-dieta-ganar-claro dark:text-dieta-ganar-oscuro",
   },
-  6: {
+  9: {
     border: "border-dieta-perder-claro dark:border-dieta-perder-oscuro",
     text: "text-dieta-perder-claro dark:text-dieta-perder-oscuro",
   },

@@ -13,7 +13,6 @@ const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
   const planActual = dietasData.planes.find((p) => p.id === navigation.planId);
 
   if (!planActual) {
-    // ... (Manejo de error igual que en LevelScreen)
     return <div>Error: Plan no encontrado</div>;
   }
 

@@ -1,21 +1,25 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2025-10-22",
+  "version": "1.2.0",
+  "updated_at": "2026-04-14",
   "niveles": [
       {
       "id": 5,
       "dificultad": "0",
       "sexo": "Unisex",
-      "nombre": "Bajar De Peso",
-      "slug": "bajar-de-peso",
+      "nombre": "Bajar Peso y Quema Grasa",
+      "slug": "bajar-peso-quema-grasa",
       "duracion": "3 meses",
-      "estructura": "Full Body",
-      "notas": ["El objetivo es mejorar la forma física general y fortalecer el core. ", 
-      "Es un circuito de ejercicios aeróbicos que se realizará de 2 a 5 veces."],
+      "estructura": "Dividida (Opciones de Cardio)",
+      "notas": [
+        "Opción Bajar de Peso: Circuito aeróbico para mejorar la forma física general y fortalecer el core (realizar de 2 a 5 veces).",
+        "Opción Quema Grasa (HIIT): Hazlo 3-4 veces por semana después de tu entrenamiento principal.",
+        "En la cinta, cada nivel extra de inclinación aumenta la quema de calorías un 4% aprox."
+      ],
       "ejercicios": [
         {
-          "id": "n4_01",
+          "id": "n5_01",
           "numero": 1,
+          "dia": "Bajar de Peso",
           "nombre": "Cinta",
           "nombreCorto": "Cinta",
           "musculo": "Full body",
@@ -23,12 +27,13 @@
           "specs": "3 min a 5 min",
           "video": "/videos/cinta-2.mp4",
           "thumbnail": "/thumbnails/cinta-2.png",
-          "descripcion": "Rutina completa para bajar de peso.",
+          "descripcion": "Circuito de ejercicios aeróbicos para mejorar la forma física general.",
           "consejos": ["Mantén la mirada al frente y los hombros relajados. Evita sujetarte de los pasamanos para aumentar la activación del core y el gasto calórico."]
         },
-           {
-          "id": "n4_02",
+        {
+          "id": "n5_02",
           "numero": 2,
+          "dia": "Bajar de Peso",
           "nombre": "Eliptica",
           "nombreCorto": "Eliptica",
           "musculo": "Full body",
@@ -36,12 +41,13 @@
           "specs": "3 min a 5 min",
           "video": "/videos/eliptica-2.mp4",
           "thumbnail": "/thumbnails/eliptica-2.png",
-          "descripcion": "Rutina completa para bajar de peso.",
+          "descripcion": "Circuito de ejercicios aeróbicos para mejorar la forma física general.",
           "consejos": ["Mantén los talones pegados a los pedales para activar los glúteos. Usa los bastones móviles con fuerza para trabajar también la espalda y los brazos."]
         },
-           {
-          "id": "n4_03",
+        {
+          "id": "n5_03",
           "numero": 3,
+          "dia": "Bajar de Peso",
           "nombre": "SkiErg",
           "nombreCorto": "Ski",
           "musculo": "Full body",
@@ -49,12 +55,13 @@
           "specs": "3 min a 5 min",
           "video": "/videos/skierg-2.mp4",
           "thumbnail": "/thumbnails/skierg-2.png",
-          "descripcion": "Rutina completa para bajar de peso.",
+          "descripcion": "Circuito de ejercicios aeróbicos para mejorar la forma física general.",
           "consejos": ["Extiéndete por completo arriba y usa tu peso corporal al bajar. La fuerza debe nacer de una contracción abdominal explosiva, no solo de tirar con los brazos."]
         },
-           {
-          "id": "n4_04",
+        {
+          "id": "n5_04",
           "numero": 4,
+          "dia": "Bajar de Peso",
           "nombre": "Air Bike",
           "nombreCorto": "Air Bike",
           "musculo": "Full body",
@@ -62,12 +69,13 @@
           "specs": "3 min a 5 min",
           "video": "/videos/air-bike-2.mp4",
           "thumbnail": "/thumbnails/air-bike-2.png",
-          "descripcion": "Rutina completa para bajar de peso.",
+          "descripcion": "Circuito de ejercicios aeróbicos para mejorar la forma física general.",
           "consejos": ["No solo pedalees: empuja y tracciona con los brazos agresivamente. La resistencia de la máquina aumenta cuanto más rápido te mueves, así que mantén el ritmo."]
         },
-           {
-          "id": "n4_05",
+        {
+          "id": "n5_05",
           "numero": 5,
+          "dia": "Bajar de Peso",
           "nombre": "Ergometro",
           "nombreCorto": "Ergometro",
           "musculo": "Full body",
@@ -75,8 +83,28 @@
           "specs": "3 min a 5 min",
           "video": "/videos/ergometro-2.mp4",
           "thumbnail": "/thumbnails/ergometro-2.png",
-          "descripcion": "Rutina completa para bajar de peso.",
+          "descripcion": "Circuito de ejercicios aeróbicos para mejorar la forma física general.",
           "consejos": ["Sigue la secuencia: Piernas, cuerpo, brazos. Empuja fuerte con los pies antes de inclinarte atrás y tirar del manillar hacia la boca del estómago."]
+        },
+        {
+          "id": "n5_06",
+          "numero": 1,
+          "dia": "Quema Grasa",
+          "nombre": "HIIT en Cinta (Intervalos)",
+          "nombreCorto": "Cinta HIIT",
+          "musculo": "Cardio",
+          "grupoMuscular": "Cardio",
+          "specs": "25 min",
+          "video": "/videos/cinta-2.mp4",
+          "thumbnail": "/thumbnails/cinta-2.png",
+          "descripcion": "El truco de cardio que te hará perder grasa el triple de rápido.",
+          "consejos": [
+            "Min 1-5: Inclinación 5 | Velocidad 3",
+            "Min 5-10: Inclinación 8 | Velocidad 3.8",
+            "Min 10-15: Inclinación 11 | Velocidad 4",
+            "Min 15-20: Inclinación 9 | Velocidad 3",
+            "Min 20-25: Inclinación 12 | Velocidad 4"
+          ]
         }
       ]
     },
