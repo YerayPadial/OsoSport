@@ -26,9 +26,26 @@ DROP TABLE IF EXISTS training_level_notes;
 
 DROP TABLE IF EXISTS training_levels;
 
+DROP TABLE IF EXISTS users;
+
 DROP TABLE IF EXISTS admin_users;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(80) NULL UNIQUE,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(140) NOT NULL,
+  display_name VARCHAR(160) NOT NULL,
+  role VARCHAR(40) NOT NULL DEFAULT 'user',
+  password_hash VARCHAR(255) NOT NULL,
+  avatar_path VARCHAR(255) NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS admin_users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -512,3 +529,7 @@ INSERT INTO diet_foods (meal_id, text, sort_order) VALUES
 INSERT INTO admin_users (username, display_name, role, password_hash, active) VALUES
 ('ypadial', 'Yeray Padial', 'admin', '$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy', 1),
 ('chema', 'Chema', 'admin', '$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm', 1);
+
+INSERT INTO users (username, email, first_name, last_name, display_name, role, password_hash, active) VALUES
+('ypadial', 'ypadial@ososport.local', 'Yeray', 'Padial', 'Yeray Padial', 'admin', '$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy', 1),
+('chema', 'chema@ososport.local', 'Chema', 'OsoSport', 'Chema', 'admin', '$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm', 1);

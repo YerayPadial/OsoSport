@@ -23,6 +23,17 @@ function startAdminSession(): void
     session_start();
 }
 
+function currentUserSession(): ?array
+{
+    return $_SESSION['user'] ?? $_SESSION['admin_user'] ?? null;
+}
+
+function setUserSession(array $user): void
+{
+    $_SESSION['user'] = $user;
+    $_SESSION['admin_user'] = $user;
+}
+
 function readJsonBody(): array
 {
     $body = file_get_contents('php://input') ?: '';

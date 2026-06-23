@@ -3,18 +3,17 @@
 declare(strict_types=1);
 
 require __DIR__ . '/admin-session.php';
+require __DIR__ . '/repository.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
 startAdminSession();
 
-if (!isset($_SESSION['admin_user'])) {
-    respondError('No autenticado.', 401);
-}
+$sessionUser = currentUserSession();
 
-if (($_SESSION['admin_user']['role'] ?? 'user') !== 'admin') {
-    respondError('No autorizado.', 403);
+if (!$sessionUser) {
+    respondError('No autenticado.', 401);
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
@@ -39,6 +38,16 @@ $rules = [
             'image/webp' => 'webp',
         ],
     ],
+    'avatar' => [
+        'directory' => dirname(__DIR__) . '/avatars',
+        'publicPath' => '/avatars',
+        'maxSize' => 3 * 1024 * 1024,
+        'mimeToExtension' => [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ],
+    ],
     'video' => [
         'directory' => dirname(__DIR__) . '/videos',
         'publicPath' => '/videos',
@@ -53,6 +62,10 @@ $rules = [
 
 if (!isset($rules[$kind])) {
     respondError('Tipo de archivo no permitido.', 422);
+}
+
+if ($kind !== 'avatar' && (($sessionUser['role'] ?? 'user') !== 'admin')) {
+    respondError('No autorizado.', 403);
 }
 
 $rule = $rules[$kind];
@@ -81,6 +94,19 @@ $target = $rule['directory'] . '/' . $filename;
 
 if (!move_uploaded_file($file['tmp_name'], $target)) {
     respondError('No se pudo guardar el archivo.', 500);
+}
+
+if ($kind === 'avatar') {
+    $pdo = db();
+    ensureUserSchema($pdo);
+    $statement = $pdo->prepare('UPDATE users SET avatar_path = :avatar_path WHERE id = :id');
+    $statement->execute([
+        'id' => (int) $sessionUser['id'],
+        'avatar_path' => $rule['publicPath'] . '/' . $filename,
+    ]);
+
+    $sessionUser['avatarPath'] = $rule['publicPath'] . '/' . $filename;
+    setUserSession($sessionUser);
 }
 
 echo json_encode([

@@ -26,6 +26,7 @@ function db(): PDO
 function loadAllContent(PDO $pdo): array
 {
     ensureNormalizedTrainingSchema($pdo);
+    ensureUserSchema($pdo);
 
     return [
         'rutinas' => loadTrainingContent($pdo),
@@ -36,6 +37,7 @@ function loadAllContent(PDO $pdo): array
 function replaceAllContent(PDO $pdo, array $content): void
 {
     ensureNormalizedTrainingSchema($pdo);
+    ensureUserSchema($pdo);
 
     $rutinas = $content['rutinas'] ?? null;
     $dietas = $content['dietas'] ?? null;
@@ -641,6 +643,78 @@ function tableExists(PDO $pdo, string $table): bool
     $statement->execute(['table' => $table]);
 
     return (int) $statement->fetchColumn() > 0;
+}
+
+function ensureUserSchema(PDO $pdo): void
+{
+    $pdo->exec(
+        "CREATE TABLE IF NOT EXISTS users (
+          id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+          username VARCHAR(80) NULL UNIQUE,
+          email VARCHAR(190) NOT NULL UNIQUE,
+          first_name VARCHAR(100) NOT NULL,
+          last_name VARCHAR(140) NOT NULL,
+          display_name VARCHAR(160) NOT NULL,
+          role VARCHAR(40) NOT NULL DEFAULT 'user',
+          password_hash VARCHAR(255) NOT NULL,
+          avatar_path VARCHAR(255) NULL,
+          active TINYINT(1) NOT NULL DEFAULT 1,
+          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    );
+
+    if ((int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() > 0 || !tableExists($pdo, 'admin_users')) {
+        return;
+    }
+
+    $admins = $pdo->query(
+        'SELECT username, display_name, role, password_hash, active
+         FROM admin_users
+         ORDER BY id'
+    )->fetchAll();
+    $statement = $pdo->prepare(
+        'INSERT INTO users (username, email, first_name, last_name, display_name, role, password_hash, active)
+         VALUES (:username, :email, :first_name, :last_name, :display_name, :role, :password_hash, :active)'
+    );
+
+    foreach ($admins as $admin) {
+        [$firstName, $lastName] = splitDisplayName($admin['display_name'] ?: $admin['username']);
+        $statement->execute([
+            'username' => $admin['username'],
+            'email' => $admin['username'] . '@ososport.local',
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'display_name' => $admin['display_name'] ?: trim($firstName . ' ' . $lastName),
+            'role' => $admin['role'] ?: 'admin',
+            'password_hash' => $admin['password_hash'],
+            'active' => (int) $admin['active'],
+        ]);
+    }
+}
+
+function splitDisplayName(string $displayName): array
+{
+    $parts = preg_split('/\s+/', trim($displayName)) ?: [];
+    $firstName = $parts[0] ?? 'Usuario';
+    $lastName = trim(implode(' ', array_slice($parts, 1))) ?: 'OsoSport';
+
+    return [$firstName, $lastName];
+}
+
+function publicUser(array $user): array
+{
+    return [
+        'id' => (int) $user['id'],
+        'username' => $user['username'],
+        'email' => $user['email'],
+        'firstName' => $user['first_name'],
+        'lastName' => $user['last_name'],
+        'displayName' => $user['display_name'],
+        'role' => $user['role'],
+        'avatarPath' => $user['avatar_path'],
+        'active' => (bool) $user['active'],
+    ];
 }
 
 function requiredString(array $data, string $key): string

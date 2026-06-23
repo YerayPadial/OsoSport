@@ -10,11 +10,13 @@ header('Cache-Control: no-store');
 
 startAdminSession();
 
-if (!isset($_SESSION['admin_user'])) {
+$sessionUser = currentUserSession();
+
+if (!$sessionUser) {
     respondError('No autenticado.', 401);
 }
 
-if (($_SESSION['admin_user']['role'] ?? 'user') !== 'admin') {
+if (($sessionUser['role'] ?? 'user') !== 'admin') {
     respondError('No autorizado.', 403);
 }
 

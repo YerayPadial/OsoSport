@@ -248,6 +248,39 @@ const api = {
     if (!response.ok) throw new Error(payload.error || "No se pudo iniciar sesión.");
     return payload;
   },
+  async register(payload) {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-auth.php?action=register`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "No se pudo crear la cuenta.");
+    return result;
+  },
+  async saveProfile(payload) {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-auth.php?action=profile`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "No se pudo guardar el perfil.");
+    return result.user;
+  },
+  async changePassword(payload) {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-auth.php?action=password`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "No se pudo cambiar la contraseña.");
+    return result;
+  },
   async logout() {
     await fetch(`${import.meta.env.BASE_URL}api/admin-auth.php?action=logout`, {
       method: "POST",
@@ -287,15 +320,53 @@ const api = {
     if (!response.ok) throw new Error(payload.error || "No se pudo subir el archivo.");
     return payload;
   },
+  async loadUsers() {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-users.php`, {
+      credentials: "include",
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No se pudieron cargar los usuarios.");
+    return payload.users;
+  },
+  async saveUser(user) {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-users.php`, {
+      method: user.id ? "PUT" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No se pudo guardar el usuario.");
+    return payload.user;
+  },
+  async deleteUser(id) {
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-users.php?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No se pudo eliminar el usuario.");
+    return payload;
+  },
 };
 
 const AdminScreen = ({ onGoBack }) => {
   const { rutinasData, dietasData, updateContent } = useAppData();
   const [auth, setAuth] = useState({ checking: true, authenticated: false, user: null });
+  const [authMode, setAuthMode] = useState("login");
   const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [registerForm, setRegisterForm] = useState({ firstName: "", lastName: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [content, setContent] = useState(() => normalizeAdminContent({ rutinas: rutinasData, dietas: dietasData }));
   const [activeArea, setActiveArea] = useState("rutinas");
+  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", email: "", avatarPath: "" });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
+  const [showProfilePassword, setShowProfilePassword] = useState(false);
+  const [showProfileNewPassword, setShowProfileNewPassword] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [userForm, setUserForm] = useState({ firstName: "", lastName: "", email: "", role: "user", active: true, password: "" });
   const [selectedLevelId, setSelectedLevelId] = useState(null);
   const [selectedExerciseId, setSelectedExerciseId] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState(null);
@@ -331,17 +402,22 @@ const AdminScreen = ({ onGoBack }) => {
     api
       .status()
       .then((payload) => {
+        const user = payload.user || null;
         setAuth({
           checking: false,
           authenticated: Boolean(payload.authenticated),
-          user: payload.user || null,
+          user,
         });
+        if (user) {
+          setProfileForm(userToProfileForm(user));
+          setActiveArea(user.role === "admin" ? "rutinas" : "perfil");
+        }
       })
       .catch(() => setAuth({ checking: false, authenticated: false, user: null }));
   }, []);
 
   useEffect(() => {
-    if (!auth.authenticated) return;
+    if (!auth.authenticated || auth.user?.role !== "admin") return;
 
     api
       .loadContent()
@@ -357,7 +433,20 @@ const AdminScreen = ({ onGoBack }) => {
         setSelectedPlanId(normalizedPayload.dietas.planes[0]?.id ?? null);
       })
       .catch((loadError) => setError(loadError.message));
-  }, [auth.authenticated]);
+  }, [auth.authenticated, auth.user?.role]);
+
+  useEffect(() => {
+    if (!auth.authenticated || auth.user?.role !== "admin") return;
+
+    api
+      .loadUsers()
+      .then((payload) => {
+        setUsers(payload);
+        setSelectedUserId(payload[0]?.id ?? null);
+        setUserForm(userToAdminForm(payload[0]));
+      })
+      .catch((loadError) => setError(loadError.message));
+  }, [auth.authenticated, auth.user?.role]);
 
   const levels = useMemo(() => content.rutinas?.niveles ?? [], [content.rutinas?.niveles]);
   const plans = useMemo(() => content.dietas?.planes ?? [], [content.dietas?.planes]);
@@ -369,6 +458,8 @@ const AdminScreen = ({ onGoBack }) => {
   const selectedPlan = plans.find((plan) => plan.id === selectedPlanId) ?? plans[0] ?? null;
   const selectedDay = selectedPlan?.dias?.[selectedDayIndex] ?? null;
   const selectedMeal = selectedDay?.comidas?.[selectedMealIndex] ?? null;
+  const isAdmin = auth.user?.role === "admin";
+  const visibleNavItems = isAdmin ? adminNavItems : userNavItems;
 
   const stats = useMemo(
     () => ({
@@ -469,15 +560,131 @@ const AdminScreen = ({ onGoBack }) => {
     try {
       const payload = await api.login(credentials);
       setAuth({ checking: false, authenticated: true, user: payload.user });
+      setProfileForm(userToProfileForm(payload.user));
+      setActiveArea(payload.user?.role === "admin" ? "rutinas" : "perfil");
       setCredentials({ username: "", password: "" });
     } catch (loginError) {
       setError(loginError.message);
     }
   };
 
+  const handleRegister = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    try {
+      validateUserForm(registerForm, true);
+      const payload = await api.register(registerForm);
+      setAuth({ checking: false, authenticated: true, user: payload.user });
+      setProfileForm(userToProfileForm(payload.user));
+      setRegisterForm({ firstName: "", lastName: "", email: "", password: "" });
+      setActiveArea("perfil");
+    } catch (registerError) {
+      setError(registerError.message);
+    }
+  };
+
   const handleLogout = async () => {
     await api.logout();
     setAuth({ checking: false, authenticated: false, user: null });
+    setActiveArea("rutinas");
+  };
+
+  const handleSaveProfile = async () => {
+    setError("");
+    setMessage("");
+
+    try {
+      validateUserForm(profileForm, false);
+      const user = await api.saveProfile(profileForm);
+      setAuth((current) => ({ ...current, user }));
+      setProfileForm(userToProfileForm(user));
+      setMessage("Perfil guardado.");
+    } catch (profileError) {
+      setError(profileError.message);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setError("");
+    setMessage("");
+
+    try {
+      validatePasswordForm(passwordForm.newPassword);
+      await api.changePassword(passwordForm);
+      setPasswordForm({ currentPassword: "", newPassword: "" });
+      setMessage("Contraseña actualizada.");
+    } catch (passwordError) {
+      setError(passwordError.message);
+    }
+  };
+
+  const handleAvatarUpload = async (file) => {
+    setError("");
+    setMessage("");
+
+    try {
+      const result = await api.uploadFile("avatar", file);
+      const nextUser = { ...auth.user, avatarPath: result.path };
+      setAuth((current) => ({ ...current, user: nextUser }));
+      setProfileForm((current) => ({ ...current, avatarPath: result.path }));
+      setMessage("Foto de perfil actualizada.");
+    } catch (avatarError) {
+      setError(avatarError.message);
+    }
+  };
+
+  const handleSelectUser = (user) => {
+    setSelectedUserId(user.id);
+    setUserForm(userToAdminForm(user));
+  };
+
+  const handleNewUser = () => {
+    setSelectedUserId(null);
+    setUserForm({ firstName: "", lastName: "", email: "", role: "user", active: true, password: "" });
+  };
+
+  const handleSaveUser = async () => {
+    setError("");
+    setMessage("");
+
+    try {
+      validateUserForm(userForm, !selectedUserId);
+      const savedUser = await api.saveUser({ ...userForm, id: selectedUserId });
+      const nextUsers = selectedUserId
+        ? users.map((user) => (user.id === savedUser.id ? savedUser : user))
+        : [...users, savedUser];
+      setUsers(nextUsers);
+      setSelectedUserId(savedUser.id);
+      setUserForm(userToAdminForm(savedUser));
+      setMessage("Usuario guardado.");
+    } catch (userError) {
+      setError(userError.message);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUserId) return;
+    const selected = users.find((user) => user.id === selectedUserId);
+
+    if (!window.confirm(`Vas a eliminar el usuario "${selected?.displayName || selected?.email}". ¿Quieres continuar?`)) {
+      return;
+    }
+
+    setError("");
+    setMessage("");
+
+    try {
+      await api.deleteUser(selectedUserId);
+      const nextUsers = users.filter((user) => user.id !== selectedUserId);
+      setUsers(nextUsers);
+      setSelectedUserId(nextUsers[0]?.id ?? null);
+      setUserForm(userToAdminForm(nextUsers[0]));
+      setMessage("Usuario eliminado.");
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
   };
 
   const handleSave = async (scope = "Cambios") => {
@@ -693,36 +900,61 @@ const AdminScreen = ({ onGoBack }) => {
             </div>
           </div>
 
-          <form className="space-y-4" onSubmit={handleLogin}>
-            <Field
-              label="Usuario"
-              value={credentials.username}
-              onChange={(value) => setCredentials((current) => ({ ...current, username: value }))}
-              autoComplete="username"
-            />
-            <Field
-              label="Contraseña"
-              type={showPassword ? "text" : "password"}
-              value={credentials.password}
-              onChange={(value) => setCredentials((current) => ({ ...current, password: value }))}
-              autoComplete="current-password"
-              rightAction={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((current) => !current)}
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              }
-            />
+          <SegmentedControl
+            value={authMode}
+            onChange={setAuthMode}
+            options={[
+              { value: "login", label: "Entrar", icon: LogIn },
+              { value: "register", label: "Registro", icon: UserRound },
+            ]}
+          />
+
+          {authMode === "login" ? (
+            <form className="space-y-4 mt-4" onSubmit={handleLogin}>
+              <Field
+                label="Email o usuario"
+                value={credentials.username}
+                onChange={(value) => setCredentials((current) => ({ ...current, username: value }))}
+                autoComplete="username"
+                required
+              />
+              <PasswordField
+                label="Contraseña"
+                visible={showPassword}
+                setVisible={setShowPassword}
+                value={credentials.password}
+                onChange={(value) => setCredentials((current) => ({ ...current, password: value }))}
+                autoComplete="current-password"
+                required
+              />
             {error && <Alert tone="error">{error}</Alert>}
             <button className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2">
               <LogIn className="w-5 h-5" />
               Entrar
             </button>
-          </form>
+            </form>
+          ) : (
+            <form className="space-y-4 mt-4" onSubmit={handleRegister}>
+              <Field label="Nombre" value={registerForm.firstName} onChange={(value) => setRegisterForm((current) => ({ ...current, firstName: value }))} autoComplete="given-name" required />
+              <Field label="Apellidos" value={registerForm.lastName} onChange={(value) => setRegisterForm((current) => ({ ...current, lastName: value }))} autoComplete="family-name" required />
+              <Field label="Email" type="email" value={registerForm.email} onChange={(value) => setRegisterForm((current) => ({ ...current, email: value }))} autoComplete="email" required />
+              <PasswordField
+                label="Contraseña"
+                visible={showRegisterPassword}
+                setVisible={setShowRegisterPassword}
+                value={registerForm.password}
+                onChange={(value) => setRegisterForm((current) => ({ ...current, password: value }))}
+                autoComplete="new-password"
+                required
+                hint="Mínimo 10 caracteres con mayúsculas, minúsculas y números."
+              />
+              {error && <Alert tone="error">{error}</Alert>}
+              <button className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2">
+                <UserRound className="w-5 h-5" />
+                Crear cuenta
+              </button>
+            </form>
+          )}
         </div>
       </AdminShell>
     );
@@ -748,7 +980,7 @@ const AdminScreen = ({ onGoBack }) => {
           <AdminNavigation
             value={activeArea}
             onChange={setActiveArea}
-            items={adminNavItems}
+            items={visibleNavItems}
           />
           <div className="p-4 grid grid-cols-2 gap-2">
             <Stat label="Entrenos" value={stats.niveles} />
@@ -766,7 +998,7 @@ const AdminScreen = ({ onGoBack }) => {
                   {activeArea === "rapido" ? "Creación guiada" : "Gestión de contenido"}
                 </p>
                 <h1 className="text-2xl md:text-3xl font-black">
-                  {adminNavItems.find((item) => item.value === activeArea)?.label}
+                  {visibleNavItems.find((item) => item.value === activeArea)?.label || "Perfil"}
                 </h1>
               </div>
               <div className="grid grid-cols-1 gap-2 sm:flex">
@@ -783,14 +1015,40 @@ const AdminScreen = ({ onGoBack }) => {
               </div>
             </div>
             <div className="lg:hidden mt-3">
-              <SegmentedControl value={activeArea} onChange={setActiveArea} options={adminNavItems} />
+              <SegmentedControl value={activeArea} onChange={setActiveArea} options={visibleNavItems} />
             </div>
           </div>
 
           {message && <Alert tone="success">{message}</Alert>}
           {error && <Alert tone="error">{error}</Alert>}
 
-          {activeArea === "rapido" ? (
+          {activeArea === "perfil" || !isAdmin ? (
+            <ProfilePanel
+              profileForm={profileForm}
+              setProfileForm={setProfileForm}
+              passwordForm={passwordForm}
+              setPasswordForm={setPasswordForm}
+              showCurrentPassword={showProfilePassword}
+              setShowCurrentPassword={setShowProfilePassword}
+              showNewPassword={showProfileNewPassword}
+              setShowNewPassword={setShowProfileNewPassword}
+              user={auth.user}
+              onSaveProfile={handleSaveProfile}
+              onChangePassword={handleChangePassword}
+              onAvatarUpload={handleAvatarUpload}
+            />
+          ) : activeArea === "usuarios" ? (
+            <UsersEditor
+              users={users}
+              selectedUserId={selectedUserId}
+              userForm={userForm}
+              setUserForm={setUserForm}
+              onSelectUser={handleSelectUser}
+              onNewUser={handleNewUser}
+              onSaveUser={handleSaveUser}
+              onDeleteUser={handleDeleteUser}
+            />
+          ) : activeArea === "rapido" ? (
             <QuickAddPanel
               levels={levels}
               quickLevel={quickLevel}
@@ -921,7 +1179,11 @@ const adminNavItems = [
   { value: "rapido", label: "Añadir rápido", icon: Sparkles },
   { value: "rutinas", label: "Rutinas", icon: Dumbbell },
   { value: "dietas", label: "Dietas", icon: ReceiptText },
+  { value: "usuarios", label: "Usuarios", icon: UserRound },
+  { value: "perfil", label: "Perfil", icon: ShieldCheck },
 ];
+
+const userNavItems = [{ value: "perfil", label: "Perfil", icon: UserRound }];
 
 const AdminShell = ({ children, onGoBack }) => (
   <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-3 md:p-4 pb-24">
@@ -1246,6 +1508,142 @@ const DietEditor = ({
   </div>
 );
 
+const ProfilePanel = ({
+  profileForm,
+  setProfileForm,
+  passwordForm,
+  setPasswordForm,
+  showCurrentPassword,
+  setShowCurrentPassword,
+  showNewPassword,
+  setShowNewPassword,
+  user,
+  onSaveProfile,
+  onChangePassword,
+  onAvatarUpload,
+}) => (
+  <div className="space-y-4">
+    <CollapsiblePanel title="Perfil" onSave={onSaveProfile}>
+      <div className="grid md:grid-cols-[180px_minmax(0,1fr)] gap-4">
+        <AvatarField user={user} onUpload={onAvatarUpload} />
+        <div className="grid md:grid-cols-2 gap-3">
+          <Field label="Nombre" value={profileForm.firstName} onChange={(value) => setProfileForm((current) => ({ ...current, firstName: value }))} required />
+          <Field label="Apellidos" value={profileForm.lastName} onChange={(value) => setProfileForm((current) => ({ ...current, lastName: value }))} required />
+          <Field label="Email" type="email" value={profileForm.email} onChange={(value) => setProfileForm((current) => ({ ...current, email: value }))} required />
+          <Field label="Rol" value={user?.role || "user"} onChange={() => {}} />
+        </div>
+      </div>
+    </CollapsiblePanel>
+
+    <CollapsiblePanel title="Cambiar contraseña" onSave={onChangePassword}>
+      <div className="grid md:grid-cols-2 gap-3">
+        <PasswordField
+          label="Contraseña actual"
+          visible={showCurrentPassword}
+          setVisible={setShowCurrentPassword}
+          value={passwordForm.currentPassword}
+          onChange={(value) => setPasswordForm((current) => ({ ...current, currentPassword: value }))}
+          autoComplete="current-password"
+          required
+        />
+        <PasswordField
+          label="Nueva contraseña"
+          visible={showNewPassword}
+          setVisible={setShowNewPassword}
+          value={passwordForm.newPassword}
+          onChange={(value) => setPasswordForm((current) => ({ ...current, newPassword: value }))}
+          autoComplete="new-password"
+          required
+          hint="Mínimo 10 caracteres con mayúsculas, minúsculas y números."
+        />
+      </div>
+    </CollapsiblePanel>
+  </div>
+);
+
+const UsersEditor = ({
+  users,
+  selectedUserId,
+  userForm,
+  setUserForm,
+  onSelectUser,
+  onNewUser,
+  onSaveUser,
+  onDeleteUser,
+}) => {
+  const selectedUser = users.find((user) => user.id === selectedUserId);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+
+  return (
+    <div className="space-y-4">
+      <CollapsiblePanel title="Usuarios" action={onNewUser}>
+        <Picker
+          items={users}
+          selectedId={selectedUserId}
+          label={(user) => `${user.displayName} · ${user.role}`}
+          onSelect={onSelectUser}
+        />
+      </CollapsiblePanel>
+
+      <CollapsiblePanel
+        title={selectedUser ? "Editar usuario" : "Nuevo usuario"}
+        danger={selectedUser ? onDeleteUser : null}
+        onSave={onSaveUser}
+      >
+        <div className="grid md:grid-cols-2 gap-3">
+          <Field label="Nombre" value={userForm.firstName} onChange={(value) => setUserForm((current) => ({ ...current, firstName: value }))} required />
+          <Field label="Apellidos" value={userForm.lastName} onChange={(value) => setUserForm((current) => ({ ...current, lastName: value }))} required />
+          <Field label="Email" type="email" value={userForm.email} onChange={(value) => setUserForm((current) => ({ ...current, email: value }))} required />
+          <SelectField label="Rol" value={userForm.role} onChange={(value) => setUserForm((current) => ({ ...current, role: value }))} options={[{ value: "user", label: "Usuario" }, { value: "admin", label: "Admin" }]} />
+          <SelectField label="Estado" value={userForm.active ? "1" : "0"} onChange={(value) => setUserForm((current) => ({ ...current, active: value === "1" }))} options={[{ value: "1", label: "Activo" }, { value: "0", label: "Inactivo" }]} />
+          <PasswordField
+            label={selectedUser ? "Nueva contraseña" : "Contraseña"}
+            visible={showAdminPassword}
+            setVisible={setShowAdminPassword}
+            value={userForm.password}
+            onChange={(value) => setUserForm((current) => ({ ...current, password: value }))}
+            autoComplete="new-password"
+            required={!selectedUser}
+            hint={selectedUser ? "Déjalo vacío para no cambiarla." : "Mínimo 10 caracteres con mayúsculas, minúsculas y números."}
+          />
+        </div>
+      </CollapsiblePanel>
+    </div>
+  );
+};
+
+const AvatarField = ({ user, onUpload }) => {
+  const [localError, setLocalError] = useState("");
+  const avatarUrl = user?.avatarPath?.startsWith("/") ? `/guia${user.avatarPath}` : user?.avatarPath;
+
+  const handleFile = (file) => {
+    setLocalError("");
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setLocalError("Usa PNG, JPG o WEBP.");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      setLocalError("Máximo 3 MB.");
+      return;
+    }
+    onUpload(file);
+  };
+
+  return (
+    <div className="rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro p-3 space-y-3">
+      <div className="w-32 h-32 rounded-full overflow-hidden bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro mx-auto flex items-center justify-center">
+        {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : <UserRound className="w-14 h-14" />}
+      </div>
+      <label className="w-full min-h-touch-target px-3 rounded-xl bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro font-bold flex items-center justify-center cursor-pointer">
+        Elegir foto
+        <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(event) => handleFile(event.target.files?.[0])} />
+      </label>
+      {localError && <p className="text-sm font-bold text-red-600 dark:text-red-300">{localError}</p>}
+    </div>
+  );
+};
+
 const QuickAddPanel = ({
   levels,
   selectedLevel,
@@ -1519,6 +1917,28 @@ const Field = ({ label, value, onChange, type = "text", autoComplete, rightActio
     </div>
     {hint && <span className="block mt-1 text-xs font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{hint}</span>}
   </label>
+);
+
+const PasswordField = ({ label, visible, setVisible, value, onChange, autoComplete, required = false, hint }) => (
+  <Field
+    label={label}
+    type={visible ? "text" : "password"}
+    value={value}
+    onChange={onChange}
+    autoComplete={autoComplete}
+    required={required}
+    hint={hint}
+    rightAction={
+      <button
+        type="button"
+        onClick={() => setVisible((current) => !current)}
+        className="w-12 h-12 rounded-xl flex items-center justify-center"
+        aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
+      >
+        {visible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      </button>
+    }
+  />
 );
 
 const SelectField = ({ label, value, onChange, options, required = false, hint }) => (
@@ -1931,5 +2351,53 @@ const slugify = (value) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+
+const userToProfileForm = (user) => ({
+  firstName: user?.firstName || "",
+  lastName: user?.lastName || "",
+  email: user?.email || "",
+  avatarPath: user?.avatarPath || "",
+});
+
+const userToAdminForm = (user) => ({
+  firstName: user?.firstName || "",
+  lastName: user?.lastName || "",
+  email: user?.email || "",
+  role: user?.role || "user",
+  active: user?.active ?? true,
+  password: "",
+});
+
+const validateUserForm = (form, passwordRequired) => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!String(form.firstName || "").trim() || String(form.firstName || "").trim().length < 2) {
+    throw new Error("El nombre debe tener al menos 2 caracteres.");
+  }
+
+  if (!String(form.lastName || "").trim() || String(form.lastName || "").trim().length < 2) {
+    throw new Error("Los apellidos deben tener al menos 2 caracteres.");
+  }
+
+  if (!emailPattern.test(String(form.email || "").trim())) {
+    throw new Error("Introduce un email válido.");
+  }
+
+  if (passwordRequired || String(form.password || "").trim()) {
+    validatePasswordForm(form.password);
+  }
+};
+
+const validatePasswordForm = (password) => {
+  const value = String(password || "");
+
+  if (value.length < 10 || value.length > 72) {
+    throw new Error("La contraseña debe tener entre 10 y 72 caracteres.");
+  }
+
+  if (!/[a-z]/.test(value) || !/[A-Z]/.test(value) || !/\d/.test(value)) {
+    throw new Error("La contraseña debe incluir mayúsculas, minúsculas y números.");
+  }
+};
 
 export default AdminScreen;
