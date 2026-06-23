@@ -3,9 +3,13 @@ import {
   ArrowLeft,
   Check,
   Dumbbell,
+  Eye,
+  EyeOff,
+  Image,
   LogIn,
   LogOut,
   Plus,
+  Play,
   ReceiptText,
   Save,
   ShieldCheck,
@@ -117,12 +121,27 @@ const api = {
     if (!response.ok) throw new Error(payload.error || "No se pudo guardar.");
     return payload.content;
   },
+  async uploadFile(kind, file) {
+    const formData = new FormData();
+    formData.append("kind", kind);
+    formData.append("file", file);
+
+    const response = await fetch(`${import.meta.env.BASE_URL}api/admin-upload.php`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No se pudo subir el archivo.");
+    return payload;
+  },
 };
 
 const AdminScreen = ({ onGoBack }) => {
   const { rutinasData, dietasData, updateContent } = useAppData();
   const [auth, setAuth] = useState({ checking: true, authenticated: false, user: null });
   const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [content, setContent] = useState(() => clone({ rutinas: rutinasData, dietas: dietasData }));
   const [activeArea, setActiveArea] = useState("rutinas");
   const [selectedLevelId, setSelectedLevelId] = useState(null);
@@ -281,6 +300,14 @@ const AdminScreen = ({ onGoBack }) => {
   };
 
   const handleSave = async () => {
+    const validationErrors = validateContent(content);
+
+    if (validationErrors.length > 0) {
+      setError(validationErrors[0]);
+      setMessage("");
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -424,10 +451,20 @@ const AdminScreen = ({ onGoBack }) => {
             />
             <Field
               label="Contraseña"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={credentials.password}
               onChange={(value) => setCredentials((current) => ({ ...current, password: value }))}
               autoComplete="current-password"
+              rightAction={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              }
             />
             {error && <Alert tone="error">{error}</Alert>}
             <button className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2">
@@ -517,6 +554,7 @@ const AdminScreen = ({ onGoBack }) => {
               quickPlan={quickPlan}
               setQuickPlan={setQuickPlan}
               setSelectedLevelId={setSelectedLevelId}
+              uploadFile={api.uploadFile}
               addQuickLevel={() => {
                 const nextId = Math.max(0, ...levels.map((level) => Number(level.id) || 0)) + 1;
                 const level = {
@@ -569,6 +607,7 @@ const AdminScreen = ({ onGoBack }) => {
               setSelectedExerciseId={setSelectedExerciseId}
               updateLevel={updateLevel}
               updateExercise={updateExercise}
+              uploadFile={api.uploadFile}
               addLevel={addLevel}
               deleteLevel={deleteLevel}
               addExercise={addExercise}
@@ -655,6 +694,7 @@ const RoutineEditor = ({
   setSelectedExerciseId,
   updateLevel,
   updateExercise,
+  uploadFile,
   addLevel,
   deleteLevel,
   addExercise,
@@ -712,8 +752,22 @@ const RoutineEditor = ({
                 <Field label="Series/reps" value={selectedExercise.specs} onChange={(value) => updateExercise("specs", value)} />
                 <Field label="Músculo" value={selectedExercise.musculo} onChange={(value) => updateExercise("musculo", value)} />
                 <Field label="Grupo" value={selectedExercise.grupoMuscular} onChange={(value) => updateExercise("grupoMuscular", value)} />
-                <Field label="Vídeo" value={selectedExercise.video} onChange={(value) => updateExercise("video", value)} />
-                <Field label="Miniatura" value={selectedExercise.thumbnail} onChange={(value) => updateExercise("thumbnail", value)} />
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                <MediaField
+                  label="Vídeo"
+                  kind="video"
+                  value={selectedExercise.video}
+                  onChange={(value) => updateExercise("video", value)}
+                  uploadFile={uploadFile}
+                />
+                <MediaField
+                  label="Miniatura"
+                  kind="thumbnail"
+                  value={selectedExercise.thumbnail}
+                  onChange={(value) => updateExercise("thumbnail", value)}
+                  uploadFile={uploadFile}
+                />
               </div>
               <TextArea label="Descripción" value={selectedExercise.descripcion || ""} onChange={(value) => updateExercise("descripcion", value)} />
               <TextArea label="Consejos" value={arrayToLines(selectedExercise.consejos)} onChange={(value) => updateExercise("consejos", linesToArray(value))} rows={5} />
@@ -822,6 +876,7 @@ const QuickAddPanel = ({
   quickPlan,
   setQuickPlan,
   setSelectedLevelId,
+  uploadFile,
   addQuickLevel,
   addQuickExercise,
   addQuickPlan,
@@ -853,29 +908,29 @@ const QuickAddPanel = ({
         <h2 className="text-xl font-black">Nuevo ejercicio</h2>
       </div>
       <div className="space-y-3">
-        <div className="min-h-touch-target rounded-xl bg-fondo-claro dark:bg-fondo-oscuro px-4 flex items-center justify-between gap-3">
-          <label className="w-full">
-            <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
-              Nivel destino
-            </span>
-            <select
-              value={selectedLevel?.id ?? ""}
-              onChange={(event) => setSelectedLevelId(Number(event.target.value))}
-              className="w-full min-h-touch-target rounded-xl bg-tarjeta-clara dark:bg-tarjeta-oscura px-3 font-black outline-none"
-            >
-              {levels.map((level) => (
-                <option key={level.id} value={level.id}>
-                  {level.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        <SelectField
+          label="Nivel destino"
+          value={selectedLevel?.id ?? ""}
+          onChange={(value) => setSelectedLevelId(Number(value))}
+          options={levels.map((level) => ({ value: level.id, label: level.nombre }))}
+        />
         <Field label="Nombre" value={quickExercise.nombre} onChange={(value) => setQuickExercise((current) => ({ ...current, nombre: value }))} />
         <Field label="Día" value={quickExercise.dia} onChange={(value) => setQuickExercise((current) => ({ ...current, dia: value }))} />
         <Field label="Series/reps" value={quickExercise.specs} onChange={(value) => setQuickExercise((current) => ({ ...current, specs: value }))} />
-        <Field label="Vídeo" value={quickExercise.video} onChange={(value) => setQuickExercise((current) => ({ ...current, video: value }))} />
-        <Field label="Miniatura" value={quickExercise.thumbnail} onChange={(value) => setQuickExercise((current) => ({ ...current, thumbnail: value }))} />
+        <MediaField
+          label="Vídeo"
+          kind="video"
+          value={quickExercise.video}
+          onChange={(value) => setQuickExercise((current) => ({ ...current, video: value }))}
+          uploadFile={uploadFile}
+        />
+        <MediaField
+          label="Miniatura"
+          kind="thumbnail"
+          value={quickExercise.thumbnail}
+          onChange={(value) => setQuickExercise((current) => ({ ...current, thumbnail: value }))}
+          uploadFile={uploadFile}
+        />
         <PrimaryAction onClick={addQuickExercise} disabled={!selectedLevel || !quickExercise.nombre.trim()}>
           Crear ejercicio
         </PrimaryAction>
@@ -959,20 +1014,181 @@ const IndexPicker = ({ items, selectedIndex, label, onSelect }) => (
   </div>
 );
 
-const Field = ({ label, value, onChange, type = "text", autoComplete }) => (
+const Field = ({ label, value, onChange, type = "text", autoComplete, rightAction }) => (
   <label className="block">
     <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
       {label}
     </span>
-    <input
-      type={type}
-      value={value ?? ""}
-      onChange={(event) => onChange(event.target.value)}
-      autoComplete={autoComplete}
-      className="w-full min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro px-4 text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
-    />
+    <div className="flex rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro focus-within:ring-2 focus-within:ring-nivel-1-claro dark:focus-within:ring-nivel-1-oscuro">
+      <input
+        type={type}
+        value={value ?? ""}
+        onChange={(event) => onChange(event.target.value)}
+        autoComplete={autoComplete}
+        className="w-full min-w-0 min-h-touch-target rounded-xl bg-transparent px-4 text-texto-claro dark:text-texto-oscuro outline-none"
+      />
+      {rightAction && <div className="flex-shrink-0">{rightAction}</div>}
+    </div>
   </label>
 );
+
+const SelectField = ({ label, value, onChange, options }) => (
+  <label className="block">
+    <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
+      {label}
+    </span>
+    <select
+      value={value ?? ""}
+      onChange={(event) => onChange(event.target.value)}
+      className="w-full min-w-0 min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro px-3 font-black text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </label>
+);
+
+const MediaField = ({ label, kind, value, onChange, uploadFile }) => {
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const accept = kind === "thumbnail" ? "image/png,image/jpeg,image/webp" : "video/mp4,video/webm,video/quicktime";
+  const Icon = kind === "thumbnail" ? Image : Play;
+  const currentUrl = value?.startsWith("/") ? `/guia${value}` : value;
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  const handleFile = (selectedFile) => {
+    setLocalError("");
+
+    if (!selectedFile) {
+      setFile(null);
+      return;
+    }
+
+    const validType =
+      kind === "thumbnail"
+        ? ["image/png", "image/jpeg", "image/webp"].includes(selectedFile.type)
+        : ["video/mp4", "video/webm", "video/quicktime"].includes(selectedFile.type);
+
+    if (!validType) {
+      setLocalError(kind === "thumbnail" ? "Usa PNG, JPG o WEBP." : "Usa MP4, WEBM o MOV.");
+      setFile(null);
+      return;
+    }
+
+    const maxSize = kind === "thumbnail" ? 8 * 1024 * 1024 : 160 * 1024 * 1024;
+
+    if (selectedFile.size > maxSize) {
+      setLocalError(kind === "thumbnail" ? "Máximo 8 MB." : "Máximo 160 MB.");
+      setFile(null);
+      return;
+    }
+
+    setFile(selectedFile);
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    setUploading(true);
+    setLocalError("");
+
+    try {
+      const result = await uploadFile(kind, file);
+      onChange(result.path);
+      setFile(null);
+    } catch (uploadError) {
+      setLocalError(uploadError.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro p-3 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <Icon className="w-5 h-5 flex-shrink-0" />
+          <span className="font-black truncate">{label}</span>
+        </div>
+        <label className="min-h-touch-target px-3 rounded-xl bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro font-bold flex items-center justify-center cursor-pointer">
+          Elegir
+          <input
+            type="file"
+            accept={accept}
+            className="sr-only"
+            onChange={(event) => handleFile(event.target.files?.[0])}
+          />
+        </label>
+      </div>
+
+      <input
+        value={value ?? ""}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura px-3 text-sm text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
+      />
+
+      <MediaPreview kind={kind} src={previewUrl || currentUrl} />
+
+      {file && (
+        <button
+          type="button"
+          onClick={handleUpload}
+          disabled={uploading}
+          className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black disabled:opacity-60"
+        >
+          {uploading ? "Subiendo..." : "Subir y usar archivo"}
+        </button>
+      )}
+
+      {localError && <p className="text-sm font-bold text-red-600 dark:text-red-300">{localError}</p>}
+    </div>
+  );
+};
+
+const MediaPreview = ({ kind, src }) => {
+  if (!src || src.endsWith("/videos/") || src.endsWith("/thumbnails/")) {
+    return (
+      <div className="aspect-video rounded-xl bg-tarjeta-clara dark:bg-tarjeta-oscura border border-dashed border-borde-claro dark:border-borde-oscuro flex items-center justify-center text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+        Sin preview
+      </div>
+    );
+  }
+
+  if (kind === "thumbnail") {
+    return (
+      <img
+        src={src}
+        alt=""
+        className="w-full aspect-video object-cover rounded-xl border border-borde-claro dark:border-borde-oscuro"
+      />
+    );
+  }
+
+  return (
+    <video
+      src={src}
+      controls
+      muted
+      className="w-full aspect-video object-cover rounded-xl border border-borde-claro dark:border-borde-oscuro bg-black"
+    />
+  );
+};
 
 const TextArea = ({ label, value, onChange, rows = 4 }) => (
   <label className="block mt-3">
@@ -1082,6 +1298,70 @@ const Alert = ({ tone, children }) => {
       {children}
     </div>
   );
+};
+
+const validateContent = (content) => {
+  const errors = [];
+  const levels = content.rutinas?.niveles ?? [];
+  const plans = content.dietas?.planes ?? [];
+  const hexColor = /^#[0-9a-f]{6}$/i;
+
+  if (levels.length === 0) {
+    errors.push("Debe existir al menos un nivel.");
+  }
+
+  levels.forEach((level, levelIndex) => {
+    const label = level.nombre || `Nivel ${levelIndex + 1}`;
+
+    if (!Number.isFinite(Number(level.id))) errors.push(`${label}: el ID es obligatorio.`);
+    if (!String(level.nombre || "").trim()) errors.push(`${label}: el nombre es obligatorio.`);
+    if (!String(level.slug || "").trim()) errors.push(`${label}: el slug es obligatorio.`);
+    if (!String(level.dificultad || "").trim()) errors.push(`${label}: la dificultad es obligatoria.`);
+    if (!String(level.sexo || "").trim()) errors.push(`${label}: el sexo es obligatorio.`);
+    if (!String(level.duracion || "").trim()) errors.push(`${label}: la duración es obligatoria.`);
+    if (!String(level.estructura || "").trim()) errors.push(`${label}: la estructura es obligatoria.`);
+    if (!hexColor.test(level.color || "")) errors.push(`${label}: el color debe tener formato #RRGGBB.`);
+
+    (level.ejercicios ?? []).forEach((exercise, exerciseIndex) => {
+      const exerciseLabel = exercise.nombre || `Ejercicio ${exerciseIndex + 1}`;
+
+      if (!String(exercise.id || "").trim()) errors.push(`${exerciseLabel}: el ID es obligatorio.`);
+      if (!Number.isFinite(Number(exercise.numero))) errors.push(`${exerciseLabel}: el número es obligatorio.`);
+      if (!String(exercise.nombre || "").trim()) errors.push(`${exerciseLabel}: el nombre es obligatorio.`);
+      if (!String(exercise.nombreCorto || "").trim()) errors.push(`${exerciseLabel}: el nombre corto es obligatorio.`);
+      if (!String(exercise.musculo || "").trim()) errors.push(`${exerciseLabel}: el músculo es obligatorio.`);
+      if (!String(exercise.grupoMuscular || "").trim()) errors.push(`${exerciseLabel}: el grupo muscular es obligatorio.`);
+      if (!String(exercise.specs || "").trim()) errors.push(`${exerciseLabel}: las series/reps son obligatorias.`);
+      if (!String(exercise.video || "").startsWith("/videos/")) errors.push(`${exerciseLabel}: el vídeo debe estar en /videos/.`);
+      if (!String(exercise.thumbnail || "").startsWith("/thumbnails/")) errors.push(`${exerciseLabel}: la miniatura debe estar en /thumbnails/.`);
+    });
+  });
+
+  if (plans.length === 0) {
+    errors.push("Debe existir al menos un plan de dieta.");
+  }
+
+  plans.forEach((plan, planIndex) => {
+    const label = plan.nombre || `Plan ${planIndex + 1}`;
+
+    if (!Number.isFinite(Number(plan.id))) errors.push(`${label}: el ID es obligatorio.`);
+    if (!String(plan.nombre || "").trim()) errors.push(`${label}: el nombre es obligatorio.`);
+    if (!String(plan.descripcion || "").trim()) errors.push(`${label}: la descripción es obligatoria.`);
+    if (!hexColor.test(plan.color || "")) errors.push(`${label}: el color debe tener formato #RRGGBB.`);
+
+    (plan.dias ?? []).forEach((day, dayIndex) => {
+      if (!String(day.nombre || "").trim()) errors.push(`${label}: el día ${dayIndex + 1} necesita nombre.`);
+
+      (day.comidas ?? []).forEach((meal, mealIndex) => {
+        if (!String(meal.tipo || "").trim()) errors.push(`${label}: la comida ${mealIndex + 1} necesita tipo.`);
+        if (!Array.isArray(meal.alimentos) || meal.alimentos.length === 0) {
+          errors.push(`${label}: la comida ${meal.tipo || mealIndex + 1} necesita alimentos.`);
+        }
+      });
+    });
+  });
+
+  return errors;
 };
 
 const slugify = (value) =>

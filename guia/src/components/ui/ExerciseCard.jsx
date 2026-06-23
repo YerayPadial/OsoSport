@@ -14,7 +14,7 @@ const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
         transform active:scale-98 border-2
         outline-none
       `}
-      style={{ borderColor: "transparent" }}
+      style={{ borderColor: "transparent", "--exercise-accent": color }}
       aria-label={`Ver ejercicio ${ejercicio.nombre}`}
     >
       <div
@@ -57,7 +57,7 @@ const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
         <p className="text-base text-texto-secundario-claro dark:text-texto-secundario-oscuro truncate">
           {ejercicio.musculo}
         </p>
-        <p className="text-lg font-bold mt-1 truncate" style={{ color }}>
+        <p className="text-lg font-bold mt-1 truncate text-[var(--exercise-accent)] dark:text-texto-oscuro">
           {ejercicio.specs}
         </p>
       </div>
