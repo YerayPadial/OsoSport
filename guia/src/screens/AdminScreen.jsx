@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
+  ChevronUp,
   Dumbbell,
   Eye,
   EyeOff,
@@ -478,7 +480,7 @@ const AdminScreen = ({ onGoBack }) => {
     setAuth({ checking: false, authenticated: false, user: null });
   };
 
-  const handleSave = async () => {
+  const handleSave = async (scope = "Cambios") => {
     const validationErrors = validateContent(content);
 
     if (validationErrors.length > 0) {
@@ -495,7 +497,7 @@ const AdminScreen = ({ onGoBack }) => {
       const saved = normalizeAdminContent(await api.saveContent(content));
       setContent(saved);
       updateContent(saved);
-      setMessage("Cambios guardados.");
+      setMessage(`${scope} guardado.`);
     } catch (saveError) {
       setError(saveError.message);
     } finally {
@@ -512,6 +514,13 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteLevel = () => {
     if (!selectedLevel || levels.length <= 1) return;
+    if (
+      !window.confirm(
+        `Vas a eliminar el entreno "${selectedLevel.nombre}". Se borrarán también sus días, ejercicios, notas y consejos asociados. ¿Quieres continuar?`,
+      )
+    ) {
+      return;
+    }
     patchContent((draft) => {
       draft.rutinas.niveles = draft.rutinas.niveles.filter((level) => level.id !== selectedLevel.id);
     });
@@ -534,6 +543,13 @@ const AdminScreen = ({ onGoBack }) => {
   const deleteTrainingDay = (dayId) => {
     if (!selectedLevel || (selectedLevel.dias?.length ?? 0) <= 1) return;
     const deletedDay = selectedLevel.dias.find((day) => String(day.id) === String(dayId));
+    if (
+      !window.confirm(
+        `Vas a eliminar el día "${deletedDay?.nombre || "seleccionado"}". Se borrarán también todos sus ejercicios. ¿Quieres continuar?`,
+      )
+    ) {
+      return;
+    }
     patchContent((draft) => {
       const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
       level.dias = level.dias.filter((day) => String(day.id) !== String(dayId));
@@ -565,6 +581,9 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteExercise = () => {
     if (!selectedLevel || !selectedExercise) return;
+    if (!window.confirm(`Vas a eliminar el ejercicio "${selectedExercise.nombre}". ¿Quieres continuar?`)) {
+      return;
+    }
     patchContent((draft) => {
       const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
       level.dias = level.dias.map((day) => ({
@@ -587,6 +606,13 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deletePlan = () => {
     if (!selectedPlan || plans.length <= 1) return;
+    if (
+      !window.confirm(
+        `Vas a eliminar el plan "${selectedPlan.nombre}". Se borrarán también sus días, comidas y alimentos asociados. ¿Quieres continuar?`,
+      )
+    ) {
+      return;
+    }
     patchContent((draft) => {
       draft.dietas.planes = draft.dietas.planes.filter((plan) => plan.id !== selectedPlan.id);
     });
@@ -608,6 +634,13 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteDay = () => {
     if (!selectedPlan || !selectedDay) return;
+    if (
+      !window.confirm(
+        `Vas a eliminar el día "${selectedDay.nombre}". Se borrarán también sus comidas y alimentos. ¿Quieres continuar?`,
+      )
+    ) {
+      return;
+    }
     patchContent((draft) => {
       const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
       plan.dias.splice(selectedDayIndex, 1);
@@ -630,6 +663,9 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteMeal = () => {
     if (!selectedMeal) return;
+    if (!window.confirm(`Vas a eliminar la comida "${selectedMeal.tipo}". ¿Quieres continuar?`)) {
+      return;
+    }
     patchContent((draft) => {
       const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
       plan.dias[selectedDayIndex].comidas.splice(selectedMealIndex, 1);
@@ -715,7 +751,7 @@ const AdminScreen = ({ onGoBack }) => {
             items={adminNavItems}
           />
           <div className="p-4 grid grid-cols-2 gap-2">
-            <Stat label="Niveles" value={stats.niveles} />
+            <Stat label="Entrenos" value={stats.niveles} />
             <Stat label="Ejercicios" value={stats.ejercicios} />
             <Stat label="Planes" value={stats.planes} />
             <Stat label="Días" value={stats.dias} />
@@ -733,15 +769,10 @@ const AdminScreen = ({ onGoBack }) => {
                   {adminNavItems.find((item) => item.value === activeArea)?.label}
                 </h1>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:flex">
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="min-h-touch-target px-4 rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  <Save className="w-5 h-5" />
-                  {saving ? "Guardando" : "Guardar"}
-                </button>
+              <div className="grid grid-cols-1 gap-2 sm:flex">
+                <div className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center text-sm text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                  Guarda desde cada tarjeta
+                </div>
                 <button
                   onClick={handleLogout}
                   className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center gap-2"
@@ -833,6 +864,8 @@ const AdminScreen = ({ onGoBack }) => {
                 setActiveArea("dietas");
               }}
               selectedLevel={selectedLevel}
+              saving={saving}
+              onSave={handleSave}
             />
           ) : activeArea === "rutinas" ? (
             <RoutineEditor
@@ -851,6 +884,8 @@ const AdminScreen = ({ onGoBack }) => {
               updateTrainingDay={updateTrainingDay}
               deleteTrainingDay={deleteTrainingDay}
               deleteExercise={deleteExercise}
+              saving={saving}
+              onSave={handleSave}
             />
           ) : (
             <DietEditor
@@ -872,6 +907,8 @@ const AdminScreen = ({ onGoBack }) => {
               deleteDay={deleteDay}
               addMeal={addMeal}
               deleteMeal={deleteMeal}
+              saving={saving}
+              onSave={handleSave}
             />
           )}
         </div>
@@ -941,6 +978,8 @@ const RoutineEditor = ({
   updateTrainingDay,
   deleteTrainingDay,
   deleteExercise,
+  saving,
+  onSave,
 }) => {
   const [activeDayId, setActiveDayId] = useState("");
   const [newDayName, setNewDayName] = useState("");
@@ -970,9 +1009,8 @@ const RoutineEditor = ({
   };
 
   return (
-    <div className="grid xl:grid-cols-[280px_260px_minmax(0,1fr)] gap-4">
-      <Panel>
-        <PanelHeader title="Entrenos" action={addLevel} />
+    <div className="space-y-4">
+      <CollapsiblePanel title="Entrenos" action={addLevel} onSave={() => onSave("Entrenos")} saving={saving}>
         <Picker
           items={levels}
           selectedId={selectedLevel?.id}
@@ -983,11 +1021,16 @@ const RoutineEditor = ({
             setSelectedExerciseId(level.dias?.[0]?.ejercicios?.[0]?.id ?? null);
           }}
         />
-      </Panel>
+      </CollapsiblePanel>
 
       {selectedLevel && (
-        <Panel>
-          <PanelHeader title="Días del entreno" action={addExerciseInActiveDay} danger={activeDay ? () => deleteTrainingDay(activeDay.id) : null} />
+        <CollapsiblePanel
+          title="Días del entreno"
+          action={addExerciseInActiveDay}
+          danger={activeDay ? () => deleteTrainingDay(activeDay.id) : null}
+          onSave={() => onSave("Días del entreno")}
+          saving={saving}
+        >
           <div className="space-y-3">
             <SelectField
               label="Entreno"
@@ -1006,7 +1049,7 @@ const RoutineEditor = ({
               options={dayOptions}
             />
             {activeDay && (
-              <div className="grid grid-cols-[minmax(0,1fr)_130px] gap-3">
+              <div className="grid sm:grid-cols-[minmax(0,1fr)_150px] gap-3">
                 <Field
                   label="Nombre del día"
                   value={activeDay.nombre}
@@ -1045,13 +1088,17 @@ const RoutineEditor = ({
               />
             </div>
           </div>
-        </Panel>
+        </CollapsiblePanel>
       )}
 
       {selectedLevel && (
         <div className="space-y-4 min-w-0">
-          <Panel>
-            <PanelHeader title="Datos del entreno" danger={deleteLevel} />
+          <CollapsiblePanel
+            title="Datos del entreno"
+            danger={deleteLevel}
+            onSave={() => onSave("Datos del entreno")}
+            saving={saving}
+          >
             <div className="grid md:grid-cols-2 gap-3">
               <Field label="ID" type="number" value={selectedLevel.id} onChange={(value) => updateLevel("id", value)} required />
               <SelectField label="Nivel" value={selectedLevel.nivel ?? selectedLevel.dificultad} onChange={(value) => updateLevel("nivel", value)} options={difficultyOptions} />
@@ -1065,10 +1112,15 @@ const RoutineEditor = ({
             <TextArea label="Calentamiento" value={selectedLevel.calentamiento || ""} onChange={(value) => updateLevel("calentamiento", value)} />
             <TextArea label="Enfriamiento" value={selectedLevel.enfriamiento || ""} onChange={(value) => updateLevel("enfriamiento", value)} />
             <TextArea label="Notas" value={arrayToLines(selectedLevel.notas)} onChange={(value) => updateLevel("notas", linesToArray(value))} rows={4} />
-          </Panel>
+          </CollapsiblePanel>
 
-          <Panel>
-            <PanelHeader title={selectedExercise ? "Ejercicio" : "Añade un ejercicio"} action={addExerciseInActiveDay} danger={selectedExercise ? deleteExercise : null} />
+          <CollapsiblePanel
+            title={selectedExercise ? "Ejercicio" : "Añade un ejercicio"}
+            action={addExerciseInActiveDay}
+            danger={selectedExercise ? deleteExercise : null}
+            onSave={() => onSave("Ejercicio")}
+            saving={saving}
+          >
             {selectedExercise ? (
               <div className="space-y-3">
                 <div className="grid md:grid-cols-2 gap-3">
@@ -1090,7 +1142,7 @@ const RoutineEditor = ({
             ) : (
               <EmptyState text="Este día no tiene ejercicios. Añade uno para empezar." />
             )}
-          </Panel>
+          </CollapsiblePanel>
         </div>
       )}
     </div>
@@ -1116,10 +1168,11 @@ const DietEditor = ({
   deleteDay,
   addMeal,
   deleteMeal,
+  saving,
+  onSave,
 }) => (
-  <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-4">
-    <Panel>
-      <PanelHeader title="Planes" action={addPlan} />
+  <div className="space-y-4">
+    <CollapsiblePanel title="Planes" action={addPlan} onSave={() => onSave("Planes")} saving={saving}>
       <Picker
         items={plans}
         selectedId={selectedPlan?.id}
@@ -1130,22 +1183,26 @@ const DietEditor = ({
           setSelectedMealIndex(0);
         }}
       />
-    </Panel>
+    </CollapsiblePanel>
 
     {selectedPlan && (
-      <div className="grid xl:grid-cols-3 gap-4">
-        <Panel>
-          <PanelHeader title="Plan" danger={deletePlan} />
+      <div className="space-y-4">
+        <CollapsiblePanel title="Plan" danger={deletePlan} onSave={() => onSave("Plan")} saving={saving}>
           <div className="space-y-3">
             <Field label="ID" type="number" value={selectedPlan.id} onChange={(value) => updatePlan("id", value)} />
             <Field label="Nombre" value={selectedPlan.nombre} onChange={(value) => updatePlan("nombre", value)} />
             <ColorField label="Color de tarjetas" value={getDietColor(selectedPlan)} onChange={(value) => updatePlan("color", value)} />
             <TextArea label="Descripción" value={selectedPlan.descripcion} onChange={(value) => updatePlan("descripcion", value)} />
           </div>
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelHeader title="Días" action={addDay} danger={selectedDay ? deleteDay : null} />
+        <CollapsiblePanel
+          title="Días"
+          action={addDay}
+          danger={selectedDay ? deleteDay : null}
+          onSave={() => onSave("Días del plan")}
+          saving={saving}
+        >
           <IndexPicker
             items={selectedPlan.dias ?? []}
             selectedIndex={selectedDayIndex}
@@ -1160,10 +1217,15 @@ const DietEditor = ({
               <Field label="Nombre del día" value={selectedDay.nombre} onChange={(value) => updateDay("nombre", value)} />
             </div>
           )}
-        </Panel>
+        </CollapsiblePanel>
 
-        <Panel>
-          <PanelHeader title="Comidas" action={selectedDay ? addMeal : null} danger={selectedMeal ? deleteMeal : null} />
+        <CollapsiblePanel
+          title="Comidas"
+          action={selectedDay ? addMeal : null}
+          danger={selectedMeal ? deleteMeal : null}
+          onSave={() => onSave("Comidas")}
+          saving={saving}
+        >
           {selectedDay && (
             <IndexPicker
               items={selectedDay.comidas ?? []}
@@ -1178,7 +1240,7 @@ const DietEditor = ({
               <TextArea label="Alimentos" value={arrayToLines(selectedMeal.alimentos)} onChange={(value) => updateMeal("alimentos", value)} rows={8} />
             </div>
           )}
-        </Panel>
+        </CollapsiblePanel>
       </div>
     )}
   </div>
@@ -1200,17 +1262,23 @@ const QuickAddPanel = ({
   addQuickLevel,
   addQuickExercise,
   addQuickPlan,
+  saving,
+  onSave,
 }) => {
   const quickOptions = [
     { value: "ejercicio", label: "Ejercicio", icon: Dumbbell },
     { value: "dia", label: "Día", icon: Plus },
-    { value: "nivel", label: "Nivel", icon: Sparkles },
+    { value: "nivel", label: "Entreno", icon: Sparkles },
     { value: "plan", label: "Plan", icon: ReceiptText },
   ];
-  const levelOptions = levels.map((level) => ({ value: level.id, label: level.nombre }));
+  const levelOptions = levels.map((level) => ({
+    value: level.id,
+    label: `Nivel ${level.nivel ?? level.dificultad} · ${level.nombre}`,
+  }));
   const targetLevel =
     levels.find((level) => level.id === Number(quickExercise.levelId)) || selectedLevel || levels[0];
   const dayOptions = getTrainingDayOptions(targetLevel);
+  const selectedQuickDay = quickExercise.dia || dayOptions[0]?.value || "";
 
   return (
     <div className="space-y-4">
@@ -1219,29 +1287,29 @@ const QuickAddPanel = ({
       </Panel>
 
       {quickMode === "nivel" && (
-        <Panel>
+        <CollapsiblePanel title="Nuevo entreno" onSave={() => onSave("Añadir rápido")} saving={saving}>
       <div className="flex items-center gap-3 mb-4">
         <Sparkles className="w-6 h-6" />
-        <h2 className="text-xl font-black">Nuevo nivel</h2>
+        <h2 className="text-xl font-black">Nuevo entreno</h2>
       </div>
       <div className="space-y-3">
-        <Field label="Nombre" value={quickLevel.nombre} onChange={(value) => setQuickLevel((current) => ({ ...current, nombre: value }))} required />
+        <Field label="Nombre del entreno" value={quickLevel.nombre} onChange={(value) => setQuickLevel((current) => ({ ...current, nombre: value }))} required />
         <div className="grid grid-cols-2 gap-3">
-          <SelectField label="Dificultad" value={quickLevel.dificultad} onChange={(value) => setQuickLevel((current) => ({ ...current, dificultad: value }))} options={difficultyOptions} required />
+          <SelectField label="Nivel" value={quickLevel.dificultad} onChange={(value) => setQuickLevel((current) => ({ ...current, dificultad: value }))} options={difficultyOptions} required />
           <SelectField label="Sexo" value={quickLevel.sexo} onChange={(value) => setQuickLevel((current) => ({ ...current, sexo: value }))} options={sexOptions} required />
         </div>
         <SelectField label="Duración" value={quickLevel.duracion} onChange={(value) => setQuickLevel((current) => ({ ...current, duracion: value }))} options={durationOptions} required />
         <SelectField label="Estructura" value={quickLevel.estructura} onChange={(value) => setQuickLevel((current) => ({ ...current, estructura: value }))} options={structureOptions} required />
         <ColorField label="Color de tarjetas" value={quickLevel.color} onChange={(value) => setQuickLevel((current) => ({ ...current, color: value }))} />
         <PrimaryAction onClick={addQuickLevel} disabled={!quickLevel.nombre.trim()}>
-          Crear nivel
+          Crear entreno
         </PrimaryAction>
       </div>
-        </Panel>
+        </CollapsiblePanel>
       )}
 
       {(quickMode === "ejercicio" || quickMode === "dia") && (
-        <Panel>
+        <CollapsiblePanel title={quickMode === "dia" ? "Nuevo día" : "Nuevo ejercicio"} onSave={() => onSave("Añadir rápido")} saving={saving}>
       <div className="flex items-center gap-3 mb-4">
         <Dumbbell className="w-6 h-6" />
         <h2 className="text-xl font-black">
@@ -1250,7 +1318,7 @@ const QuickAddPanel = ({
       </div>
       <div className="space-y-3">
         <SelectField
-          label="Nivel destino"
+          label="Entreno destino"
           value={quickExercise.levelId || selectedLevel?.id || ""}
           onChange={(value) => {
             const levelId = Number(value);
@@ -1262,11 +1330,11 @@ const QuickAddPanel = ({
         {quickMode === "ejercicio" ? (
           <SelectField
             label="Día"
-            value={quickExercise.dia || "__full__"}
+            value={selectedQuickDay}
             onChange={(value) =>
               setQuickExercise((current) => ({
                 ...current,
-                dia: value === "__full__" ? "" : value,
+                dia: value,
               }))
             }
             options={dayOptions}
@@ -1307,11 +1375,11 @@ const QuickAddPanel = ({
           {quickMode === "dia" ? "Crear día y ejercicio" : "Crear ejercicio"}
         </PrimaryAction>
       </div>
-        </Panel>
+        </CollapsiblePanel>
       )}
 
       {quickMode === "plan" && (
-        <Panel>
+        <CollapsiblePanel title="Nuevo plan" onSave={() => onSave("Añadir rápido")} saving={saving}>
       <div className="flex items-center gap-3 mb-4">
         <ReceiptText className="w-6 h-6" />
         <h2 className="text-xl font-black">Nuevo plan</h2>
@@ -1324,7 +1392,7 @@ const QuickAddPanel = ({
           Crear plan
         </PrimaryAction>
       </div>
-        </Panel>
+        </CollapsiblePanel>
       )}
     </div>
   );
@@ -1335,6 +1403,43 @@ const Panel = ({ children }) => (
     {children}
   </section>
 );
+
+const CollapsiblePanel = ({ title, children, action, danger, onSave, saving = false, defaultOpen = true }) => {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <section className="bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl p-4 shadow-lg min-w-0">
+      <div className={`flex items-center justify-between gap-2 ${open ? "mb-4" : ""}`}>
+        <button
+          type="button"
+          onClick={() => setOpen((current) => !current)}
+          className="min-h-touch-target min-w-0 flex-1 flex items-center gap-2 text-left"
+        >
+          {open ? <ChevronUp className="w-5 h-5 flex-shrink-0" /> : <ChevronDown className="w-5 h-5 flex-shrink-0" />}
+          <span className="text-xl font-black truncate">{title}</span>
+        </button>
+        <div className="flex gap-2 flex-shrink-0">
+          {onSave && (
+            <IconButton onClick={onSave} label="Guardar" disabled={saving}>
+              <Save className="w-5 h-5" />
+            </IconButton>
+          )}
+          {action && (
+            <IconButton onClick={action} label="Añadir">
+              <Plus className="w-5 h-5" />
+            </IconButton>
+          )}
+          {danger && (
+            <IconButton onClick={danger} label="Eliminar" danger>
+              <Trash2 className="w-5 h-5" />
+            </IconButton>
+          )}
+        </div>
+      </div>
+      {open && children}
+    </section>
+  );
+};
 
 const PanelHeader = ({ title, action, danger }) => (
   <div className="flex items-center justify-between gap-2 mb-4">
@@ -1669,16 +1774,17 @@ const Stat = ({ label, value }) => (
   </div>
 );
 
-const IconButton = ({ children, onClick, label, danger = false }) => (
+const IconButton = ({ children, onClick, label, danger = false, disabled = false }) => (
   <button
     onClick={onClick}
+    disabled={disabled}
     aria-label={label}
     title={label}
     className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
       danger
         ? "border-red-300 text-red-600 dark:border-red-800 dark:text-red-300"
         : "border-borde-claro dark:border-borde-oscuro text-texto-claro dark:text-texto-oscuro"
-    } hover:bg-fondo-claro dark:hover:bg-fondo-oscuro`}
+    } hover:bg-fondo-claro dark:hover:bg-fondo-oscuro disabled:opacity-50`}
   >
     {children}
   </button>
@@ -1703,10 +1809,34 @@ const validateContent = (content) => {
   const levels = content.rutinas?.niveles ?? [];
   const plans = content.dietas?.planes ?? [];
   const hexColor = /^#[0-9a-f]{6}$/i;
+  const normalizeKey = (value) => String(value ?? "").trim().toLowerCase();
+  const findDuplicates = (items, getter) => {
+    const seen = new Set();
+    const duplicated = new Set();
+
+    items.map(getter).filter(Boolean).forEach((value) => {
+      const key = normalizeKey(value);
+      if (seen.has(key)) duplicated.add(String(value));
+      seen.add(key);
+    });
+
+    return [...duplicated];
+  };
 
   if (levels.length === 0) {
     errors.push("Debe existir al menos un nivel.");
   }
+
+  findDuplicates(levels, (level) => level.id).forEach((value) => errors.push(`Hay un ID de entreno duplicado: ${value}.`));
+  findDuplicates(levels, (level) =>
+    String(level.nombre || "").trim()
+      ? `${level.nivel ?? level.dificultad}|${level.sexo}|${level.nombre}`
+      : null,
+  ).forEach((value) => {
+    const [, audience, name] = String(value).split("|");
+    errors.push(`Hay un entreno duplicado para ${audience}: ${name}.`);
+  });
+  findDuplicates(levels, (level) => level.slug).forEach((value) => errors.push(`Hay un slug de entreno duplicado: ${value}.`));
 
   levels.forEach((level, levelIndex) => {
     const label = level.nombre || `Nivel ${levelIndex + 1}`;
@@ -1725,9 +1855,21 @@ const validateContent = (content) => {
       errors.push(`${label}: debe tener al menos un día de entreno.`);
     }
 
+    findDuplicates(level.dias ?? [], (day) => day.nombre).forEach((value) =>
+      errors.push(`${label}: hay un día duplicado llamado ${value}.`),
+    );
+    findDuplicates(level.ejercicios ?? [], (exercise) => exercise.id).forEach((value) =>
+      errors.push(`${label}: hay un ID de ejercicio duplicado: ${value}.`),
+    );
     (level.dias ?? []).forEach((day, dayIndex) => {
       const dayLabel = day.nombre || `Día ${dayIndex + 1}`;
       if (!String(day.nombre || "").trim()) errors.push(`${label}: el día ${dayIndex + 1} necesita nombre.`);
+      findDuplicates(day.ejercicios ?? [], (exercise) => exercise.numero).forEach((value) =>
+        errors.push(`${label} · ${dayLabel}: hay un número de ejercicio duplicado: ${value}.`),
+      );
+      findDuplicates(day.ejercicios ?? [], (exercise) => exercise.nombre).forEach((value) =>
+        errors.push(`${label} · ${dayLabel}: hay un ejercicio duplicado llamado ${value}.`),
+      );
 
       (day.ejercicios ?? []).forEach((exercise, exerciseIndex) => {
         const exerciseLabel = `${dayLabel} · ${exercise.nombre || `Ejercicio ${exerciseIndex + 1}`}`;
@@ -1749,6 +1891,9 @@ const validateContent = (content) => {
     errors.push("Debe existir al menos un plan de dieta.");
   }
 
+  findDuplicates(plans, (plan) => plan.id).forEach((value) => errors.push(`Hay un ID de plan duplicado: ${value}.`));
+  findDuplicates(plans, (plan) => plan.nombre).forEach((value) => errors.push(`Hay un nombre de plan duplicado: ${value}.`));
+
   plans.forEach((plan, planIndex) => {
     const label = plan.nombre || `Plan ${planIndex + 1}`;
 
@@ -1757,8 +1902,15 @@ const validateContent = (content) => {
     if (!String(plan.descripcion || "").trim()) errors.push(`${label}: la descripción es obligatoria.`);
     if (!hexColor.test(plan.color || "")) errors.push(`${label}: el color debe tener formato #RRGGBB.`);
 
+    findDuplicates(plan.dias ?? [], (day) => day.nombre).forEach((value) =>
+      errors.push(`${label}: hay un día duplicado llamado ${value}.`),
+    );
+
     (plan.dias ?? []).forEach((day, dayIndex) => {
       if (!String(day.nombre || "").trim()) errors.push(`${label}: el día ${dayIndex + 1} necesita nombre.`);
+      findDuplicates(day.comidas ?? [], (meal) => meal.tipo).forEach((value) =>
+        errors.push(`${label} · ${day.nombre || `Día ${dayIndex + 1}`}: hay una comida duplicada llamada ${value}.`),
+      );
 
       (day.comidas ?? []).forEach((meal, mealIndex) => {
         if (!String(meal.tipo || "").trim()) errors.push(`${label}: la comida ${mealIndex + 1} necesita tipo.`);
