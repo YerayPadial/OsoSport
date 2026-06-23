@@ -1,9 +1,9 @@
 import React from "react";
-import rutinasData from "../data/rutinas.json";
+import { useAppData } from "../data/useAppData";
 import LevelCard from "../components/ui/LevelCard";
-import { Dumbbell } from "lucide-react";
 
 const HomeScreen = ({ onSelectLevel }) => {
+  const { rutinasData } = useAppData();
   // Lista de IDs que quieres mostrar
   const idsVisibles = [1, 2, 3, 4, 5, 6];
 

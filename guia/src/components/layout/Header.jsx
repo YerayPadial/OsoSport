@@ -1,5 +1,5 @@
 import React from "react";
-import { Dumbbell, Sun, Moon, Menu } from "lucide-react";
+import { Dumbbell, Sun, Moon } from "lucide-react";
 
 const Logo = () => (
   <div className="flex items-center gap-2">
@@ -20,7 +20,6 @@ const Header = ({
   onLogoClick,
   theme,
   toggleTheme,
-  onMenuClick,
 }) => {
   const isHome =
     navigation.screen === "home" || navigation.screen === "dietHome";

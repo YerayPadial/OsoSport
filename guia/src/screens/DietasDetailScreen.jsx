@@ -1,5 +1,5 @@
 import React from "react";
-import dietasData from "../data/dietas.json";
+import { useAppData } from "../data/useAppData";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 
 // Mapeo de colores
@@ -9,6 +9,7 @@ const titleColorClasses = {
 };
 
 const DietasDetailScreen = ({ navigation, onGoBack }) => {
+  const { dietasData } = useAppData();
   const planActual = dietasData.planes.find(
     (p) => p.id === navigation.planId
   );

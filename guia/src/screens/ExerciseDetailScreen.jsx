@@ -1,5 +1,5 @@
 import React from "react";
-import rutinasData from "../data/rutinas.json";
+import { useAppData } from "../data/useAppData";
 import VideoPlayer from "../components/ui/VideoPlayer";
 import { ArrowLeft, CheckCircle, Info, Zap } from "lucide-react";
 
@@ -13,6 +13,7 @@ const titleColorClasses = {
 };
 
 const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
+  const { rutinasData } = useAppData();
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
   );
@@ -44,7 +45,6 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const BASE_URL = "/guia/";
   const videoUrl = `${BASE_URL}${ejercicioActual.video.substring(1)}`;
   const thumbnailUrl = `${BASE_URL}${ejercicioActual.thumbnail.substring(1)}`;
-  const colorNivel = nivelActual.color || "#2B7D32";
 
   return (
     <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen pb-20">

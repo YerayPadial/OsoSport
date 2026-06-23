@@ -1,9 +1,10 @@
 import React from "react";
-import dietasData from "../data/dietas.json";
+import { useAppData } from "../data/useAppData";
 import DietPlanCard from "../components/ui/DietPlanCard";
-import { ReceiptText } from "lucide-react";
 
 const DietasHomeScreen = ({ onSelectPlan }) => {
+  const { dietasData } = useAppData();
+
   return (
     <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 pt-8">
       <header className="text-center mb-10">

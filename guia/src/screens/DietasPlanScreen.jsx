@@ -1,5 +1,5 @@
 import React from "react";
-import dietasData from "../data/dietas.json";
+import { useAppData } from "../data/useAppData";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft } from "lucide-react";
 
@@ -10,6 +10,7 @@ const titleColorClasses = {
 };
 
 const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
+  const { dietasData } = useAppData();
   const planActual = dietasData.planes.find((p) => p.id === navigation.planId);
 
   if (!planActual) {

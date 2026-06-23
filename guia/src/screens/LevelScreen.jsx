@@ -1,5 +1,5 @@
 import React from "react";
-import rutinasData from "../data/rutinas.json";
+import { useAppData } from "../data/useAppData";
 import ExerciseCard from "../components/ui/ExerciseCard";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
@@ -19,6 +19,7 @@ const LevelScreen = ({
   onSelectExercise,
   onGoBack,
 }) => {
+  const { rutinasData } = useAppData();
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
   );
