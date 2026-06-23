@@ -6,6 +6,19 @@ const API_URL = `${import.meta.env.BASE_URL}api/content.php`;
 export const DataProvider = ({ children }) => {
   const [data, setData] = useState(defaultAppData);
 
+  const updateContent = (content) => {
+    if (!content?.rutinas?.niveles || !content?.dietas?.planes) {
+      return;
+    }
+
+    setData({
+      rutinasData: content.rutinas,
+      dietasData: content.dietas,
+      source: "api",
+      error: null,
+    });
+  };
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -50,7 +63,7 @@ export const DataProvider = ({ children }) => {
     return () => controller.abort();
   }, []);
 
-  const value = useMemo(() => data, [data]);
+  const value = useMemo(() => ({ ...data, updateContent }), [data]);
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 };

@@ -9,6 +9,7 @@ import ExerciseDetailScreen from "./screens/ExerciseDetailScreen";
 import DietasHomeScreen from "./screens/DietasHomeScreen";
 import DietasPlanScreen from "./screens/DietasPlanScreen";
 import DietasDetailScreen from "./screens/DietasDetailScreen";
+import AdminScreen from "./screens/AdminScreen";
 
 function App() {
   // --- 1. ESTADO DEL TEMA ---
@@ -77,6 +78,19 @@ function App() {
   // Se llama al pulsar el Logo en el Header
   const handleLogoClick = () => {
     resetNavigation(mainView);
+  };
+
+  const handleAdminClick = () => {
+    setMainView("admin");
+    setNavigation({
+      screen: "admin",
+      nivelId: null,
+      dia: null,
+      ejercicioId: null,
+      planId: null,
+      diaDieta: null,
+    });
+    setIsMenuOpen(false);
   };
 
   // --- NAVEGACIÓN RUTINAS ---
@@ -186,6 +200,10 @@ function App() {
           return <DietasHomeScreen onSelectPlan={handleSelectPlan} />;
       }
     }
+
+    if (mainView === "admin") {
+      return <AdminScreen onGoBack={() => handleSelectMainView("rutinas")} />;
+    }
   };
 
   return (
@@ -196,11 +214,13 @@ function App() {
         theme={theme}
         toggleTheme={toggleTheme}
         onMenuClick={toggleMenu}
+        onAdminClick={handleAdminClick}
       />
       <SideMenu
         isOpen={isMenuOpen}
         onClose={toggleMenu}
         onSelectView={handleSelectMainView}
+        onSelectAdmin={handleAdminClick}
         currentView={mainView}
       />
       <main>{renderScreen()}</main>

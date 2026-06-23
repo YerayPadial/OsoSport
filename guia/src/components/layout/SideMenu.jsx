@@ -1,7 +1,7 @@
 import React from "react";
-import { X, Dumbbell, ReceiptText } from "lucide-react"; // ReceiptText para dietas
+import { X, Dumbbell, ReceiptText, ShieldCheck } from "lucide-react"; // ReceiptText para dietas
 
-const SideMenu = ({ isOpen, onClose, onSelectView, currentView }) => {
+const SideMenu = ({ isOpen, onClose, onSelectView, onSelectAdmin, currentView }) => {
   return (
     <>
       {/* 1. Overlay oscuro */}
@@ -53,6 +53,12 @@ const SideMenu = ({ isOpen, onClose, onSelectView, currentView }) => {
             icon={<ReceiptText className="w-5 h-5" />}
             onClick={() => onSelectView("dietas")}
             isActive={currentView === "dietas"}
+          />
+          <MenuItem
+            label="Admin"
+            icon={<ShieldCheck className="w-5 h-5" />}
+            onClick={onSelectAdmin}
+            isActive={currentView === "admin"}
           />
         </nav>
       </div>

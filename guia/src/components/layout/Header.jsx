@@ -1,5 +1,5 @@
 import React from "react";
-import { Dumbbell, Sun, Moon } from "lucide-react";
+import { Dumbbell, Sun, Moon, ShieldCheck } from "lucide-react";
 
 const Logo = () => (
   <div className="flex items-center gap-2">
@@ -20,6 +20,7 @@ const Header = ({
   onLogoClick,
   theme,
   toggleTheme,
+  onAdminClick,
 }) => {
   const isHome =
     navigation.screen === "home" || navigation.screen === "dietHome";
@@ -42,6 +43,14 @@ const Header = ({
           </button>
         )}
         <div className="flex items-center gap-2">
+          <button
+            onClick={onAdminClick}
+            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
+            aria-label="Abrir panel admin"
+            title="Panel admin"
+          >
+            <ShieldCheck className="w-6 h-6" />
+          </button>
           {/* Botón theme*/}
           <button
             onClick={toggleTheme}

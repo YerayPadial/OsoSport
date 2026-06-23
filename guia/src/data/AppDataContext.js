@@ -7,6 +7,7 @@ export const defaultAppData = {
   dietasData: dietasFallback,
   source: "fallback",
   error: null,
+  updateContent: () => {},
 };
 
 export const AppDataContext = createContext(defaultAppData);

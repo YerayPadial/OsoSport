@@ -29,7 +29,17 @@ statements.push("DROP TABLE IF EXISTS training_exercise_tips;");
 statements.push("DROP TABLE IF EXISTS training_exercises;");
 statements.push("DROP TABLE IF EXISTS training_level_notes;");
 statements.push("DROP TABLE IF EXISTS training_levels;");
+statements.push("DROP TABLE IF EXISTS admin_users;");
 statements.push("SET FOREIGN_KEY_CHECKS = 1;");
+
+statements.push(`CREATE TABLE IF NOT EXISTS admin_users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(80) NOT NULL UNIQUE,
+  display_name VARCHAR(120) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
 statements.push(`CREATE TABLE IF NOT EXISTS training_levels (
   id INT UNSIGNED PRIMARY KEY,
@@ -204,6 +214,10 @@ dietasData.planes.forEach((plan) => {
 statements.push(`INSERT INTO diet_days (id, plan_id, nombre, sort_order) VALUES\n${dayRows.join(",\n")};`);
 statements.push(`INSERT INTO diet_meals (id, day_id, tipo, sort_order) VALUES\n${mealRows.join(",\n")};`);
 statements.push(`INSERT INTO diet_foods (meal_id, text, sort_order) VALUES\n${foodRows.join(",\n")};`);
+
+statements.push(`INSERT INTO admin_users (username, display_name, password_hash, active) VALUES
+${row(["ypadial", "Yeray Padial", "$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy", 1])},
+${row(["chema", "Chema", "$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm", 1])};`);
 
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, `${statements.join("\n\n")}\n`, "utf8");
