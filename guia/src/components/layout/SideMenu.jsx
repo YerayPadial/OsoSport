@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Dumbbell, ReceiptText, ShieldCheck } from "lucide-react"; // ReceiptText para dietas
+import { X, Dumbbell, ReceiptText, UserRound } from "lucide-react"; // ReceiptText para dietas
 
 const SideMenu = ({ isOpen, onClose, onSelectView, onSelectAdmin, currentView }) => {
   return (
@@ -56,7 +56,7 @@ const SideMenu = ({ isOpen, onClose, onSelectView, onSelectAdmin, currentView })
           />
           <MenuItem
             label="Admin"
-            icon={<ShieldCheck className="w-5 h-5" />}
+            icon={<UserRound className="w-5 h-5" />}
             onClick={onSelectAdmin}
             isActive={currentView === "admin"}
           />

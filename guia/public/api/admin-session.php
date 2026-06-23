@@ -34,6 +34,24 @@ function setUserSession(array $user): void
     $_SESSION['admin_user'] = $user;
 }
 
+function rememberCurrentSession(bool $remember): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $cookiePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/';
+
+    setcookie(session_name(), session_id(), [
+        'expires' => $remember ? time() + (30 * 24 * 60 * 60) : 0,
+        'path' => $cookiePath,
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
 function readJsonBody(): array
 {
     $body = file_get_contents('php://input') ?: '';

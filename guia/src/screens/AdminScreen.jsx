@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronUp,
   Dumbbell,
+  Edit,
   Eye,
   EyeOff,
   Image,
@@ -14,7 +15,7 @@ import {
   Play,
   ReceiptText,
   Save,
-  ShieldCheck,
+  Search,
   Sparkles,
   Trash2,
   UserRound,
@@ -354,8 +355,8 @@ const AdminScreen = ({ onGoBack }) => {
   const { rutinasData, dietasData, updateContent } = useAppData();
   const [auth, setAuth] = useState({ checking: true, authenticated: false, user: null });
   const [authMode, setAuthMode] = useState("login");
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
-  const [registerForm, setRegisterForm] = useState({ firstName: "", lastName: "", email: "", password: "" });
+  const [credentials, setCredentials] = useState({ username: "", password: "", remember: false });
+  const [registerForm, setRegisterForm] = useState({ firstName: "", lastName: "", email: "", password: "", remember: false });
   const [showPassword, setShowPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [content, setContent] = useState(() => normalizeAdminContent({ rutinas: rutinasData, dietas: dietasData }));
@@ -375,6 +376,7 @@ const AdminScreen = ({ onGoBack }) => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [confirmDialog, setConfirmDialog] = useState(null);
   const [quickLevel, setQuickLevel] = useState({
     nombre: "",
     dificultad: "1",
@@ -415,6 +417,15 @@ const AdminScreen = ({ onGoBack }) => {
       })
       .catch(() => setAuth({ checking: false, authenticated: false, user: null }));
   }, []);
+
+  useEffect(() => {
+    setError("");
+    setMessage("");
+  }, [authMode]);
+
+  useEffect(() => {
+    window.dispatchEvent(new Event("ososport-auth-change"));
+  }, [auth.user]);
 
   useEffect(() => {
     if (!auth.authenticated || auth.user?.role !== "admin") return;
@@ -479,6 +490,10 @@ const AdminScreen = ({ onGoBack }) => {
       producer(draft);
       return draft;
     });
+  };
+
+  const askConfirm = ({ title, text, confirmLabel = "Eliminar", onConfirm }) => {
+    setConfirmDialog({ title, text, confirmLabel, onConfirm });
   };
 
   const updateLevel = (key, value) => {
@@ -589,6 +604,7 @@ const AdminScreen = ({ onGoBack }) => {
     await api.logout();
     setAuth({ checking: false, authenticated: false, user: null });
     setActiveArea("rutinas");
+    setCredentials((current) => ({ ...current, password: "" }));
   };
 
   const handleSaveProfile = async () => {
@@ -664,27 +680,54 @@ const AdminScreen = ({ onGoBack }) => {
     }
   };
 
-  const handleDeleteUser = async () => {
-    if (!selectedUserId) return;
-    const selected = users.find((user) => user.id === selectedUserId);
+  const handleDeleteUser = async (id = selectedUserId) => {
+    if (!id) return;
+    const selected = users.find((user) => user.id === id);
+    askConfirm({
+      title: "Eliminar usuario",
+      text: `Vas a eliminar el usuario "${selected?.displayName || selected?.email}". Esta acción no se puede deshacer.`,
+      onConfirm: async () => {
+        setError("");
+        setMessage("");
 
-    if (!window.confirm(`Vas a eliminar el usuario "${selected?.displayName || selected?.email}". ¿Quieres continuar?`)) {
-      return;
-    }
+        try {
+          await api.deleteUser(id);
+          const nextUsers = users.filter((user) => user.id !== id);
+          setUsers(nextUsers);
+          setSelectedUserId(nextUsers[0]?.id ?? null);
+          setUserForm(userToAdminForm(nextUsers[0]));
+          setMessage("Usuario eliminado.");
+        } catch (deleteError) {
+          setError(deleteError.message);
+        }
+      },
+    });
+  };
 
-    setError("");
-    setMessage("");
+  const handleDeleteUsers = (ids) => {
+    const selectedUsers = users.filter((user) => ids.includes(user.id));
+    if (selectedUsers.length === 0) return;
 
-    try {
-      await api.deleteUser(selectedUserId);
-      const nextUsers = users.filter((user) => user.id !== selectedUserId);
-      setUsers(nextUsers);
-      setSelectedUserId(nextUsers[0]?.id ?? null);
-      setUserForm(userToAdminForm(nextUsers[0]));
-      setMessage("Usuario eliminado.");
-    } catch (deleteError) {
-      setError(deleteError.message);
-    }
+    askConfirm({
+      title: "Eliminar usuarios",
+      text: `Vas a eliminar ${selectedUsers.length} usuario${selectedUsers.length === 1 ? "" : "s"}. Esta acción no se puede deshacer.`,
+      confirmLabel: "Eliminar",
+      onConfirm: async () => {
+        setError("");
+        setMessage("");
+
+        try {
+          await Promise.all(selectedUsers.map((user) => api.deleteUser(user.id)));
+          const nextUsers = users.filter((user) => !ids.includes(user.id));
+          setUsers(nextUsers);
+          setSelectedUserId(nextUsers[0]?.id ?? null);
+          setUserForm(userToAdminForm(nextUsers[0]));
+          setMessage("Usuarios eliminados.");
+        } catch (deleteError) {
+          setError(deleteError.message);
+        }
+      },
+    });
   };
 
   const handleSave = async (scope = "Cambios") => {
@@ -721,19 +764,18 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteLevel = () => {
     if (!selectedLevel || levels.length <= 1) return;
-    if (
-      !window.confirm(
-        `Vas a eliminar el entreno "${selectedLevel.nombre}". Se borrarán también sus días, ejercicios, notas y consejos asociados. ¿Quieres continuar?`,
-      )
-    ) {
-      return;
-    }
-    patchContent((draft) => {
-      draft.rutinas.niveles = draft.rutinas.niveles.filter((level) => level.id !== selectedLevel.id);
+    askConfirm({
+      title: "Eliminar entreno",
+      text: `Vas a eliminar el entreno "${selectedLevel.nombre}". Se borrarán también sus días, ejercicios, notas y consejos asociados.`,
+      onConfirm: () => {
+        patchContent((draft) => {
+          draft.rutinas.niveles = draft.rutinas.niveles.filter((level) => level.id !== selectedLevel.id);
+        });
+        const nextLevel = levels.find((level) => level.id !== selectedLevel.id);
+        setSelectedLevelId(nextLevel?.id ?? null);
+        setSelectedExerciseId(nextLevel?.ejercicios?.[0]?.id ?? null);
+      },
     });
-    const nextLevel = levels.find((level) => level.id !== selectedLevel.id);
-    setSelectedLevelId(nextLevel?.id ?? null);
-    setSelectedExerciseId(nextLevel?.ejercicios?.[0]?.id ?? null);
   };
 
   const addTrainingDay = (name = "Nuevo día") => {
@@ -750,22 +792,21 @@ const AdminScreen = ({ onGoBack }) => {
   const deleteTrainingDay = (dayId) => {
     if (!selectedLevel || (selectedLevel.dias?.length ?? 0) <= 1) return;
     const deletedDay = selectedLevel.dias.find((day) => String(day.id) === String(dayId));
-    if (
-      !window.confirm(
-        `Vas a eliminar el día "${deletedDay?.nombre || "seleccionado"}". Se borrarán también todos sus ejercicios. ¿Quieres continuar?`,
-      )
-    ) {
-      return;
-    }
-    patchContent((draft) => {
-      const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
-      level.dias = level.dias.filter((day) => String(day.id) !== String(dayId));
-      level.ejercicios = flattenTrainingExercises(level);
+    askConfirm({
+      title: "Eliminar día",
+      text: `Vas a eliminar el día "${deletedDay?.nombre || "seleccionado"}". Se borrarán también todos sus ejercicios.`,
+      onConfirm: () => {
+        patchContent((draft) => {
+          const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
+          level.dias = level.dias.filter((day) => String(day.id) !== String(dayId));
+          level.ejercicios = flattenTrainingExercises(level);
+        });
+        if (deletedDay?.ejercicios?.some((exercise) => exercise.id === selectedExerciseId)) {
+          const nextDay = selectedLevel.dias.find((day) => String(day.id) !== String(dayId));
+          setSelectedExerciseId(nextDay?.ejercicios?.[0]?.id ?? null);
+        }
+      },
     });
-    if (deletedDay?.ejercicios?.some((exercise) => exercise.id === selectedExerciseId)) {
-      const nextDay = selectedLevel.dias.find((day) => String(day.id) !== String(dayId));
-      setSelectedExerciseId(nextDay?.ejercicios?.[0]?.id ?? null);
-    }
   };
 
   const addExercise = (dayId = null) => {
@@ -788,19 +829,22 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteExercise = () => {
     if (!selectedLevel || !selectedExercise) return;
-    if (!window.confirm(`Vas a eliminar el ejercicio "${selectedExercise.nombre}". ¿Quieres continuar?`)) {
-      return;
-    }
-    patchContent((draft) => {
-      const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
-      level.dias = level.dias.map((day) => ({
-        ...day,
-        ejercicios: (day.ejercicios ?? []).filter((exercise) => exercise.id !== selectedExercise.id),
-      }));
-      level.ejercicios = flattenTrainingExercises(level);
+    askConfirm({
+      title: "Eliminar ejercicio",
+      text: `Vas a eliminar el ejercicio "${selectedExercise.nombre}".`,
+      onConfirm: () => {
+        patchContent((draft) => {
+          const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
+          level.dias = level.dias.map((day) => ({
+            ...day,
+            ejercicios: (day.ejercicios ?? []).filter((exercise) => exercise.id !== selectedExercise.id),
+          }));
+          level.ejercicios = flattenTrainingExercises(level);
+        });
+        const nextExercise = selectedLevel.ejercicios.find((exercise) => exercise.id !== selectedExercise.id);
+        setSelectedExerciseId(nextExercise?.id ?? null);
+      },
     });
-    const nextExercise = selectedLevel.ejercicios.find((exercise) => exercise.id !== selectedExercise.id);
-    setSelectedExerciseId(nextExercise?.id ?? null);
   };
 
   const addPlan = () => {
@@ -813,20 +857,19 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deletePlan = () => {
     if (!selectedPlan || plans.length <= 1) return;
-    if (
-      !window.confirm(
-        `Vas a eliminar el plan "${selectedPlan.nombre}". Se borrarán también sus días, comidas y alimentos asociados. ¿Quieres continuar?`,
-      )
-    ) {
-      return;
-    }
-    patchContent((draft) => {
-      draft.dietas.planes = draft.dietas.planes.filter((plan) => plan.id !== selectedPlan.id);
+    askConfirm({
+      title: "Eliminar plan",
+      text: `Vas a eliminar el plan "${selectedPlan.nombre}". Se borrarán también sus días, comidas y alimentos asociados.`,
+      onConfirm: () => {
+        patchContent((draft) => {
+          draft.dietas.planes = draft.dietas.planes.filter((plan) => plan.id !== selectedPlan.id);
+        });
+        const nextPlan = plans.find((plan) => plan.id !== selectedPlan.id);
+        setSelectedPlanId(nextPlan?.id ?? null);
+        setSelectedDayIndex(0);
+        setSelectedMealIndex(0);
+      },
     });
-    const nextPlan = plans.find((plan) => plan.id !== selectedPlan.id);
-    setSelectedPlanId(nextPlan?.id ?? null);
-    setSelectedDayIndex(0);
-    setSelectedMealIndex(0);
   };
 
   const addDay = () => {
@@ -841,19 +884,18 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteDay = () => {
     if (!selectedPlan || !selectedDay) return;
-    if (
-      !window.confirm(
-        `Vas a eliminar el día "${selectedDay.nombre}". Se borrarán también sus comidas y alimentos. ¿Quieres continuar?`,
-      )
-    ) {
-      return;
-    }
-    patchContent((draft) => {
-      const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
-      plan.dias.splice(selectedDayIndex, 1);
+    askConfirm({
+      title: "Eliminar día",
+      text: `Vas a eliminar el día "${selectedDay.nombre}". Se borrarán también sus comidas y alimentos.`,
+      onConfirm: () => {
+        patchContent((draft) => {
+          const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
+          plan.dias.splice(selectedDayIndex, 1);
+        });
+        setSelectedDayIndex(Math.max(0, selectedDayIndex - 1));
+        setSelectedMealIndex(0);
+      },
     });
-    setSelectedDayIndex(Math.max(0, selectedDayIndex - 1));
-    setSelectedMealIndex(0);
   };
 
   const addMeal = () => {
@@ -870,14 +912,17 @@ const AdminScreen = ({ onGoBack }) => {
 
   const deleteMeal = () => {
     if (!selectedMeal) return;
-    if (!window.confirm(`Vas a eliminar la comida "${selectedMeal.tipo}". ¿Quieres continuar?`)) {
-      return;
-    }
-    patchContent((draft) => {
-      const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
-      plan.dias[selectedDayIndex].comidas.splice(selectedMealIndex, 1);
+    askConfirm({
+      title: "Eliminar comida",
+      text: `Vas a eliminar la comida "${selectedMeal.tipo}".`,
+      onConfirm: () => {
+        patchContent((draft) => {
+          const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
+          plan.dias[selectedDayIndex].comidas.splice(selectedMealIndex, 1);
+        });
+        setSelectedMealIndex(Math.max(0, selectedMealIndex - 1));
+      },
     });
-    setSelectedMealIndex(Math.max(0, selectedMealIndex - 1));
   };
 
   if (auth.checking) {
@@ -890,7 +935,7 @@ const AdminScreen = ({ onGoBack }) => {
         <div className="max-w-md mx-auto bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl p-5 shadow-lg">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-full bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6" />
+              <UserRound className="w-6 h-6" />
             </div>
             <div>
           <h1 className="text-2xl font-black">Acceso</h1>
@@ -905,7 +950,7 @@ const AdminScreen = ({ onGoBack }) => {
             onChange={setAuthMode}
             options={[
               { value: "login", label: "Entrar", icon: LogIn },
-              { value: "register", label: "Registro", icon: UserRound },
+              { value: "register", label: "Registro", icon: Sparkles },
             ]}
           />
 
@@ -926,6 +971,11 @@ const AdminScreen = ({ onGoBack }) => {
                 onChange={(value) => setCredentials((current) => ({ ...current, password: value }))}
                 autoComplete="current-password"
                 required
+              />
+              <CheckboxField
+                label="Mantener sesión iniciada"
+                checked={credentials.remember}
+                onChange={(value) => setCredentials((current) => ({ ...current, remember: value }))}
               />
             {error && <Alert tone="error">{error}</Alert>}
             <button className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2">
@@ -948,6 +998,11 @@ const AdminScreen = ({ onGoBack }) => {
                 required
                 hint="Mínimo 10 caracteres con mayúsculas, minúsculas y números."
               />
+              <CheckboxField
+                label="Mantener sesión iniciada"
+                checked={registerForm.remember}
+                onChange={(value) => setRegisterForm((current) => ({ ...current, remember: value }))}
+              />
               {error && <Alert tone="error">{error}</Alert>}
               <button className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2">
                 <UserRound className="w-5 h-5" />
@@ -966,9 +1021,7 @@ const AdminScreen = ({ onGoBack }) => {
         <aside className="lg:sticky lg:top-24 lg:self-start bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden">
           <div className="p-4 border-b border-borde-claro dark:border-borde-oscuro">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-fondo-claro dark:bg-fondo-oscuro flex items-center justify-center">
-                <UserRound className="w-6 h-6" />
-              </div>
+              <SessionAvatar user={auth.user} />
               <div className="min-w-0">
                 <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
                   Sesión
@@ -982,12 +1035,14 @@ const AdminScreen = ({ onGoBack }) => {
             onChange={setActiveArea}
             items={visibleNavItems}
           />
-          <div className="p-4 grid grid-cols-2 gap-2">
-            <Stat label="Entrenos" value={stats.niveles} />
-            <Stat label="Ejercicios" value={stats.ejercicios} />
-            <Stat label="Planes" value={stats.planes} />
-            <Stat label="Días" value={stats.dias} />
-          </div>
+          {isAdmin && (
+            <div className="p-4 grid grid-cols-2 gap-2">
+              <Stat label="Entrenos" value={stats.niveles} />
+              <Stat label="Ejercicios" value={stats.ejercicios} />
+              <Stat label="Planes" value={stats.planes} />
+              <Stat label="Días" value={stats.dias} />
+            </div>
+          )}
         </aside>
 
         <div className="min-w-0 space-y-4">
@@ -1010,7 +1065,7 @@ const AdminScreen = ({ onGoBack }) => {
                   className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-5 h-5" />
-                  Salir
+                  Cerrar sesión
                 </button>
               </div>
             </div>
@@ -1047,6 +1102,7 @@ const AdminScreen = ({ onGoBack }) => {
               onNewUser={handleNewUser}
               onSaveUser={handleSaveUser}
               onDeleteUser={handleDeleteUser}
+              onDeleteUsers={handleDeleteUsers}
             />
           ) : activeArea === "rapido" ? (
             <QuickAddPanel
@@ -1171,6 +1227,15 @@ const AdminScreen = ({ onGoBack }) => {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        dialog={confirmDialog}
+        onCancel={() => setConfirmDialog(null)}
+        onConfirm={async () => {
+          const action = confirmDialog?.onConfirm;
+          setConfirmDialog(null);
+          await action?.();
+        }}
+      />
     </AdminShell>
   );
 };
@@ -1179,8 +1244,8 @@ const adminNavItems = [
   { value: "rapido", label: "Añadir rápido", icon: Sparkles },
   { value: "rutinas", label: "Rutinas", icon: Dumbbell },
   { value: "dietas", label: "Dietas", icon: ReceiptText },
-  { value: "usuarios", label: "Usuarios", icon: UserRound },
-  { value: "perfil", label: "Perfil", icon: ShieldCheck },
+  { value: "usuarios", label: "Usuarios", emoji: "👥" },
+  { value: "perfil", label: "Perfil", icon: UserRound },
 ];
 
 const userNavItems = [{ value: "perfil", label: "Perfil", icon: UserRound }];
@@ -1216,13 +1281,57 @@ const AdminNavigation = ({ value, onChange, items }) => (
               : "text-texto-secundario-claro dark:text-texto-secundario-oscuro hover:bg-fondo-claro dark:hover:bg-fondo-oscuro"
           }`}
         >
-          <Icon className="w-5 h-5" />
+        {item.emoji ? <span className="w-5 h-5 flex items-center justify-center">{item.emoji}</span> : <Icon className="w-5 h-5" />}
           {item.label}
         </button>
       );
     })}
   </nav>
 );
+
+const SessionAvatar = ({ user }) => {
+  const avatarUrl = user?.avatarPath?.startsWith("/") ? `/guia${user.avatarPath}` : user?.avatarPath;
+
+  return (
+    <div className="w-12 h-12 rounded-full bg-fondo-claro dark:bg-fondo-oscuro flex items-center justify-center overflow-hidden border border-borde-claro dark:border-borde-oscuro">
+      {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : <UserRound className="w-6 h-6" />}
+    </div>
+  );
+};
+
+const ConfirmDialog = ({ dialog, onCancel, onConfirm }) => {
+  if (!dialog) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center">
+      <div className="w-full max-w-md rounded-2xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura shadow-2xl p-5">
+        <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-200 flex items-center justify-center mb-4">
+          <Trash2 className="w-6 h-6" />
+        </div>
+        <h2 className="text-2xl font-black mb-2">{dialog.title}</h2>
+        <p className="font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-5">
+          {dialog.text}
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro font-black"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="min-h-touch-target rounded-xl bg-red-600 text-white font-black"
+          >
+            {dialog.confirmLabel || "Eliminar"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const RoutineEditor = ({
   levels,
@@ -1272,7 +1381,13 @@ const RoutineEditor = ({
 
   return (
     <div className="space-y-4">
-      <CollapsiblePanel title="Entrenos" action={addLevel} onSave={() => onSave("Entrenos")} saving={saving}>
+      <CollapsiblePanel
+        title="Entrenos"
+        action={addLevel}
+        danger={selectedLevel ? deleteLevel : null}
+        onSave={() => onSave("Entrenos")}
+        saving={saving}
+      >
         <Picker
           items={levels}
           selectedId={selectedLevel?.id}
@@ -1434,7 +1549,13 @@ const DietEditor = ({
   onSave,
 }) => (
   <div className="space-y-4">
-    <CollapsiblePanel title="Planes" action={addPlan} onSave={() => onSave("Planes")} saving={saving}>
+    <CollapsiblePanel
+      title="Planes"
+      action={addPlan}
+      danger={selectedPlan ? deletePlan : null}
+      onSave={() => onSave("Planes")}
+      saving={saving}
+    >
       <Picker
         items={plans}
         selectedId={selectedPlan?.id}
@@ -1570,20 +1691,199 @@ const UsersEditor = ({
   onNewUser,
   onSaveUser,
   onDeleteUser,
+  onDeleteUsers,
 }) => {
   const selectedUser = users.find((user) => user.id === selectedUserId);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [query, setQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const filteredUsers = useMemo(
+    () =>
+      users.filter((user) => {
+        const search = query.trim().toLowerCase();
+        const matchesSearch =
+          !search ||
+          [user.displayName, user.email, user.role]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(search));
+        const matchesRole = roleFilter === "all" || user.role === roleFilter;
+        const matchesStatus =
+          statusFilter === "all" ||
+          (statusFilter === "active" ? user.active : !user.active);
+
+        return matchesSearch && matchesRole && matchesStatus;
+      }),
+    [query, roleFilter, statusFilter, users],
+  );
+  const allVisibleSelected =
+    filteredUsers.length > 0 && filteredUsers.every((user) => selectedRows.includes(user.id));
+
+  const toggleRow = (id) => {
+    setSelectedRows((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
+  };
+
+  const toggleAllVisible = () => {
+    setSelectedRows((current) =>
+      allVisibleSelected
+        ? current.filter((id) => !filteredUsers.some((user) => user.id === id))
+        : [...new Set([...current, ...filteredUsers.map((user) => user.id)])],
+    );
+  };
+
+  const handleNew = () => {
+    setSelectedRows([]);
+    onNewUser();
+  };
 
   return (
     <div className="space-y-4">
-      <CollapsiblePanel title="Usuarios" action={onNewUser}>
-        <Picker
-          items={users}
-          selectedId={selectedUserId}
-          label={(user) => `${user.displayName} · ${user.role}`}
-          onSelect={onSelectUser}
-        />
-      </CollapsiblePanel>
+      <section className="bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-black text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+              Usuarios · Listado
+            </p>
+            <h2 className="text-3xl font-black">Usuarios</h2>
+          </div>
+          <button
+            type="button"
+            onClick={handleNew}
+            className="min-h-touch-target px-4 rounded-xl bg-green-600 text-white font-black flex items-center justify-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Crear usuario
+          </button>
+        </div>
+
+        <div className="border-y border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro p-4 grid lg:grid-cols-[minmax(0,1fr)_180px_180px] gap-3">
+          <label className="min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura px-3 flex items-center gap-2">
+            <Search className="w-5 h-5 text-texto-secundario-claro dark:text-texto-secundario-oscuro" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar"
+              className="w-full bg-transparent outline-none font-bold"
+            />
+          </label>
+          <SelectField
+            label="Rol"
+            value={roleFilter}
+            onChange={setRoleFilter}
+            options={[
+              { value: "all", label: "Todos" },
+              { value: "admin", label: "Admin" },
+              { value: "user", label: "User" },
+            ]}
+          />
+          <SelectField
+            label="Estado"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { value: "all", label: "Todos" },
+              { value: "active", label: "Activos" },
+              { value: "inactive", label: "Inactivos" },
+            ]}
+          />
+        </div>
+
+        <div className="px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-tarjeta-clara dark:bg-tarjeta-oscura">
+          <button
+            type="button"
+            onClick={() => onDeleteUsers(selectedRows)}
+            disabled={selectedRows.length === 0}
+            className="min-h-touch-target px-4 rounded-xl border border-red-300 dark:border-red-800 text-red-600 dark:text-red-300 font-black flex items-center justify-center gap-2 disabled:opacity-40"
+          >
+            <Trash2 className="w-5 h-5" />
+            Borrar seleccionados
+          </button>
+          <div className="flex gap-3 text-sm font-black">
+            <button type="button" onClick={toggleAllVisible} className="text-green-600 dark:text-green-300">
+              {allVisibleSelected ? "Deseleccionar visibles" : `Seleccionar ${filteredUsers.length}`}
+            </button>
+            <span className="text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+              {selectedRows.length} seleccionados
+            </span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-left">
+            <thead className="border-y border-borde-claro dark:border-borde-oscuro">
+              <tr className="text-sm text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                <th className="w-14 p-4">
+                  <input type="checkbox" checked={allVisibleSelected} onChange={toggleAllVisible} className="w-5 h-5 accent-green-600" />
+                </th>
+                <th className="p-4">Nombre</th>
+                <th className="p-4">Correo electrónico</th>
+                <th className="p-4">Perfiles</th>
+                <th className="p-4">Estado</th>
+                <th className="p-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className={`border-b border-borde-claro dark:border-borde-oscuro ${
+                    selectedRows.includes(user.id) ? "bg-green-500/10" : ""
+                  }`}
+                >
+                  <td className="p-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.includes(user.id)}
+                      onChange={() => toggleRow(user.id)}
+                      className="w-5 h-5 accent-green-600"
+                    />
+                  </td>
+                  <td className="p-4 font-bold">{user.displayName}</td>
+                  <td className="p-4">{user.email}</td>
+                  <td className="p-4">
+                    <RoleBadge role={user.role} />
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded-lg text-xs font-black ${user.active ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200"}`}>
+                      {user.active ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onSelectUser(user)}
+                        className="min-h-touch-target px-3 rounded-xl text-green-600 dark:text-green-300 font-black flex items-center gap-2"
+                      >
+                        <Edit className="w-5 h-5" />
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDeleteUser(user.id)}
+                        className="min-h-touch-target w-12 rounded-xl text-red-600 dark:text-red-300 flex items-center justify-center"
+                        aria-label="Eliminar usuario"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filteredUsers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-6">
+                    <EmptyState text="No hay usuarios que coincidan con los filtros." />
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <CollapsiblePanel
         title={selectedUser ? "Editar usuario" : "Nuevo usuario"}
@@ -1594,7 +1894,7 @@ const UsersEditor = ({
           <Field label="Nombre" value={userForm.firstName} onChange={(value) => setUserForm((current) => ({ ...current, firstName: value }))} required />
           <Field label="Apellidos" value={userForm.lastName} onChange={(value) => setUserForm((current) => ({ ...current, lastName: value }))} required />
           <Field label="Email" type="email" value={userForm.email} onChange={(value) => setUserForm((current) => ({ ...current, email: value }))} required />
-          <SelectField label="Rol" value={userForm.role} onChange={(value) => setUserForm((current) => ({ ...current, role: value }))} options={[{ value: "user", label: "Usuario" }, { value: "admin", label: "Admin" }]} />
+          <SelectField label="Rol" value={userForm.role} onChange={(value) => setUserForm((current) => ({ ...current, role: value }))} options={[{ value: "admin", label: "Admin" }, { value: "user", label: "User" }]} />
           <SelectField label="Estado" value={userForm.active ? "1" : "0"} onChange={(value) => setUserForm((current) => ({ ...current, active: value === "1" }))} options={[{ value: "1", label: "Activo" }, { value: "0", label: "Inactivo" }]} />
           <PasswordField
             label={selectedUser ? "Nueva contraseña" : "Contraseña"}
@@ -1643,6 +1943,18 @@ const AvatarField = ({ user, onUpload }) => {
     </div>
   );
 };
+
+const RoleBadge = ({ role }) => (
+  <span
+    className={`inline-flex items-center rounded-lg px-2 py-1 text-xs font-black border ${
+      role === "admin"
+        ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300"
+        : "border-teal-500/50 bg-teal-500/10 text-teal-700 dark:text-teal-300"
+    }`}
+  >
+    {role === "admin" ? "admin" : "user"}
+  </span>
+);
 
 const QuickAddPanel = ({
   levels,
@@ -1941,6 +2253,18 @@ const PasswordField = ({ label, visible, setVisible, value, onChange, autoComple
   />
 );
 
+const CheckboxField = ({ label, checked, onChange }) => (
+  <label className="min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro px-4 flex items-center gap-3 font-bold cursor-pointer">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+      className="w-5 h-5 accent-nivel-1-claro dark:accent-nivel-1-oscuro"
+    />
+    <span>{label}</span>
+  </label>
+);
+
 const SelectField = ({ label, value, onChange, options, required = false, hint }) => (
   <label className="block">
     <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
@@ -2177,7 +2501,7 @@ const SegmentedControl = ({ value, onChange, options }) => (
             active ? "bg-fondo-claro dark:bg-fondo-oscuro" : "opacity-70"
           }`}
         >
-          <Icon className="w-5 h-5" />
+          {option.emoji ? <span className="w-5 h-5 flex items-center justify-center">{option.emoji}</span> : <Icon className="w-5 h-5" />}
           {option.label}
         </button>
       );

@@ -27,6 +27,7 @@ try {
         $payload = readJsonBody();
         $identifier = trim((string) ($payload['username'] ?? $payload['email'] ?? ''));
         $password = (string) ($payload['password'] ?? '');
+        $remember = !empty($payload['remember']);
 
         if ($identifier === '' || $password === '') {
             respondError('Introduce email/usuario y contraseña.', 422);
@@ -47,6 +48,7 @@ try {
 
         session_regenerate_id(true);
         setUserSession(publicUser($user));
+        rememberCurrentSession($remember);
 
         echo json_encode([
             'authenticated' => true,
@@ -61,6 +63,7 @@ try {
         $lastName = cleanName($payload['lastName'] ?? '');
         $email = cleanEmail($payload['email'] ?? '');
         $password = (string) ($payload['password'] ?? '');
+        $remember = !empty($payload['remember']);
 
         validateUserInput($firstName, $lastName, $email);
         validatePassword($password);
@@ -88,6 +91,7 @@ try {
         $user = findUserById($pdo, (int) $pdo->lastInsertId());
         session_regenerate_id(true);
         setUserSession(publicUser($user));
+        rememberCurrentSession($remember);
 
         echo json_encode([
             'authenticated' => true,

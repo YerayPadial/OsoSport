@@ -50,17 +50,9 @@ export default defineConfig({
           // Regla para tus vídeos locales
           {
             urlPattern: ({ request }) => request.destination === 'video',
-            handler: 'CacheFirst', 
+            handler: 'NetworkOnly', 
             options: {
               cacheName: 'local-videos-cache',
-              expiration: {
-                maxEntries: 60, // Guarda los últimos 10 vídeos vistos
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 días
-              },
-              rangeRequests: true, // ¡Importante para streaming!
-              cacheableResponse: {
-                statuses: [200, 206] // Acepta respuestas OK y de contenido parcial
-              }
             }
           },
 

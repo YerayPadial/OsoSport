@@ -1,5 +1,5 @@
-import React from "react";
-import { Dumbbell, Sun, Moon, ShieldCheck } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Dumbbell, Sun, Moon, UserRound } from "lucide-react";
 
 const Logo = () => (
   <div className="flex items-center gap-2">
@@ -22,8 +22,32 @@ const Header = ({
   toggleTheme,
   onAdminClick,
 }) => {
+  const [sessionUser, setSessionUser] = useState(null);
   const isHome =
     navigation.screen === "home" || navigation.screen === "dietHome";
+  const avatarUrl = sessionUser?.avatarPath?.startsWith("/")
+    ? `/guia${sessionUser.avatarPath}`
+    : sessionUser?.avatarPath;
+
+  useEffect(() => {
+    const loadSession = () => {
+      fetch(`${import.meta.env.BASE_URL}api/admin-auth.php?action=status`, {
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((payload) => setSessionUser(payload.authenticated ? payload.user : null))
+        .catch(() => setSessionUser(null));
+    };
+
+    loadSession();
+    window.addEventListener("focus", loadSession);
+    window.addEventListener("ososport-auth-change", loadSession);
+
+    return () => {
+      window.removeEventListener("focus", loadSession);
+      window.removeEventListener("ososport-auth-change", loadSession);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-tarjeta-clara dark:bg-fondo-oscuro border-b border-borde-claro dark:border-borde-oscuro">
@@ -46,10 +70,14 @@ const Header = ({
           <button
             onClick={onAdminClick}
             className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
-            aria-label="Abrir panel admin"
-            title="Panel admin"
+            aria-label="Abrir cuenta"
+            title="Cuenta"
           >
-            <ShieldCheck className="w-6 h-6" />
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+            ) : (
+              <UserRound className="w-6 h-6" />
+            )}
           </button>
           {/* Botón theme*/}
           <button
