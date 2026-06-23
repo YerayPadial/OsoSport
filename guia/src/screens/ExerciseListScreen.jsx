@@ -2,15 +2,9 @@ import React from "react";
 import { useAppData } from "../data/useAppData";
 import ExerciseCard from "../components/ui/ExerciseCard";
 import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
+import { getLevelColor } from "../utils/contentColors";
 
 // Screen para lista de ejercicios de un día específico
-
-const titleColorClasses = {
-  1: "text-nivel-1-claro dark:text-nivel-1-oscuro",
-  2: "text-nivel-1Fem-claro dark:text-nivel-1Fem-oscuro",
-  3: "text-nivel-2-claro dark:text-nivel-2-oscuro",
-  4: "text-nivel-3-claro dark:text-nivel-3-oscuro",
-};
 
 const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
   const { rutinasData } = useAppData();
@@ -20,10 +14,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
   const ejerciciosDelDia =
     nivelActual?.ejercicios.filter((ej) => ej.dia === navigation.dia) || [];
 
-  // Obtenemos la clase de color basada en el ID
-  const titleClass =
-    titleColorClasses[navigation.nivelId] ||
-    "text-texto-claro dark:text-texto-oscuro";
+  const levelColor = getLevelColor(nivelActual);
 
   if (!nivelActual || !ejerciciosDelDia) {
     return (
@@ -54,7 +45,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
       </button>
 
       {/* --- TÍTULO --- */}
-      <h1 className={`text-4xl font-black mb-6 ${titleClass}`}>
+      <h1 className="text-4xl font-black mb-6" style={{ color: levelColor }}>
         {navigation.dia}
       </h1>
 
@@ -136,7 +127,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
             ejercicio={ejercicio}
             numero={ejercicio.numero}
             onClick={onSelectExercise}
-            nivelId={navigation.nivelId}
+            color={levelColor}
           />
         ))}
       </div>

@@ -3,6 +3,19 @@ import { dirname, resolve } from "node:path";
 import dietasData from "../src/data/dietas.json" with { type: "json" };
 import rutinasData from "../src/data/rutinas.json" with { type: "json" };
 
+const defaultLevelColors = {
+  1: "#166534",
+  2: "#6b21a8",
+  3: "#B45309",
+  4: "#B91C1C",
+  5: "#4B5563",
+};
+
+const defaultDietColors = {
+  9: "#0D9488",
+  10: "#6D28D9",
+};
+
 const outputPath = resolve("public/api/schema-and-seed.sql");
 const statements = [];
 
@@ -36,6 +49,7 @@ statements.push(`CREATE TABLE IF NOT EXISTS admin_users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(80) NOT NULL UNIQUE,
   display_name VARCHAR(120) NOT NULL,
+  role VARCHAR(40) NOT NULL DEFAULT 'user',
   password_hash VARCHAR(255) NOT NULL,
   active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -94,6 +108,7 @@ statements.push(`CREATE TABLE IF NOT EXISTS diet_plans (
   id INT UNSIGNED PRIMARY KEY,
   nombre VARCHAR(120) NOT NULL,
   descripcion TEXT NOT NULL,
+  color VARCHAR(20) NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
@@ -132,7 +147,7 @@ const levelRows = rutinasData.niveles.map((level, index) =>
     level.estructura,
     level.calentamiento,
     level.enfriamiento,
-    level.color,
+    level.color || defaultLevelColors[level.id],
     index + 1,
   ])
 );
@@ -183,9 +198,9 @@ if (tipRows.length) {
 }
 
 const planRows = dietasData.planes.map((plan, index) =>
-  row([plan.id, plan.nombre, plan.descripcion, index + 1])
+  row([plan.id, plan.nombre, plan.descripcion, plan.color || defaultDietColors[plan.id], index + 1])
 );
-statements.push(`INSERT INTO diet_plans (id, nombre, descripcion, sort_order) VALUES\n${planRows.join(",\n")};`);
+statements.push(`INSERT INTO diet_plans (id, nombre, descripcion, color, sort_order) VALUES\n${planRows.join(",\n")};`);
 
 const dayRows = [];
 const mealRows = [];
@@ -215,9 +230,9 @@ statements.push(`INSERT INTO diet_days (id, plan_id, nombre, sort_order) VALUES\
 statements.push(`INSERT INTO diet_meals (id, day_id, tipo, sort_order) VALUES\n${mealRows.join(",\n")};`);
 statements.push(`INSERT INTO diet_foods (meal_id, text, sort_order) VALUES\n${foodRows.join(",\n")};`);
 
-statements.push(`INSERT INTO admin_users (username, display_name, password_hash, active) VALUES
-${row(["ypadial", "Yeray Padial", "$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy", 1])},
-${row(["chema", "Chema", "$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm", 1])};`);
+statements.push(`INSERT INTO admin_users (username, display_name, role, password_hash, active) VALUES
+${row(["ypadial", "Yeray Padial", "admin", "$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy", 1])},
+${row(["chema", "Chema", "admin", "$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm", 1])};`);
 
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, `${statements.join("\n\n")}\n`, "utf8");

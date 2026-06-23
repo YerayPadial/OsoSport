@@ -2,15 +2,9 @@ import React from "react";
 import { useAppData } from "../data/useAppData";
 import VideoPlayer from "../components/ui/VideoPlayer";
 import { ArrowLeft, CheckCircle, Info, Zap } from "lucide-react";
+import { getLevelColor } from "../utils/contentColors";
 
 // Screen para detalle de un ejercicio específico
-
-const titleColorClasses = {
-  1: "text-nivel-1-claro dark:text-nivel-1-oscuro",
-  2: "text-nivel-1Fem-claro dark:text-nivel-1Fem-oscuro",
-  3: "text-nivel-2-claro dark:text-nivel-2-oscuro",
-  4: "text-nivel-3-claro dark:text-nivel-3-oscuro",
-};
 
 const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const { rutinasData } = useAppData();
@@ -20,10 +14,6 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const ejercicioActual = nivelActual?.ejercicios.find(
     (ej) => ej.id === navigation.ejercicioId
   );
-
-  const titleClass =
-    (nivelActual && titleColorClasses[nivelActual.id]) ||
-    "text-texto-claro dark:text-texto-oscuro";
 
   if (!ejercicioActual || !nivelActual) {
     return (
@@ -45,6 +35,7 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const BASE_URL = "/guia/";
   const videoUrl = `${BASE_URL}${ejercicioActual.video.substring(1)}`;
   const thumbnailUrl = `${BASE_URL}${ejercicioActual.thumbnail.substring(1)}`;
+  const levelColor = getLevelColor(nivelActual);
 
   return (
     <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen pb-20">
@@ -61,7 +52,7 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
       <VideoPlayer src={videoUrl} poster={thumbnailUrl} />
 
       <div className="p-4 max-w-4xl mx-auto">
-        <h1 className={`text-4xl font-black mt-4 ${titleClass}`}>
+        <h1 className="text-4xl font-black mt-4" style={{ color: levelColor }}>
           {ejercicioActual.nombre}
         </h1>
         <p className="text-2xl font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mt-2 mb-8">
@@ -106,7 +97,7 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
               <ul className="space-y-3">
                 {ejercicioActual.consejos.map((consejo, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                    <CheckCircle className="w-6 h-6 flex-shrink-0 mt-1" style={{ color: levelColor }} />
                     <span className="text-lg text-texto-secundario-claro dark:text-texto-secundario-oscuro leading-relaxed">
                       {consejo}
                     </span>

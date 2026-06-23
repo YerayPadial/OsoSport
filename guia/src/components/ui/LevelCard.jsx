@@ -1,17 +1,10 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
-
-const bgClasses = {
-  5: "bg-nivel-0-claro dark:bg-nivel-0-oscuro",
-  1: "bg-nivel-1-claro dark:bg-nivel-1-oscuro",
-  2: "bg-nivel-1Fem-claro dark:bg-nivel-1Fem-oscuro",
-  3: "bg-nivel-2-claro dark:bg-nivel-2-oscuro",
-  4: "bg-nivel-3-claro dark:bg-nivel-3-oscuro",
-};
+import { getLevelColor } from "../../utils/contentColors";
 
 // Componente para mostrar una tarjeta de nivel en la pantalla de inicio
 const LevelCard = ({ nivel, onClick }) => {
-  const bgColor = bgClasses[nivel.id] || "bg-gray-500";
+  const bgColor = getLevelColor(nivel);
 
   return (
     <button
@@ -24,8 +17,8 @@ const LevelCard = ({ nivel, onClick }) => {
         hover:scale-105 active:scale-98
         min-h-touch-target
         relative overflow-hidden
-        ${bgColor}
       `}
+      style={{ backgroundColor: bgColor }}
       aria-label={`Seleccionar nivel ${nivel.nombre}`}
     >
       <span className="absolute -right-2 bottom-0 z-0 text-9xl font-black text-white/15 select-none">

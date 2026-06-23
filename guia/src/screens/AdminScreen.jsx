@@ -9,9 +9,12 @@ import {
   ReceiptText,
   Save,
   ShieldCheck,
+  Sparkles,
   Trash2,
+  UserRound,
 } from "lucide-react";
 import { useAppData } from "../data/useAppData";
+import { defaultDietColors, defaultLevelColors, getDietColor, getLevelColor } from "../utils/contentColors";
 
 const emptyLevel = (id) => ({
   id,
@@ -23,23 +26,23 @@ const emptyLevel = (id) => ({
   estructura: "Full Body",
   calentamiento: "",
   enfriamiento: "",
-  color: "",
+  color: defaultLevelColors[id] || "#166534",
   notas: [],
   ejercicios: [],
 });
 
-const emptyExercise = (level, index) => ({
+const emptyExercise = (level, index, values = {}) => ({
   id: `n${level.id}_${String(index + 1).padStart(2, "0")}`,
   numero: index + 1,
   dia: "",
-  nombre: "Nuevo ejercicio",
-  nombreCorto: "Ejercicio",
+  nombre: values.nombre || "Nuevo ejercicio",
+  nombreCorto: values.nombreCorto || values.nombre || "Ejercicio",
   musculo: "General",
   grupoMuscular: "General",
-  specs: "3x12 rep",
-  video: "/videos/",
-  thumbnail: "/thumbnails/",
-  descripcion: "",
+  specs: values.specs || "3x12 rep",
+  video: values.video || "/videos/",
+  thumbnail: values.thumbnail || "/thumbnails/",
+  descripcion: values.descripcion || "",
   consejos: [],
 });
 
@@ -47,6 +50,7 @@ const emptyPlan = (id) => ({
   id,
   nombre: "Nuevo plan",
   descripcion: "Descripción del plan",
+  color: defaultDietColors[id] || "#0D9488",
   dias: [],
 });
 
@@ -129,6 +133,26 @@ const AdminScreen = ({ onGoBack }) => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [quickLevel, setQuickLevel] = useState({
+    nombre: "",
+    dificultad: "1",
+    sexo: "Unisex",
+    duracion: "1 mes",
+    estructura: "Full Body",
+    color: "#166534",
+  });
+  const [quickExercise, setQuickExercise] = useState({
+    nombre: "",
+    dia: "",
+    specs: "3x12 rep",
+    video: "/videos/",
+    thumbnail: "/thumbnails/",
+  });
+  const [quickPlan, setQuickPlan] = useState({
+    nombre: "",
+    descripcion: "",
+    color: "#0D9488",
+  });
 
   useEffect(() => {
     api
@@ -384,7 +408,7 @@ const AdminScreen = ({ onGoBack }) => {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-black">Acceso admin</h1>
+          <h1 className="text-2xl font-black">Acceso</h1>
               <p className="text-texto-secundario-claro dark:text-texto-secundario-oscuro">
                 OsoSport Gym
               </p>
@@ -418,98 +442,175 @@ const AdminScreen = ({ onGoBack }) => {
 
   return (
     <AdminShell onGoBack={onGoBack}>
-      <div className="max-w-7xl mx-auto space-y-5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black">Panel admin</h1>
-            <p className="text-texto-secundario-claro dark:text-texto-secundario-oscuro">
-              {auth.user?.displayName || auth.user?.username}
-            </p>
+      <div className="mx-auto max-w-[1500px] grid lg:grid-cols-[260px_minmax(0,1fr)] gap-4">
+        <aside className="lg:sticky lg:top-24 lg:self-start bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden">
+          <div className="p-4 border-b border-borde-claro dark:border-borde-oscuro">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-fondo-claro dark:bg-fondo-oscuro flex items-center justify-center">
+                <UserRound className="w-6 h-6" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                  Sesión
+                </p>
+                <p className="font-black truncate">{auth.user?.displayName || auth.user?.username}</p>
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-2 sm:flex gap-2">
+          <AdminNavigation
+            value={activeArea}
+            onChange={setActiveArea}
+            items={adminNavItems}
+          />
+          <div className="p-4 grid grid-cols-2 gap-2">
             <Stat label="Niveles" value={stats.niveles} />
             <Stat label="Ejercicios" value={stats.ejercicios} />
             <Stat label="Planes" value={stats.planes} />
             <Stat label="Días" value={stats.dias} />
           </div>
-        </div>
+        </aside>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-between">
-          <SegmentedControl
-            value={activeArea}
-            onChange={setActiveArea}
-            options={[
-              { value: "rutinas", label: "Rutinas", icon: Dumbbell },
-              { value: "dietas", label: "Dietas", icon: ReceiptText },
-            ]}
-          />
-          <div className="grid grid-cols-2 gap-2 sm:flex">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="min-h-touch-target px-4 rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              <Save className="w-5 h-5" />
-              {saving ? "Guardando" : "Guardar"}
-            </button>
-            <button
-              onClick={handleLogout}
-              className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro font-bold flex items-center justify-center gap-2"
-            >
-              <LogOut className="w-5 h-5" />
-              Salir
-            </button>
+        <div className="min-w-0 space-y-4">
+          <div className="sticky top-20 z-30 bg-fondo-claro/95 dark:bg-fondo-oscuro/95 backdrop-blur border border-borde-claro dark:border-borde-oscuro rounded-2xl p-3 shadow-lg">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                  {activeArea === "rapido" ? "Creación guiada" : "Gestión de contenido"}
+                </p>
+                <h1 className="text-2xl md:text-3xl font-black">
+                  {adminNavItems.find((item) => item.value === activeArea)?.label}
+                </h1>
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:flex">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="min-h-touch-target px-4 rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  <Save className="w-5 h-5" />
+                  {saving ? "Guardando" : "Guardar"}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Salir
+                </button>
+              </div>
+            </div>
+            <div className="lg:hidden mt-3">
+              <SegmentedControl value={activeArea} onChange={setActiveArea} options={adminNavItems} />
+            </div>
           </div>
+
+          {message && <Alert tone="success">{message}</Alert>}
+          {error && <Alert tone="error">{error}</Alert>}
+
+          {activeArea === "rapido" ? (
+            <QuickAddPanel
+              levels={levels}
+              quickLevel={quickLevel}
+              setQuickLevel={setQuickLevel}
+              quickExercise={quickExercise}
+              setQuickExercise={setQuickExercise}
+              quickPlan={quickPlan}
+              setQuickPlan={setQuickPlan}
+              setSelectedLevelId={setSelectedLevelId}
+              addQuickLevel={() => {
+                const nextId = Math.max(0, ...levels.map((level) => Number(level.id) || 0)) + 1;
+                const level = {
+                  ...emptyLevel(nextId),
+                  ...quickLevel,
+                  id: nextId,
+                  slug: slugify(quickLevel.nombre || `nivel-${nextId}`),
+                };
+                patchContent((draft) => draft.rutinas.niveles.push(level));
+                setSelectedLevelId(nextId);
+                setSelectedExerciseId(null);
+                setActiveArea("rutinas");
+              }}
+              addQuickExercise={() => {
+                if (!selectedLevel) return;
+                const index = selectedLevel.ejercicios?.length ?? 0;
+                const exercise = {
+                  ...emptyExercise(selectedLevel, index, quickExercise),
+                  dia: quickExercise.dia,
+                };
+                patchContent((draft) => {
+                  const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
+                  level.ejercicios = [...(level.ejercicios ?? []), exercise];
+                });
+                setSelectedExerciseId(exercise.id);
+                setActiveArea("rutinas");
+              }}
+              addQuickPlan={() => {
+                const nextId = Math.max(0, ...plans.map((plan) => Number(plan.id) || 0)) + 1;
+                const plan = {
+                  ...emptyPlan(nextId),
+                  ...quickPlan,
+                  id: nextId,
+                  dias: [emptyDay()],
+                };
+                patchContent((draft) => draft.dietas.planes.push(plan));
+                setSelectedPlanId(nextId);
+                setSelectedDayIndex(0);
+                setSelectedMealIndex(0);
+                setActiveArea("dietas");
+              }}
+              selectedLevel={selectedLevel}
+            />
+          ) : activeArea === "rutinas" ? (
+            <RoutineEditor
+              levels={levels}
+              selectedLevel={selectedLevel}
+              selectedExercise={selectedExercise}
+              setSelectedLevelId={setSelectedLevelId}
+              setSelectedExerciseId={setSelectedExerciseId}
+              updateLevel={updateLevel}
+              updateExercise={updateExercise}
+              addLevel={addLevel}
+              deleteLevel={deleteLevel}
+              addExercise={addExercise}
+              deleteExercise={deleteExercise}
+            />
+          ) : (
+            <DietEditor
+              plans={plans}
+              selectedPlan={selectedPlan}
+              selectedDay={selectedDay}
+              selectedMeal={selectedMeal}
+              selectedDayIndex={selectedDayIndex}
+              selectedMealIndex={selectedMealIndex}
+              setSelectedPlanId={setSelectedPlanId}
+              setSelectedDayIndex={setSelectedDayIndex}
+              setSelectedMealIndex={setSelectedMealIndex}
+              updatePlan={updatePlan}
+              updateDay={updateDay}
+              updateMeal={updateMeal}
+              addPlan={addPlan}
+              deletePlan={deletePlan}
+              addDay={addDay}
+              deleteDay={deleteDay}
+              addMeal={addMeal}
+              deleteMeal={deleteMeal}
+            />
+          )}
         </div>
-
-        {message && <Alert tone="success">{message}</Alert>}
-        {error && <Alert tone="error">{error}</Alert>}
-
-        {activeArea === "rutinas" ? (
-          <RoutineEditor
-            levels={levels}
-            selectedLevel={selectedLevel}
-            selectedExercise={selectedExercise}
-            setSelectedLevelId={setSelectedLevelId}
-            setSelectedExerciseId={setSelectedExerciseId}
-            updateLevel={updateLevel}
-            updateExercise={updateExercise}
-            addLevel={addLevel}
-            deleteLevel={deleteLevel}
-            addExercise={addExercise}
-            deleteExercise={deleteExercise}
-          />
-        ) : (
-          <DietEditor
-            plans={plans}
-            selectedPlan={selectedPlan}
-            selectedDay={selectedDay}
-            selectedMeal={selectedMeal}
-            selectedDayIndex={selectedDayIndex}
-            selectedMealIndex={selectedMealIndex}
-            setSelectedPlanId={setSelectedPlanId}
-            setSelectedDayIndex={setSelectedDayIndex}
-            setSelectedMealIndex={setSelectedMealIndex}
-            updatePlan={updatePlan}
-            updateDay={updateDay}
-            updateMeal={updateMeal}
-            addPlan={addPlan}
-            deletePlan={deletePlan}
-            addDay={addDay}
-            deleteDay={deleteDay}
-            addMeal={addMeal}
-            deleteMeal={deleteMeal}
-          />
-        )}
       </div>
     </AdminShell>
   );
 };
 
+const adminNavItems = [
+  { value: "rapido", label: "Añadir rápido", icon: Sparkles },
+  { value: "rutinas", label: "Rutinas", icon: Dumbbell },
+  { value: "dietas", label: "Dietas", icon: ReceiptText },
+];
+
 const AdminShell = ({ children, onGoBack }) => (
-  <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 pb-24">
-    <div className="max-w-7xl mx-auto mb-4">
+  <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-3 md:p-4 pb-24">
+    <div className="max-w-[1500px] mx-auto mb-3">
       <button
         onClick={onGoBack}
         className="min-h-touch-target px-4 rounded-xl bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro font-bold flex items-center gap-2"
@@ -520,6 +621,30 @@ const AdminShell = ({ children, onGoBack }) => (
     </div>
     {children}
   </div>
+);
+
+const AdminNavigation = ({ value, onChange, items }) => (
+  <nav className="hidden lg:block p-3 space-y-1">
+    {items.map((item) => {
+      const Icon = item.icon;
+      const active = value === item.value;
+
+      return (
+        <button
+          key={item.value}
+          onClick={() => onChange(item.value)}
+          className={`w-full min-h-touch-target rounded-xl px-4 flex items-center gap-3 text-left font-black transition-colors ${
+            active
+              ? "bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro"
+              : "text-texto-secundario-claro dark:text-texto-secundario-oscuro hover:bg-fondo-claro dark:hover:bg-fondo-oscuro"
+          }`}
+        >
+          <Icon className="w-5 h-5" />
+          {item.label}
+        </button>
+      );
+    })}
+  </nav>
 );
 
 const RoutineEditor = ({
@@ -561,7 +686,7 @@ const RoutineEditor = ({
             <Field label="Slug" value={selectedLevel.slug} onChange={(value) => updateLevel("slug", value)} />
             <Field label="Duración" value={selectedLevel.duracion} onChange={(value) => updateLevel("duracion", value)} />
             <Field label="Estructura" value={selectedLevel.estructura} onChange={(value) => updateLevel("estructura", value)} />
-            <Field label="Color" value={selectedLevel.color || ""} onChange={(value) => updateLevel("color", value)} />
+            <ColorField label="Color de tarjetas" value={getLevelColor(selectedLevel)} onChange={(value) => updateLevel("color", value)} />
           </div>
           <TextArea label="Calentamiento" value={selectedLevel.calentamiento || ""} onChange={(value) => updateLevel("calentamiento", value)} />
           <TextArea label="Enfriamiento" value={selectedLevel.enfriamiento || ""} onChange={(value) => updateLevel("enfriamiento", value)} />
@@ -642,6 +767,7 @@ const DietEditor = ({
           <div className="space-y-3">
             <Field label="ID" type="number" value={selectedPlan.id} onChange={(value) => updatePlan("id", value)} />
             <Field label="Nombre" value={selectedPlan.nombre} onChange={(value) => updatePlan("nombre", value)} />
+            <ColorField label="Color de tarjetas" value={getDietColor(selectedPlan)} onChange={(value) => updatePlan("color", value)} />
             <TextArea label="Descripción" value={selectedPlan.descripcion} onChange={(value) => updatePlan("descripcion", value)} />
           </div>
         </Panel>
@@ -683,6 +809,93 @@ const DietEditor = ({
         </Panel>
       </div>
     )}
+  </div>
+);
+
+const QuickAddPanel = ({
+  levels,
+  selectedLevel,
+  quickLevel,
+  setQuickLevel,
+  quickExercise,
+  setQuickExercise,
+  quickPlan,
+  setQuickPlan,
+  setSelectedLevelId,
+  addQuickLevel,
+  addQuickExercise,
+  addQuickPlan,
+}) => (
+  <div className="grid lg:grid-cols-3 gap-4">
+    <Panel>
+      <div className="flex items-center gap-3 mb-4">
+        <Sparkles className="w-6 h-6" />
+        <h2 className="text-xl font-black">Nuevo nivel</h2>
+      </div>
+      <div className="space-y-3">
+        <Field label="Nombre" value={quickLevel.nombre} onChange={(value) => setQuickLevel((current) => ({ ...current, nombre: value }))} />
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Dificultad" value={quickLevel.dificultad} onChange={(value) => setQuickLevel((current) => ({ ...current, dificultad: value }))} />
+          <Field label="Sexo" value={quickLevel.sexo} onChange={(value) => setQuickLevel((current) => ({ ...current, sexo: value }))} />
+        </div>
+        <Field label="Duración" value={quickLevel.duracion} onChange={(value) => setQuickLevel((current) => ({ ...current, duracion: value }))} />
+        <Field label="Estructura" value={quickLevel.estructura} onChange={(value) => setQuickLevel((current) => ({ ...current, estructura: value }))} />
+        <ColorField label="Color de tarjetas" value={quickLevel.color} onChange={(value) => setQuickLevel((current) => ({ ...current, color: value }))} />
+        <PrimaryAction onClick={addQuickLevel} disabled={!quickLevel.nombre.trim()}>
+          Crear nivel
+        </PrimaryAction>
+      </div>
+    </Panel>
+
+    <Panel>
+      <div className="flex items-center gap-3 mb-4">
+        <Dumbbell className="w-6 h-6" />
+        <h2 className="text-xl font-black">Nuevo ejercicio</h2>
+      </div>
+      <div className="space-y-3">
+        <div className="min-h-touch-target rounded-xl bg-fondo-claro dark:bg-fondo-oscuro px-4 flex items-center justify-between gap-3">
+          <label className="w-full">
+            <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
+              Nivel destino
+            </span>
+            <select
+              value={selectedLevel?.id ?? ""}
+              onChange={(event) => setSelectedLevelId(Number(event.target.value))}
+              className="w-full min-h-touch-target rounded-xl bg-tarjeta-clara dark:bg-tarjeta-oscura px-3 font-black outline-none"
+            >
+              {levels.map((level) => (
+                <option key={level.id} value={level.id}>
+                  {level.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <Field label="Nombre" value={quickExercise.nombre} onChange={(value) => setQuickExercise((current) => ({ ...current, nombre: value }))} />
+        <Field label="Día" value={quickExercise.dia} onChange={(value) => setQuickExercise((current) => ({ ...current, dia: value }))} />
+        <Field label="Series/reps" value={quickExercise.specs} onChange={(value) => setQuickExercise((current) => ({ ...current, specs: value }))} />
+        <Field label="Vídeo" value={quickExercise.video} onChange={(value) => setQuickExercise((current) => ({ ...current, video: value }))} />
+        <Field label="Miniatura" value={quickExercise.thumbnail} onChange={(value) => setQuickExercise((current) => ({ ...current, thumbnail: value }))} />
+        <PrimaryAction onClick={addQuickExercise} disabled={!selectedLevel || !quickExercise.nombre.trim()}>
+          Crear ejercicio
+        </PrimaryAction>
+      </div>
+    </Panel>
+
+    <Panel>
+      <div className="flex items-center gap-3 mb-4">
+        <ReceiptText className="w-6 h-6" />
+        <h2 className="text-xl font-black">Nuevo plan</h2>
+      </div>
+      <div className="space-y-3">
+        <Field label="Nombre" value={quickPlan.nombre} onChange={(value) => setQuickPlan((current) => ({ ...current, nombre: value }))} />
+        <TextArea label="Descripción" value={quickPlan.descripcion} onChange={(value) => setQuickPlan((current) => ({ ...current, descripcion: value }))} />
+        <ColorField label="Color de tarjetas" value={quickPlan.color} onChange={(value) => setQuickPlan((current) => ({ ...current, color: value }))} />
+        <PrimaryAction onClick={addQuickPlan} disabled={!quickPlan.nombre.trim()}>
+          Crear plan
+        </PrimaryAction>
+      </div>
+    </Panel>
   </div>
 );
 
@@ -775,8 +988,45 @@ const TextArea = ({ label, value, onChange, rows = 4 }) => (
   </label>
 );
 
+const ColorField = ({ label, value, onChange }) => (
+  <label className="block">
+    <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
+      {label}
+    </span>
+    <div className="grid grid-cols-[60px_minmax(0,1fr)] gap-3">
+      <input
+        type="color"
+        value={value || "#166534"}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-[60px] h-[60px] rounded-xl border border-borde-claro dark:border-borde-oscuro bg-transparent p-1"
+        aria-label={label}
+      />
+      <input
+        type="text"
+        value={value || ""}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro px-4 text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
+      />
+    </div>
+  </label>
+);
+
+const PrimaryAction = ({ children, onClick, disabled }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    className="w-full min-h-touch-target rounded-xl bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white font-black flex items-center justify-center gap-2 disabled:opacity-50"
+  >
+    <Plus className="w-5 h-5" />
+    {children}
+  </button>
+);
+
 const SegmentedControl = ({ value, onChange, options }) => (
-  <div className="grid grid-cols-2 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura p-1">
+  <div
+    className="grid rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura p-1"
+    style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
+  >
     {options.map((option) => {
       const Icon = option.icon;
       const active = value === option.value;
@@ -833,5 +1083,13 @@ const Alert = ({ tone, children }) => {
     </div>
   );
 };
+
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
 export default AdminScreen;

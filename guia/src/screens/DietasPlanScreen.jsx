@@ -2,12 +2,7 @@ import React from "react";
 import { useAppData } from "../data/useAppData";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft } from "lucide-react";
-
-// Mapeo de colores (para el título)
-const titleColorClasses = {
-  5: "text-dieta-ganar-claro dark:text-dieta-ganar-oscuro",
-  6: "text-dieta-perder-claro dark:text-dieta-perder-oscuro",
-};
+import { getDietColor } from "../utils/contentColors";
 
 const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
   const { dietasData } = useAppData();
@@ -17,9 +12,7 @@ const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
     return <div>Error: Plan no encontrado</div>;
   }
 
-  const titleClass =
-    titleColorClasses[planActual.id] ||
-    "text-texto-claro dark:text-texto-oscuro";
+  const planColor = getDietColor(planActual);
 
   return (
     <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
@@ -31,7 +24,7 @@ const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
         Volver a Planes
       </button>
 
-      <h1 className={`text-4xl font-black mb-6 ${titleClass}`}>
+      <h1 className="text-4xl font-black mb-6" style={{ color: planColor }}>
         {planActual.nombre}
       </h1>
 
@@ -41,7 +34,7 @@ const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
             key={diaInfo.nombre}
             dia={diaInfo.nombre}
             descripcion={null} 
-            nivelId={planActual.id} 
+            color={planColor}
             onClick={onSelectDay}
           />
         ))}

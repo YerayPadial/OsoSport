@@ -163,8 +163,8 @@ function saveTrainingContent(PDO $pdo, array $levels): void
 function saveDietContent(PDO $pdo, array $plans): void
 {
     $planStatement = $pdo->prepare(
-        'INSERT INTO diet_plans (id, nombre, descripcion, sort_order)
-         VALUES (:id, :nombre, :descripcion, :sort_order)'
+        'INSERT INTO diet_plans (id, nombre, descripcion, color, sort_order)
+         VALUES (:id, :nombre, :descripcion, :color, :sort_order)'
     );
     $dayStatement = $pdo->prepare(
         'INSERT INTO diet_days (plan_id, nombre, sort_order)
@@ -186,6 +186,7 @@ function saveDietContent(PDO $pdo, array $plans): void
             'id' => $planId,
             'nombre' => requiredString($plan, 'nombre'),
             'descripcion' => requiredString($plan, 'descripcion'),
+            'color' => nullableString($plan, 'color'),
             'sort_order' => $planIndex + 1,
         ]);
 
@@ -308,7 +309,7 @@ function loadTrainingContent(PDO $pdo): array
 function loadDietContent(PDO $pdo): array
 {
     $plans = $pdo->query(
-        'SELECT id, nombre, descripcion
+        'SELECT id, nombre, descripcion, color
          FROM diet_plans
          ORDER BY sort_order, id'
     )->fetchAll();
@@ -333,6 +334,7 @@ function loadDietContent(PDO $pdo): array
                 'id' => $planId,
                 'nombre' => $plan['nombre'],
                 'descripcion' => $plan['descripcion'],
+                'color' => $plan['color'],
                 'dias' => array_map(function (array $day) use ($meals, $foods): array {
                     $dayId = (int) $day['id'];
 

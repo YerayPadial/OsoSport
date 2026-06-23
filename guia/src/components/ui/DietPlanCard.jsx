@@ -1,14 +1,9 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
-
-// Mapeo de ID a colores de Tailwind (usando los nuevos que añadimos)
-const bgClasses = {
-  5: "bg-dieta-ganar-claro dark:bg-dieta-ganar-oscuro", // Ganar Peso
-  6: "bg-dieta-perder-claro dark:bg-dieta-perder-oscuro", // Perder Peso
-};
+import { getDietColor } from "../../utils/contentColors";
 
 const DietPlanCard = ({ plan, onClick }) => {
-  const bgColor = bgClasses[plan.id] || "bg-gray-500";
+  const bgColor = getDietColor(plan);
 
   return (
     <button
@@ -21,8 +16,8 @@ const DietPlanCard = ({ plan, onClick }) => {
         hover:scale-105 active:scale-98
         min-h-touch-target
         relative overflow-hidden
-        ${bgColor}
       `}
+      style={{ backgroundColor: bgColor }}
       aria-label={`Seleccionar plan: ${plan.nombre}`}
     >
       <div className="z-10">

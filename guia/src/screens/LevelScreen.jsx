@@ -3,15 +3,9 @@ import { useAppData } from "../data/useAppData";
 import ExerciseCard from "../components/ui/ExerciseCard";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
+import { getLevelColor } from "../utils/contentColors";
 
 //Pantalla para listar ejercicios que no tienen dias o seleccionar dias
-
-const titleColorClasses = {
-  1: "text-nivel-1-claro dark:text-nivel-1-oscuro",
-  2: "text-nivel-1Fem-claro dark:text-nivel-1Fem-oscuro",
-  3: "text-nivel-2-claro dark:text-nivel-2-oscuro",
-  4: "text-nivel-3-claro dark:text-nivel-3-oscuro",
-};
 
 const LevelScreen = ({
   navigation,
@@ -39,9 +33,7 @@ const LevelScreen = ({
     );
   }
 
-  const titleClass =
-    titleColorClasses[nivelActual.id] ||
-    "text-texto-claro dark:text-texto-oscuro";
+  const levelColor = getLevelColor(nivelActual);
 
   const renderContent = () => {
     if (nivelActual.estructura === "Full Body") {
@@ -53,7 +45,7 @@ const LevelScreen = ({
               ejercicio={ejercicio}
               numero={index + 1}
               onClick={onSelectExercise}
-              nivelId={nivelActual.id}
+              color={levelColor}
             />
           ))}
         </div>
@@ -78,7 +70,7 @@ const LevelScreen = ({
             key={diaInfo.nombre}
             dia={diaInfo.nombre}
             descripcion={diaInfo.descripcion}
-            nivelId={nivelActual.id}
+            color={levelColor}
             onClick={onSelectDay}
           />
         ))}
@@ -96,7 +88,7 @@ const LevelScreen = ({
         Volver a Niveles
       </button>
 
-      <h1 className={`text-4xl font-black mb-2 ${titleClass}`}>
+      <h1 className="text-4xl font-black mb-2" style={{ color: levelColor }}>
         {nivelActual.nombre}
       </h1>
 

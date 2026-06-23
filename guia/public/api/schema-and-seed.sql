@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(80) NOT NULL UNIQUE,
   display_name VARCHAR(120) NOT NULL,
+  role VARCHAR(40) NOT NULL DEFAULT 'user',
   password_hash VARCHAR(255) NOT NULL,
   active TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -82,6 +83,7 @@ CREATE TABLE IF NOT EXISTS diet_plans (
   id INT UNSIGNED PRIMARY KEY,
   nombre VARCHAR(120) NOT NULL,
   descripcion TEXT NOT NULL,
+  color VARCHAR(20) NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -110,11 +112,11 @@ CREATE TABLE IF NOT EXISTS diet_foods (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO training_levels (id, dificultad, sexo, nombre, slug, duracion, estructura, calentamiento, enfriamiento, color, sort_order) VALUES
-(5, '0', 'Unisex', 'Bajar Peso y Quema Grasa', 'bajar-peso-quema-grasa', '3 meses', 'Dividida (Opciones de Cardio)', NULL, NULL, NULL, 1),
-(1, '1', 'Hombre', 'Principiantes', 'principiantes-hombres', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', NULL, 2),
+(5, '0', 'Unisex', 'Bajar Peso y Quema Grasa', 'bajar-peso-quema-grasa', '3 meses', 'Dividida (Opciones de Cardio)', NULL, NULL, '#4B5563', 1),
+(1, '1', 'Hombre', 'Principiantes', 'principiantes-hombres', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#166534', 2),
 (2, '1', 'Mujer', 'Principiantes', 'principiantes-mujeres', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#DB2777', 3),
-(3, 2, 'Unixex', 'Intermedia', 'intermedia', '2 a 3 meses', 'Dividida (Lunes/Jueves y Martes/Viernes)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', NULL, 4),
-(4, 3, 'Unisex', 'Avanzada', 'avanzada', '4 a 6 meses', 'Dividida (Lunes, Martes, Miércoles - se repite el ciclo)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', NULL, 5);
+(3, 2, 'Unixex', 'Intermedia', 'intermedia', '2 a 3 meses', 'Dividida (Lunes/Jueves y Martes/Viernes)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#B45309', 4),
+(4, 3, 'Unisex', 'Avanzada', 'avanzada', '4 a 6 meses', 'Dividida (Lunes, Martes, Miércoles - se repite el ciclo)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#B91C1C', 5);
 
 INSERT INTO training_level_notes (level_id, text, sort_order) VALUES
 (5, 'Opción Bajar de Peso: Circuito aeróbico para mejorar la forma física general y fortalecer el core (realizar de 2 a 5 veces).', 1),
@@ -274,9 +276,9 @@ INSERT INTO training_exercise_tips (level_id, exercise_id, text, sort_order) VAL
 (4, 'n3_21', 'Lidera el movimiento con los codos, no con las muñecas. Levanta los brazos hacia los lados como si "vertieras dos jarras de agua", no subas más allá del hombro.', 1),
 (4, 'n3_22', 'Sube la mancuerna solo hasta la altura del hombro, con el codo ligeramente flexionado. No uses el impulso de las piernas.', 1);
 
-INSERT INTO diet_plans (id, nombre, descripcion, sort_order) VALUES
-(9, 'Ganar Peso', 'Dieta de superávit calórico (Hipertrofia)', 1),
-(10, 'Perder Peso', 'Déficit calórico y alta proteína (Definición)', 2);
+INSERT INTO diet_plans (id, nombre, descripcion, color, sort_order) VALUES
+(9, 'Ganar Peso', 'Dieta de superávit calórico (Hipertrofia)', '#0D9488', 1),
+(10, 'Perder Peso', 'Déficit calórico y alta proteína (Definición)', '#6D28D9', 2);
 
 INSERT INTO diet_days (id, plan_id, nombre, sort_order) VALUES
 (1, 9, 'Lunes', 1),
@@ -476,6 +478,6 @@ INSERT INTO diet_foods (meal_id, text, sort_order) VALUES
 (50, 'Judías verdes o Bimi al vapor', 2),
 (50, 'Infusión', 3);
 
-INSERT INTO admin_users (username, display_name, password_hash, active) VALUES
-('ypadial', 'Yeray Padial', '$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy', 1),
-('chema', 'Chema', '$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm', 1);
+INSERT INTO admin_users (username, display_name, role, password_hash, active) VALUES
+('ypadial', 'Yeray Padial', 'admin', '$2y$12$ZaYy4AQnE.ZPF8r6FWTNx.J77/BNthE0yurCxQAdnzJewMUatzNUy', 1),
+('chema', 'Chema', 'admin', '$2y$12$4XA20KPphey8ZRKwE6OZDOz9W.h28Vtqj8.UsaJN1PkPqPTcBmrdm', 1);

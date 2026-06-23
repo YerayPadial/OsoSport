@@ -32,7 +32,7 @@ try {
 
         $pdo = db();
         $statement = $pdo->prepare(
-            'SELECT username, display_name, password_hash
+            'SELECT username, display_name, role, password_hash
              FROM admin_users
              WHERE username = :username AND active = 1
              LIMIT 1'
@@ -48,6 +48,7 @@ try {
         $_SESSION['admin_user'] = [
             'username' => $user['username'],
             'displayName' => $user['display_name'],
+            'role' => $user['role'],
         ];
 
         echo json_encode([

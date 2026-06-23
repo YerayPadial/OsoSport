@@ -14,6 +14,10 @@ if (!isset($_SESSION['admin_user'])) {
     respondError('No autenticado.', 401);
 }
 
+if (($_SESSION['admin_user']['role'] ?? 'user') !== 'admin') {
+    respondError('No autorizado.', 403);
+}
+
 try {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     $pdo = db();

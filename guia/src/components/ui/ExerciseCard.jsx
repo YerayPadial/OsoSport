@@ -1,42 +1,7 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
-// Componente para mostrar una tarjeta de ejercicio
-const colorStyles = {
-  1: {
-    bg: "bg-nivel-1-claro dark:bg-nivel-1-oscuro",
-    text: "text-nivel-1-claro dark:text-nivel-1-oscuro",
-    border:
-      "hover:border-nivel-1-claro dark:hover:border-nivel-1-oscuro focus:border-nivel-1-claro dark:focus:border-nivel-1-oscuro",
-  },
-  2: {
-    bg: "bg-nivel-1Fem-claro dark:bg-nivel-1Fem-oscuro",
-    text: "text-nivel-1Fem-claro dark:text-nivel-1Fem-oscuro",
-    border:
-      "hover:border-nivel-1Fem-claro dark:hover:border-nivel-1Fem-oscuro focus:border-nivel-1Fem-claro dark:focus:border-nivel-1Fem-oscuro",
-  },
-  3: {
-    bg: "bg-nivel-2-claro dark:bg-nivel-2-oscuro",
-    text: "text-nivel-2-claro dark:text-nivel-2-oscuro",
-    border:
-      "hover:border-nivel-2-claro dark:hover:border-nivel-2-oscuro focus:border-nivel-2-claro dark:focus:border-nivel-2-oscuro",
-  },
-  4: {
-    bg: "bg-nivel-3-claro dark:bg-nivel-3-oscuro",
-    text: "text-nivel-3-claro dark:text-nivel-3-oscuro",
-    border:
-      "hover:border-nivel-3-claro dark:hover:border-nivel-3-oscuro focus:border-nivel-3-claro dark:focus:border-nivel-3-oscuro",
-  },
-  5: {
-    bg: "bg-nivel-0-claro dark:bg-nivel-0-oscuro",
-    text: "text-nivel-0-claro dark:text-nivel-0-oscuro",
-    border:
-      "hover:border-nivel-0-claro dark:hover:border-nivel-0-oscuro focus:border-nivel-0-claro dark:focus:border-nivel-0-oscuro",
-  },
-};
-
-const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
-  const colors = colorStyles[nivelId] || colorStyles[1];
+const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
   const thumbnailUrl = `/guia${ejercicio.thumbnail}`;
 
   return (
@@ -46,10 +11,10 @@ const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
         w-full bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl shadow-lg
         flex items-center p-4 gap-4
         min-h-touch-target transition-all duration-200
-        transform active:scale-98 border-2 border-transparent
+        transform active:scale-98 border-2
         outline-none
-        ${colors.border}
       `}
+      style={{ borderColor: "transparent" }}
       aria-label={`Ver ejercicio ${ejercicio.nombre}`}
     >
       <div
@@ -70,16 +35,16 @@ const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
         role="img"
         aria-label={`Miniatura de ${ejercicio.nombre}`}
       >
-        <div
-          className={`
+          <div
+            className={`
             absolute top-0 left-0
             w-11 h-11 rounded-br-full
             flex items-center justify-center
             text-white text-lg font-extrabold
             z-10
-            ${colors.bg}
             shadow-lg
           `}
+            style={{ backgroundColor: color }}
         >
           {numero}
         </div>
@@ -92,7 +57,7 @@ const ExerciseCard = ({ ejercicio, numero, onClick, nivelId }) => {
         <p className="text-base text-texto-secundario-claro dark:text-texto-secundario-oscuro truncate">
           {ejercicio.musculo}
         </p>
-        <p className={`text-lg font-bold mt-1 truncate ${colors.text}`}>
+        <p className="text-lg font-bold mt-1 truncate" style={{ color }}>
           {ejercicio.specs}
         </p>
       </div>
