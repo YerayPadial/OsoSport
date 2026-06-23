@@ -22,16 +22,18 @@ import { defaultDietColors, defaultLevelColors, getDietColor, getLevelColor } fr
 
 const emptyLevel = (id) => ({
   id,
+  nivel: 1,
   dificultad: "1",
   sexo: "Unisex",
-  nombre: "Nuevo nivel",
-  slug: `nuevo-nivel-${id}`,
+  nombre: "Nuevo entreno",
+  slug: `nuevo-entreno-${id}`,
   duracion: "1 mes",
   estructura: "Full Body",
   calentamiento: "",
   enfriamiento: "",
   color: defaultLevelColors[id] || "#166534",
   notas: [],
+  dias: [emptyTrainingDay("Entreno completo", true)],
   ejercicios: [],
 });
 
@@ -49,6 +51,15 @@ const emptyExercise = (level, index, values = {}) => ({
   descripcion: values.descripcion || "",
   consejos: [],
 });
+
+function emptyTrainingDay(nombre = "Nuevo día", isDefault = false) {
+  return {
+    id: `local-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    nombre,
+    isDefault,
+    ejercicios: [],
+  };
+}
 
 const emptyPlan = (id) => ({
   id,
@@ -77,6 +88,145 @@ const linesToArray = (value) =>
     .filter(Boolean);
 
 const arrayToLines = (value) => (Array.isArray(value) ? value.join("\n") : "");
+
+const difficultyOptions = [
+  { value: "0", label: "0 · Inicial/Cardio" },
+  { value: "1", label: "1 · Principiante" },
+  { value: "2", label: "2 · Intermedia" },
+  { value: "3", label: "3 · Avanzada" },
+];
+
+const sexOptions = [
+  { value: "Unisex", label: "Unisex" },
+  { value: "Hombre", label: "Hombre" },
+  { value: "Mujer", label: "Mujer" },
+];
+
+const durationOptions = [
+  { value: "1 mes", label: "1 mes" },
+  { value: "2 a 3 meses", label: "2 a 3 meses" },
+  { value: "3 meses", label: "3 meses" },
+  { value: "4 a 6 meses", label: "4 a 6 meses" },
+];
+
+const structureOptions = [
+  { value: "Full Body", label: "Full Body" },
+  { value: "Dividida (Opciones de Cardio)", label: "Dividida · opciones de cardio" },
+  { value: "Dividida (Lunes/Jueves y Martes/Viernes)", label: "Dividida · 2 días" },
+  { value: "Dividida (Lunes, Martes, Miércoles - se repite el ciclo)", label: "Dividida · 3 días" },
+];
+
+const muscleOptions = [
+  "Abdomen",
+  "Abdominal (Abdomen)",
+  "Bíceps",
+  "Cardio",
+  "Cuádriceps",
+  "Dorsal",
+  "Dorsales",
+  "Femoral",
+  "Full body",
+  "Gemelos",
+  "Glúteos y Aductores",
+  "Hombro",
+  "Hombros",
+  "Pectoral",
+  "Pectorales",
+  "Piernas",
+  "Tríceps",
+].map((value) => ({ value, label: value }));
+
+const groupOptions = [
+  "Brazos",
+  "Cardio",
+  "Core",
+  "Espalda",
+  "General",
+  "Hombros",
+  "Pecho",
+  "Pierna",
+  "Pierna / Glúteos",
+  "Tren Superior",
+].map((value) => ({ value, label: value }));
+
+const normalizeAdminContent = (payload) => {
+  const normalized = clone(payload);
+  normalized.rutinas = normalized.rutinas || {};
+  const workouts = normalized.rutinas.entrenos || normalized.rutinas.niveles || [];
+  normalized.rutinas.niveles = workouts.map(normalizeTrainingLevel);
+  normalized.rutinas.entrenos = normalized.rutinas.niveles;
+  normalized.dietas = normalized.dietas || { planes: [] };
+  normalized.dietas.planes = normalized.dietas.planes || [];
+  return normalized;
+};
+
+const normalizeTrainingLevel = (level) => {
+  const normalized = {
+    ...level,
+    nivel: Number(level.nivel ?? level.dificultad ?? 0),
+    dificultad: String(level.nivel ?? level.dificultad ?? ""),
+    dias: normalizeTrainingDays(level),
+  };
+
+  normalized.ejercicios = flattenTrainingExercises(normalized);
+  return normalized;
+};
+
+const normalizeTrainingDays = (level) => {
+  if (Array.isArray(level.dias) && level.dias.length > 0) {
+    return level.dias.map((day, index) => ({
+      id: day.id ?? `local-day-${level.id}-${index}`,
+      nombre: day.nombre || (day.isDefault ? "Entreno completo" : `Día ${index + 1}`),
+      isDefault: Boolean(day.isDefault),
+      ejercicios: (day.ejercicios ?? []).map((exercise, exerciseIndex) => ({
+        ...exercise,
+        numero: Number(exercise.numero ?? exerciseIndex + 1),
+        dia: day.isDefault ? "" : day.nombre,
+      })),
+    }));
+  }
+
+  const groups = new Map();
+  (level.ejercicios ?? []).forEach((exercise, index) => {
+    const dayName = String(exercise.dia || "").trim();
+    const key = dayName || "__full__";
+    if (!groups.has(key)) {
+      groups.set(key, {
+        id: `local-day-${level.id}-${groups.size + 1}`,
+        nombre: dayName || "Entreno completo",
+        isDefault: !dayName,
+        ejercicios: [],
+      });
+    }
+    groups.get(key).ejercicios.push({ ...exercise, numero: Number(exercise.numero ?? index + 1) });
+  });
+
+  return Array.from(groups.values()).length > 0
+    ? Array.from(groups.values())
+    : [emptyTrainingDay("Entreno completo", true)];
+};
+
+const flattenTrainingExercises = (level) =>
+  (level.dias ?? []).flatMap((day) =>
+    (day.ejercicios ?? []).map((exercise) => ({
+      ...exercise,
+      dia: day.isDefault ? "" : day.nombre,
+    })),
+  );
+
+const getTrainingDayOptions = (level) =>
+  (level?.dias ?? []).map((day) => ({
+    value: String(day.id),
+    label: day.isDefault ? "Entreno completo" : day.nombre,
+  }));
+
+const withCurrentOption = (options, value) => {
+  if (!value || options.some((option) => String(option.value) === String(value))) {
+    return options;
+  }
+
+  return [{ value, label: value }, ...options];
+};
 
 const api = {
   async status() {
@@ -142,7 +292,7 @@ const AdminScreen = ({ onGoBack }) => {
   const [auth, setAuth] = useState({ checking: true, authenticated: false, user: null });
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const [content, setContent] = useState(() => clone({ rutinas: rutinasData, dietas: dietasData }));
+  const [content, setContent] = useState(() => normalizeAdminContent({ rutinas: rutinasData, dietas: dietasData }));
   const [activeArea, setActiveArea] = useState("rutinas");
   const [selectedLevelId, setSelectedLevelId] = useState(null);
   const [selectedExerciseId, setSelectedExerciseId] = useState(null);
@@ -161,6 +311,7 @@ const AdminScreen = ({ onGoBack }) => {
     color: "#166534",
   });
   const [quickExercise, setQuickExercise] = useState({
+    levelId: "",
     nombre: "",
     dia: "",
     specs: "3x12 rep",
@@ -172,6 +323,7 @@ const AdminScreen = ({ onGoBack }) => {
     descripcion: "",
     color: "#0D9488",
   });
+  const [quickMode, setQuickMode] = useState("ejercicio");
 
   useEffect(() => {
     api
@@ -192,10 +344,15 @@ const AdminScreen = ({ onGoBack }) => {
     api
       .loadContent()
       .then((payload) => {
-        setContent(clone(payload));
-        setSelectedLevelId(payload.rutinas.niveles[0]?.id ?? null);
-        setSelectedExerciseId(payload.rutinas.niveles[0]?.ejercicios?.[0]?.id ?? null);
-        setSelectedPlanId(payload.dietas.planes[0]?.id ?? null);
+        const normalizedPayload = normalizeAdminContent(payload);
+        setContent(normalizedPayload);
+        setSelectedLevelId(normalizedPayload.rutinas.niveles[0]?.id ?? null);
+        setQuickExercise((current) => ({
+          ...current,
+          levelId: normalizedPayload.rutinas.niveles[0]?.id ?? "",
+        }));
+        setSelectedExerciseId(normalizedPayload.rutinas.niveles[0]?.ejercicios?.[0]?.id ?? null);
+        setSelectedPlanId(normalizedPayload.dietas.planes[0]?.id ?? null);
       })
       .catch((loadError) => setError(loadError.message));
   }, [auth.authenticated]);
@@ -232,10 +389,15 @@ const AdminScreen = ({ onGoBack }) => {
   };
 
   const updateLevel = (key, value) => {
-    const nextValue = key === "id" ? Number(value) : value;
+    const nextValue = key === "id" || key === "nivel" || key === "dificultad" ? Number(value) : value;
     patchContent((draft) => {
       const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
       level[key] = nextValue;
+      if (key === "nivel" || key === "dificultad") {
+        level.nivel = Number(nextValue);
+        level.dificultad = String(nextValue);
+      }
+      level.ejercicios = flattenTrainingExercises(level);
     });
     if (key === "id") {
       setSelectedLevelId(nextValue);
@@ -246,12 +408,29 @@ const AdminScreen = ({ onGoBack }) => {
     const nextValue = key === "numero" ? Number(value) : value;
     patchContent((draft) => {
       const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
-      const exercise = level.ejercicios.find((item) => item.id === selectedExercise.id);
+      const exercise = level.dias
+        .flatMap((day) => day.ejercicios)
+        .find((item) => item.id === selectedExercise.id);
       exercise[key] = nextValue;
+      level.ejercicios = flattenTrainingExercises(level);
     });
     if (key === "id") {
       setSelectedExerciseId(nextValue);
     }
+  };
+
+  const updateTrainingDay = (dayId, key, value) => {
+    patchContent((draft) => {
+      const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
+      const day = level.dias.find((item) => String(item.id) === String(dayId));
+      if (!day) return;
+      day[key] = key === "isDefault" ? Boolean(value) : value;
+      day.ejercicios = (day.ejercicios ?? []).map((exercise) => ({
+        ...exercise,
+        dia: day.isDefault ? "" : day.nombre,
+      }));
+      level.ejercicios = flattenTrainingExercises(level);
+    });
   };
 
   const updatePlan = (key, value) => {
@@ -313,8 +492,8 @@ const AdminScreen = ({ onGoBack }) => {
     setMessage("");
 
     try {
-      const saved = await api.saveContent(content);
-      setContent(clone(saved));
+      const saved = normalizeAdminContent(await api.saveContent(content));
+      setContent(saved);
       updateContent(saved);
       setMessage("Cambios guardados.");
     } catch (saveError) {
@@ -341,13 +520,45 @@ const AdminScreen = ({ onGoBack }) => {
     setSelectedExerciseId(nextLevel?.ejercicios?.[0]?.id ?? null);
   };
 
-  const addExercise = () => {
-    if (!selectedLevel) return;
-    const index = selectedLevel.ejercicios?.length ?? 0;
-    const exercise = emptyExercise(selectedLevel, index);
+  const addTrainingDay = (name = "Nuevo día") => {
+    if (!selectedLevel) return null;
+    const day = emptyTrainingDay(name, false);
     patchContent((draft) => {
       const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
-      level.ejercicios = [...(level.ejercicios ?? []), exercise];
+      level.dias = [...(level.dias ?? []), day];
+      level.ejercicios = flattenTrainingExercises(level);
+    });
+    return day.id;
+  };
+
+  const deleteTrainingDay = (dayId) => {
+    if (!selectedLevel || (selectedLevel.dias?.length ?? 0) <= 1) return;
+    const deletedDay = selectedLevel.dias.find((day) => String(day.id) === String(dayId));
+    patchContent((draft) => {
+      const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
+      level.dias = level.dias.filter((day) => String(day.id) !== String(dayId));
+      level.ejercicios = flattenTrainingExercises(level);
+    });
+    if (deletedDay?.ejercicios?.some((exercise) => exercise.id === selectedExerciseId)) {
+      const nextDay = selectedLevel.dias.find((day) => String(day.id) !== String(dayId));
+      setSelectedExerciseId(nextDay?.ejercicios?.[0]?.id ?? null);
+    }
+  };
+
+  const addExercise = (dayId = null) => {
+    if (!selectedLevel) return;
+    const targetDay = selectedLevel.dias?.find((day) => String(day.id) === String(dayId)) ?? selectedLevel.dias?.[0];
+    if (!targetDay) return;
+    const index = selectedLevel.ejercicios?.length ?? 0;
+    const exercise = {
+      ...emptyExercise(selectedLevel, index),
+      dia: targetDay.isDefault ? "" : targetDay.nombre,
+    };
+    patchContent((draft) => {
+      const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
+      const day = level.dias.find((item) => String(item.id) === String(targetDay.id));
+      day.ejercicios = [...(day.ejercicios ?? []), exercise];
+      level.ejercicios = flattenTrainingExercises(level);
     });
     setSelectedExerciseId(exercise.id);
   };
@@ -356,7 +567,11 @@ const AdminScreen = ({ onGoBack }) => {
     if (!selectedLevel || !selectedExercise) return;
     patchContent((draft) => {
       const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
-      level.ejercicios = level.ejercicios.filter((exercise) => exercise.id !== selectedExercise.id);
+      level.dias = level.dias.map((day) => ({
+        ...day,
+        ejercicios: (day.ejercicios ?? []).filter((exercise) => exercise.id !== selectedExercise.id),
+      }));
+      level.ejercicios = flattenTrainingExercises(level);
     });
     const nextExercise = selectedLevel.ejercicios.find((exercise) => exercise.id !== selectedExercise.id);
     setSelectedExerciseId(nextExercise?.id ?? null);
@@ -554,6 +769,8 @@ const AdminScreen = ({ onGoBack }) => {
               quickPlan={quickPlan}
               setQuickPlan={setQuickPlan}
               setSelectedLevelId={setSelectedLevelId}
+              quickMode={quickMode}
+              setQuickMode={setQuickMode}
               uploadFile={api.uploadFile}
               addQuickLevel={() => {
                 const nextId = Math.max(0, ...levels.map((level) => Number(level.id) || 0)) + 1;
@@ -561,24 +778,43 @@ const AdminScreen = ({ onGoBack }) => {
                   ...emptyLevel(nextId),
                   ...quickLevel,
                   id: nextId,
-                  slug: slugify(quickLevel.nombre || `nivel-${nextId}`),
+                  nivel: Number(quickLevel.dificultad),
+                  dificultad: String(quickLevel.dificultad),
+                  slug: slugify(quickLevel.nombre || `entreno-${nextId}`),
                 };
+                level.dias = [emptyTrainingDay("Entreno completo", true)];
+                level.ejercicios = [];
                 patchContent((draft) => draft.rutinas.niveles.push(level));
                 setSelectedLevelId(nextId);
                 setSelectedExerciseId(null);
                 setActiveArea("rutinas");
               }}
               addQuickExercise={() => {
-                if (!selectedLevel) return;
-                const index = selectedLevel.ejercicios?.length ?? 0;
+                const targetLevel =
+                  levels.find((level) => level.id === Number(quickExercise.levelId)) || selectedLevel;
+                if (!targetLevel) return;
+                const targetDay =
+                  quickMode === "dia"
+                    ? emptyTrainingDay(quickExercise.dia.trim(), false)
+                    : targetLevel.dias?.find((day) => String(day.id) === String(quickExercise.dia)) ??
+                      targetLevel.dias?.[0];
+                if (!targetDay) return;
+                const index = targetLevel.ejercicios?.length ?? 0;
                 const exercise = {
-                  ...emptyExercise(selectedLevel, index, quickExercise),
-                  dia: quickExercise.dia,
+                  ...emptyExercise(targetLevel, index, quickExercise),
+                  dia: targetDay.isDefault ? "" : targetDay.nombre,
                 };
                 patchContent((draft) => {
-                  const level = draft.rutinas.niveles.find((item) => item.id === selectedLevel.id);
-                  level.ejercicios = [...(level.ejercicios ?? []), exercise];
+                  const level = draft.rutinas.niveles.find((item) => item.id === targetLevel.id);
+                  if (quickMode === "dia") {
+                    level.dias = [...(level.dias ?? []), { ...targetDay, ejercicios: [exercise] }];
+                  } else {
+                    const day = level.dias.find((item) => String(item.id) === String(targetDay.id));
+                    day.ejercicios = [...(day.ejercicios ?? []), exercise];
+                  }
+                  level.ejercicios = flattenTrainingExercises(level);
                 });
+                setSelectedLevelId(targetLevel.id);
                 setSelectedExerciseId(exercise.id);
                 setActiveArea("rutinas");
               }}
@@ -611,6 +847,9 @@ const AdminScreen = ({ onGoBack }) => {
               addLevel={addLevel}
               deleteLevel={deleteLevel}
               addExercise={addExercise}
+              addTrainingDay={addTrainingDay}
+              updateTrainingDay={updateTrainingDay}
+              deleteTrainingDay={deleteTrainingDay}
               deleteExercise={deleteExercise}
             />
           ) : (
@@ -698,86 +937,165 @@ const RoutineEditor = ({
   addLevel,
   deleteLevel,
   addExercise,
+  addTrainingDay,
+  updateTrainingDay,
+  deleteTrainingDay,
   deleteExercise,
-}) => (
-  <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-4">
-    <Panel>
-      <PanelHeader title="Niveles" action={addLevel} />
-      <Picker
-        items={levels}
-        selectedId={selectedLevel?.id}
-        label={(level) => `${level.nombre} · ${level.sexo}`}
-        onSelect={(level) => {
-          setSelectedLevelId(level.id);
-          setSelectedExerciseId(level.ejercicios?.[0]?.id ?? null);
-        }}
-      />
-    </Panel>
+}) => {
+  const [activeDayId, setActiveDayId] = useState("");
+  const [newDayName, setNewDayName] = useState("");
+  const dayOptions = useMemo(() => getTrainingDayOptions(selectedLevel), [selectedLevel]);
+  const activeDay = selectedLevel?.dias?.find((day) => String(day.id) === String(activeDayId)) ?? selectedLevel?.dias?.[0] ?? null;
+  const exercisesForDay = useMemo(() => activeDay?.ejercicios ?? [], [activeDay]);
 
-    {selectedLevel && (
-      <div className="grid xl:grid-cols-2 gap-4">
-        <Panel>
-          <PanelHeader title="Nivel" danger={deleteLevel} />
-          <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="ID" type="number" value={selectedLevel.id} onChange={(value) => updateLevel("id", value)} />
-            <Field label="Dificultad" value={selectedLevel.dificultad} onChange={(value) => updateLevel("dificultad", value)} />
-            <Field label="Nombre" value={selectedLevel.nombre} onChange={(value) => updateLevel("nombre", value)} />
-            <Field label="Sexo" value={selectedLevel.sexo} onChange={(value) => updateLevel("sexo", value)} />
-            <Field label="Slug" value={selectedLevel.slug} onChange={(value) => updateLevel("slug", value)} />
-            <Field label="Duración" value={selectedLevel.duracion} onChange={(value) => updateLevel("duracion", value)} />
-            <Field label="Estructura" value={selectedLevel.estructura} onChange={(value) => updateLevel("estructura", value)} />
-            <ColorField label="Color de tarjetas" value={getLevelColor(selectedLevel)} onChange={(value) => updateLevel("color", value)} />
-          </div>
-          <TextArea label="Calentamiento" value={selectedLevel.calentamiento || ""} onChange={(value) => updateLevel("calentamiento", value)} />
-          <TextArea label="Enfriamiento" value={selectedLevel.enfriamiento || ""} onChange={(value) => updateLevel("enfriamiento", value)} />
-          <TextArea label="Notas" value={arrayToLines(selectedLevel.notas)} onChange={(value) => updateLevel("notas", linesToArray(value))} rows={5} />
-        </Panel>
+  useEffect(() => {
+    if (!selectedLevel) return;
+    const stillExists = dayOptions.some((option) => String(option.value) === String(activeDayId));
+    if (!stillExists) {
+      setActiveDayId(dayOptions[0]?.value || "");
+      return;
+    }
+    setSelectedExerciseId(exercisesForDay[0]?.id ?? null);
+  }, [activeDayId, dayOptions, exercisesForDay, selectedLevel, setSelectedExerciseId]);
 
+  const addExerciseInActiveDay = () => {
+    addExercise(activeDay?.id);
+  };
+
+  const createDay = () => {
+    if (!newDayName.trim()) return;
+    const dayId = addTrainingDay(newDayName.trim());
+    setActiveDayId(dayId);
+    setNewDayName("");
+  };
+
+  return (
+    <div className="grid xl:grid-cols-[280px_260px_minmax(0,1fr)] gap-4">
+      <Panel>
+        <PanelHeader title="Entrenos" action={addLevel} />
+        <Picker
+          items={levels}
+          selectedId={selectedLevel?.id}
+          label={(level) => `Nivel ${level.nivel ?? level.dificultad} · ${level.nombre}`}
+          onSelect={(level) => {
+            setSelectedLevelId(level.id);
+            setActiveDayId(level.dias?.[0]?.id ?? "");
+            setSelectedExerciseId(level.dias?.[0]?.ejercicios?.[0]?.id ?? null);
+          }}
+        />
+      </Panel>
+
+      {selectedLevel && (
         <Panel>
-          <PanelHeader title="Ejercicios" action={addExercise} danger={selectedExercise ? deleteExercise : null} />
-          <Picker
-            items={selectedLevel.ejercicios ?? []}
-            selectedId={selectedExercise?.id}
-            label={(exercise) => `${exercise.numero}. ${exercise.nombre}`}
-            onSelect={(exercise) => setSelectedExerciseId(exercise.id)}
-          />
-          {selectedExercise && (
-            <div className="mt-4 space-y-3">
-              <div className="grid sm:grid-cols-2 gap-3">
-                <Field label="ID" value={selectedExercise.id} onChange={(value) => updateExercise("id", value)} />
-                <Field label="Número" type="number" value={selectedExercise.numero} onChange={(value) => updateExercise("numero", value)} />
-                <Field label="Nombre" value={selectedExercise.nombre} onChange={(value) => updateExercise("nombre", value)} />
-                <Field label="Nombre corto" value={selectedExercise.nombreCorto} onChange={(value) => updateExercise("nombreCorto", value)} />
-                <Field label="Día" value={selectedExercise.dia || ""} onChange={(value) => updateExercise("dia", value)} />
-                <Field label="Series/reps" value={selectedExercise.specs} onChange={(value) => updateExercise("specs", value)} />
-                <Field label="Músculo" value={selectedExercise.musculo} onChange={(value) => updateExercise("musculo", value)} />
-                <Field label="Grupo" value={selectedExercise.grupoMuscular} onChange={(value) => updateExercise("grupoMuscular", value)} />
-              </div>
-              <div className="grid md:grid-cols-2 gap-3">
-                <MediaField
-                  label="Vídeo"
-                  kind="video"
-                  value={selectedExercise.video}
-                  onChange={(value) => updateExercise("video", value)}
-                  uploadFile={uploadFile}
+          <PanelHeader title="Días del entreno" action={addExerciseInActiveDay} danger={activeDay ? () => deleteTrainingDay(activeDay.id) : null} />
+          <div className="space-y-3">
+            <SelectField
+              label="Entreno"
+              value={selectedLevel.id}
+              onChange={(value) => setSelectedLevelId(Number(value))}
+              options={levels.map((level) => ({ value: level.id, label: `Nivel ${level.nivel ?? level.dificultad} · ${level.nombre}` }))}
+            />
+            <SelectField
+              label="Día de entreno"
+              value={activeDay?.id ?? ""}
+              onChange={(value) => {
+                const nextDay = selectedLevel.dias?.find((day) => String(day.id) === String(value));
+                setActiveDayId(value);
+                setSelectedExerciseId(nextDay?.ejercicios?.[0]?.id ?? null);
+              }}
+              options={dayOptions}
+            />
+            {activeDay && (
+              <div className="grid grid-cols-[minmax(0,1fr)_130px] gap-3">
+                <Field
+                  label="Nombre del día"
+                  value={activeDay.nombre}
+                  onChange={(value) => updateTrainingDay(activeDay.id, "nombre", value)}
+                  required
                 />
-                <MediaField
-                  label="Miniatura"
-                  kind="thumbnail"
-                  value={selectedExercise.thumbnail}
-                  onChange={(value) => updateExercise("thumbnail", value)}
-                  uploadFile={uploadFile}
+                <SelectField
+                  label="Tipo"
+                  value={activeDay.isDefault ? "1" : "0"}
+                  onChange={(value) => updateTrainingDay(activeDay.id, "isDefault", value === "1")}
+                  options={[
+                    { value: "0", label: "Día" },
+                    { value: "1", label: "Completo" },
+                  ]}
                 />
               </div>
-              <TextArea label="Descripción" value={selectedExercise.descripcion || ""} onChange={(value) => updateExercise("descripcion", value)} />
-              <TextArea label="Consejos" value={arrayToLines(selectedExercise.consejos)} onChange={(value) => updateExercise("consejos", linesToArray(value))} rows={5} />
+            )}
+            <Field
+              label="Nuevo día"
+              value={newDayName}
+              onChange={setNewDayName}
+              hint="Crea el día añadiendo su primer ejercicio."
+            />
+            <PrimaryAction onClick={createDay} disabled={!newDayName.trim()}>
+              Crear día
+            </PrimaryAction>
+            <div className="pt-3 border-t border-borde-claro dark:border-borde-oscuro">
+              <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-2">
+                Ejercicios del día
+              </p>
+              <Picker
+                items={exercisesForDay}
+                selectedId={selectedExercise?.id}
+                label={(exercise) => `${exercise.numero}. ${exercise.nombre}`}
+                onSelect={(exercise) => setSelectedExerciseId(exercise.id)}
+              />
             </div>
-          )}
+          </div>
         </Panel>
-      </div>
-    )}
-  </div>
-);
+      )}
+
+      {selectedLevel && (
+        <div className="space-y-4 min-w-0">
+          <Panel>
+            <PanelHeader title="Datos del entreno" danger={deleteLevel} />
+            <div className="grid md:grid-cols-2 gap-3">
+              <Field label="ID" type="number" value={selectedLevel.id} onChange={(value) => updateLevel("id", value)} required />
+              <SelectField label="Nivel" value={selectedLevel.nivel ?? selectedLevel.dificultad} onChange={(value) => updateLevel("nivel", value)} options={difficultyOptions} />
+              <Field label="Nombre del entreno" value={selectedLevel.nombre} onChange={(value) => updateLevel("nombre", value)} required />
+              <SelectField label="Sexo" value={selectedLevel.sexo} onChange={(value) => updateLevel("sexo", value)} options={sexOptions} />
+              <Field label="Slug" value={selectedLevel.slug} onChange={(value) => updateLevel("slug", value)} required />
+              <SelectField label="Duración" value={selectedLevel.duracion} onChange={(value) => updateLevel("duracion", value)} options={durationOptions} />
+              <SelectField label="Estructura" value={selectedLevel.estructura} onChange={(value) => updateLevel("estructura", value)} options={structureOptions} />
+              <ColorField label="Color de tarjetas" value={getLevelColor(selectedLevel)} onChange={(value) => updateLevel("color", value)} />
+            </div>
+            <TextArea label="Calentamiento" value={selectedLevel.calentamiento || ""} onChange={(value) => updateLevel("calentamiento", value)} />
+            <TextArea label="Enfriamiento" value={selectedLevel.enfriamiento || ""} onChange={(value) => updateLevel("enfriamiento", value)} />
+            <TextArea label="Notas" value={arrayToLines(selectedLevel.notas)} onChange={(value) => updateLevel("notas", linesToArray(value))} rows={4} />
+          </Panel>
+
+          <Panel>
+            <PanelHeader title={selectedExercise ? "Ejercicio" : "Añade un ejercicio"} action={addExerciseInActiveDay} danger={selectedExercise ? deleteExercise : null} />
+            {selectedExercise ? (
+              <div className="space-y-3">
+                <div className="grid md:grid-cols-2 gap-3">
+                  <Field label="ID" value={selectedExercise.id} onChange={(value) => updateExercise("id", value)} required />
+                  <Field label="Número" type="number" value={selectedExercise.numero} onChange={(value) => updateExercise("numero", value)} required />
+                  <Field label="Nombre" value={selectedExercise.nombre} onChange={(value) => updateExercise("nombre", value)} required />
+                  <Field label="Nombre corto" value={selectedExercise.nombreCorto} onChange={(value) => updateExercise("nombreCorto", value)} required />
+                  <Field label="Series/reps" value={selectedExercise.specs} onChange={(value) => updateExercise("specs", value)} required hint="Ejemplo: 3x12 rep, 25 min" />
+                  <SelectField label="Músculo" value={selectedExercise.musculo} onChange={(value) => updateExercise("musculo", value)} options={muscleOptions} />
+                  <SelectField label="Grupo" value={selectedExercise.grupoMuscular} onChange={(value) => updateExercise("grupoMuscular", value)} options={groupOptions} />
+                </div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <MediaField label="Vídeo" kind="video" value={selectedExercise.video} onChange={(value) => updateExercise("video", value)} uploadFile={uploadFile} />
+                  <MediaField label="Miniatura" kind="thumbnail" value={selectedExercise.thumbnail} onChange={(value) => updateExercise("thumbnail", value)} uploadFile={uploadFile} />
+                </div>
+                <TextArea label="Descripción" value={selectedExercise.descripcion || ""} onChange={(value) => updateExercise("descripcion", value)} />
+                <TextArea label="Consejos" value={arrayToLines(selectedExercise.consejos)} onChange={(value) => updateExercise("consejos", linesToArray(value))} rows={5} />
+              </div>
+            ) : (
+              <EmptyState text="Este día no tiene ejercicios. Añade uno para empezar." />
+            )}
+          </Panel>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const DietEditor = ({
   plans,
@@ -876,47 +1194,94 @@ const QuickAddPanel = ({
   quickPlan,
   setQuickPlan,
   setSelectedLevelId,
+  quickMode,
+  setQuickMode,
   uploadFile,
   addQuickLevel,
   addQuickExercise,
   addQuickPlan,
-}) => (
-  <div className="grid lg:grid-cols-3 gap-4">
-    <Panel>
+}) => {
+  const quickOptions = [
+    { value: "ejercicio", label: "Ejercicio", icon: Dumbbell },
+    { value: "dia", label: "Día", icon: Plus },
+    { value: "nivel", label: "Nivel", icon: Sparkles },
+    { value: "plan", label: "Plan", icon: ReceiptText },
+  ];
+  const levelOptions = levels.map((level) => ({ value: level.id, label: level.nombre }));
+  const targetLevel =
+    levels.find((level) => level.id === Number(quickExercise.levelId)) || selectedLevel || levels[0];
+  const dayOptions = getTrainingDayOptions(targetLevel);
+
+  return (
+    <div className="space-y-4">
+      <Panel>
+        <SegmentedControl value={quickMode} onChange={setQuickMode} options={quickOptions} />
+      </Panel>
+
+      {quickMode === "nivel" && (
+        <Panel>
       <div className="flex items-center gap-3 mb-4">
         <Sparkles className="w-6 h-6" />
         <h2 className="text-xl font-black">Nuevo nivel</h2>
       </div>
       <div className="space-y-3">
-        <Field label="Nombre" value={quickLevel.nombre} onChange={(value) => setQuickLevel((current) => ({ ...current, nombre: value }))} />
+        <Field label="Nombre" value={quickLevel.nombre} onChange={(value) => setQuickLevel((current) => ({ ...current, nombre: value }))} required />
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Dificultad" value={quickLevel.dificultad} onChange={(value) => setQuickLevel((current) => ({ ...current, dificultad: value }))} />
-          <Field label="Sexo" value={quickLevel.sexo} onChange={(value) => setQuickLevel((current) => ({ ...current, sexo: value }))} />
+          <SelectField label="Dificultad" value={quickLevel.dificultad} onChange={(value) => setQuickLevel((current) => ({ ...current, dificultad: value }))} options={difficultyOptions} required />
+          <SelectField label="Sexo" value={quickLevel.sexo} onChange={(value) => setQuickLevel((current) => ({ ...current, sexo: value }))} options={sexOptions} required />
         </div>
-        <Field label="Duración" value={quickLevel.duracion} onChange={(value) => setQuickLevel((current) => ({ ...current, duracion: value }))} />
-        <Field label="Estructura" value={quickLevel.estructura} onChange={(value) => setQuickLevel((current) => ({ ...current, estructura: value }))} />
+        <SelectField label="Duración" value={quickLevel.duracion} onChange={(value) => setQuickLevel((current) => ({ ...current, duracion: value }))} options={durationOptions} required />
+        <SelectField label="Estructura" value={quickLevel.estructura} onChange={(value) => setQuickLevel((current) => ({ ...current, estructura: value }))} options={structureOptions} required />
         <ColorField label="Color de tarjetas" value={quickLevel.color} onChange={(value) => setQuickLevel((current) => ({ ...current, color: value }))} />
         <PrimaryAction onClick={addQuickLevel} disabled={!quickLevel.nombre.trim()}>
           Crear nivel
         </PrimaryAction>
       </div>
-    </Panel>
+        </Panel>
+      )}
 
-    <Panel>
+      {(quickMode === "ejercicio" || quickMode === "dia") && (
+        <Panel>
       <div className="flex items-center gap-3 mb-4">
         <Dumbbell className="w-6 h-6" />
-        <h2 className="text-xl font-black">Nuevo ejercicio</h2>
+        <h2 className="text-xl font-black">
+          {quickMode === "dia" ? "Nuevo día con primer ejercicio" : "Nuevo ejercicio"}
+        </h2>
       </div>
       <div className="space-y-3">
         <SelectField
           label="Nivel destino"
-          value={selectedLevel?.id ?? ""}
-          onChange={(value) => setSelectedLevelId(Number(value))}
-          options={levels.map((level) => ({ value: level.id, label: level.nombre }))}
+          value={quickExercise.levelId || selectedLevel?.id || ""}
+          onChange={(value) => {
+            const levelId = Number(value);
+            setSelectedLevelId(levelId);
+            setQuickExercise((current) => ({ ...current, levelId }));
+          }}
+          options={levelOptions}
         />
-        <Field label="Nombre" value={quickExercise.nombre} onChange={(value) => setQuickExercise((current) => ({ ...current, nombre: value }))} />
-        <Field label="Día" value={quickExercise.dia} onChange={(value) => setQuickExercise((current) => ({ ...current, dia: value }))} />
-        <Field label="Series/reps" value={quickExercise.specs} onChange={(value) => setQuickExercise((current) => ({ ...current, specs: value }))} />
+        {quickMode === "ejercicio" ? (
+          <SelectField
+            label="Día"
+            value={quickExercise.dia || "__full__"}
+            onChange={(value) =>
+              setQuickExercise((current) => ({
+                ...current,
+                dia: value === "__full__" ? "" : value,
+              }))
+            }
+            options={dayOptions}
+          />
+        ) : (
+          <Field
+            label="Nombre del nuevo día"
+            value={quickExercise.dia}
+            onChange={(value) => setQuickExercise((current) => ({ ...current, dia: value }))}
+            required
+            hint="Ejemplo: Lunes, Martes y Viernes, Pierna"
+          />
+        )}
+        <Field label="Nombre" value={quickExercise.nombre} onChange={(value) => setQuickExercise((current) => ({ ...current, nombre: value }))} required />
+        <Field label="Series/reps" value={quickExercise.specs} onChange={(value) => setQuickExercise((current) => ({ ...current, specs: value }))} required hint="Ejemplo: 3x12 rep, 25 min" />
         <MediaField
           label="Vídeo"
           kind="video"
@@ -931,28 +1296,39 @@ const QuickAddPanel = ({
           onChange={(value) => setQuickExercise((current) => ({ ...current, thumbnail: value }))}
           uploadFile={uploadFile}
         />
-        <PrimaryAction onClick={addQuickExercise} disabled={!selectedLevel || !quickExercise.nombre.trim()}>
-          Crear ejercicio
+        <PrimaryAction
+          onClick={addQuickExercise}
+          disabled={
+            !targetLevel ||
+            !quickExercise.nombre.trim() ||
+            (quickMode === "dia" && !quickExercise.dia.trim())
+          }
+        >
+          {quickMode === "dia" ? "Crear día y ejercicio" : "Crear ejercicio"}
         </PrimaryAction>
       </div>
-    </Panel>
+        </Panel>
+      )}
 
-    <Panel>
+      {quickMode === "plan" && (
+        <Panel>
       <div className="flex items-center gap-3 mb-4">
         <ReceiptText className="w-6 h-6" />
         <h2 className="text-xl font-black">Nuevo plan</h2>
       </div>
       <div className="space-y-3">
-        <Field label="Nombre" value={quickPlan.nombre} onChange={(value) => setQuickPlan((current) => ({ ...current, nombre: value }))} />
-        <TextArea label="Descripción" value={quickPlan.descripcion} onChange={(value) => setQuickPlan((current) => ({ ...current, descripcion: value }))} />
+        <Field label="Nombre" value={quickPlan.nombre} onChange={(value) => setQuickPlan((current) => ({ ...current, nombre: value }))} required />
+        <TextArea label="Descripción" value={quickPlan.descripcion} onChange={(value) => setQuickPlan((current) => ({ ...current, descripcion: value }))} required />
         <ColorField label="Color de tarjetas" value={quickPlan.color} onChange={(value) => setQuickPlan((current) => ({ ...current, color: value }))} />
         <PrimaryAction onClick={addQuickPlan} disabled={!quickPlan.nombre.trim()}>
           Crear plan
         </PrimaryAction>
       </div>
-    </Panel>
-  </div>
-);
+        </Panel>
+      )}
+    </div>
+  );
+};
 
 const Panel = ({ children }) => (
   <section className="bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl p-4 shadow-lg">
@@ -1014,12 +1390,19 @@ const IndexPicker = ({ items, selectedIndex, label, onSelect }) => (
   </div>
 );
 
-const Field = ({ label, value, onChange, type = "text", autoComplete, rightAction }) => (
+const Field = ({ label, value, onChange, type = "text", autoComplete, rightAction, required = false, hint }) => (
   <label className="block">
     <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
       {label}
+      {required && <span className="text-red-500"> *</span>}
     </span>
-    <div className="flex rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro focus-within:ring-2 focus-within:ring-nivel-1-claro dark:focus-within:ring-nivel-1-oscuro">
+    <div
+      className={`flex rounded-xl border bg-fondo-claro dark:bg-fondo-oscuro focus-within:ring-2 focus-within:ring-nivel-1-claro dark:focus-within:ring-nivel-1-oscuro ${
+        required && !String(value ?? "").trim()
+          ? "border-red-400 dark:border-red-700"
+          : "border-borde-claro dark:border-borde-oscuro"
+      }`}
+    >
       <input
         type={type}
         value={value ?? ""}
@@ -1029,25 +1412,28 @@ const Field = ({ label, value, onChange, type = "text", autoComplete, rightActio
       />
       {rightAction && <div className="flex-shrink-0">{rightAction}</div>}
     </div>
+    {hint && <span className="block mt-1 text-xs font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{hint}</span>}
   </label>
 );
 
-const SelectField = ({ label, value, onChange, options }) => (
+const SelectField = ({ label, value, onChange, options, required = false, hint }) => (
   <label className="block">
     <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
       {label}
+      {required && <span className="text-red-500"> *</span>}
     </span>
     <select
       value={value ?? ""}
       onChange={(event) => onChange(event.target.value)}
       className="w-full min-w-0 min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro px-3 font-black text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
     >
-      {options.map((option) => (
+      {withCurrentOption(options, value).map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>
       ))}
     </select>
+    {hint && <span className="block mt-1 text-xs font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{hint}</span>}
   </label>
 );
 
@@ -1190,17 +1576,23 @@ const MediaPreview = ({ kind, src }) => {
   );
 };
 
-const TextArea = ({ label, value, onChange, rows = 4 }) => (
+const TextArea = ({ label, value, onChange, rows = 4, required = false, hint }) => (
   <label className="block mt-3">
     <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mb-1">
       {label}
+      {required && <span className="text-red-500"> *</span>}
     </span>
     <textarea
       rows={rows}
       value={value ?? ""}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro px-4 py-3 text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
+      className={`w-full rounded-xl border bg-fondo-claro dark:bg-fondo-oscuro px-4 py-3 text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro ${
+        required && !String(value ?? "").trim()
+          ? "border-red-400 dark:border-red-700"
+          : "border-borde-claro dark:border-borde-oscuro"
+      }`}
     />
+    {hint && <span className="block mt-1 text-xs font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{hint}</span>}
   </label>
 );
 
@@ -1236,6 +1628,12 @@ const PrimaryAction = ({ children, onClick, disabled }) => (
     <Plus className="w-5 h-5" />
     {children}
   </button>
+);
+
+const EmptyState = ({ text }) => (
+  <div className="rounded-xl border border-dashed border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro p-6 text-center font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+    {text}
+  </div>
 );
 
 const SegmentedControl = ({ value, onChange, options }) => (
@@ -1314,7 +1712,8 @@ const validateContent = (content) => {
     const label = level.nombre || `Nivel ${levelIndex + 1}`;
 
     if (!Number.isFinite(Number(level.id))) errors.push(`${label}: el ID es obligatorio.`);
-    if (!String(level.nombre || "").trim()) errors.push(`${label}: el nombre es obligatorio.`);
+    if (!Number.isFinite(Number(level.nivel ?? level.dificultad))) errors.push(`${label}: el nivel es obligatorio.`);
+    if (!String(level.nombre || "").trim()) errors.push(`${label}: el nombre del entreno es obligatorio.`);
     if (!String(level.slug || "").trim()) errors.push(`${label}: el slug es obligatorio.`);
     if (!String(level.dificultad || "").trim()) errors.push(`${label}: la dificultad es obligatoria.`);
     if (!String(level.sexo || "").trim()) errors.push(`${label}: el sexo es obligatorio.`);
@@ -1322,18 +1721,27 @@ const validateContent = (content) => {
     if (!String(level.estructura || "").trim()) errors.push(`${label}: la estructura es obligatoria.`);
     if (!hexColor.test(level.color || "")) errors.push(`${label}: el color debe tener formato #RRGGBB.`);
 
-    (level.ejercicios ?? []).forEach((exercise, exerciseIndex) => {
-      const exerciseLabel = exercise.nombre || `Ejercicio ${exerciseIndex + 1}`;
+    if (!Array.isArray(level.dias) || level.dias.length === 0) {
+      errors.push(`${label}: debe tener al menos un día de entreno.`);
+    }
 
-      if (!String(exercise.id || "").trim()) errors.push(`${exerciseLabel}: el ID es obligatorio.`);
-      if (!Number.isFinite(Number(exercise.numero))) errors.push(`${exerciseLabel}: el número es obligatorio.`);
-      if (!String(exercise.nombre || "").trim()) errors.push(`${exerciseLabel}: el nombre es obligatorio.`);
-      if (!String(exercise.nombreCorto || "").trim()) errors.push(`${exerciseLabel}: el nombre corto es obligatorio.`);
-      if (!String(exercise.musculo || "").trim()) errors.push(`${exerciseLabel}: el músculo es obligatorio.`);
-      if (!String(exercise.grupoMuscular || "").trim()) errors.push(`${exerciseLabel}: el grupo muscular es obligatorio.`);
-      if (!String(exercise.specs || "").trim()) errors.push(`${exerciseLabel}: las series/reps son obligatorias.`);
-      if (!String(exercise.video || "").startsWith("/videos/")) errors.push(`${exerciseLabel}: el vídeo debe estar en /videos/.`);
-      if (!String(exercise.thumbnail || "").startsWith("/thumbnails/")) errors.push(`${exerciseLabel}: la miniatura debe estar en /thumbnails/.`);
+    (level.dias ?? []).forEach((day, dayIndex) => {
+      const dayLabel = day.nombre || `Día ${dayIndex + 1}`;
+      if (!String(day.nombre || "").trim()) errors.push(`${label}: el día ${dayIndex + 1} necesita nombre.`);
+
+      (day.ejercicios ?? []).forEach((exercise, exerciseIndex) => {
+        const exerciseLabel = `${dayLabel} · ${exercise.nombre || `Ejercicio ${exerciseIndex + 1}`}`;
+
+        if (!String(exercise.id || "").trim()) errors.push(`${exerciseLabel}: el ID es obligatorio.`);
+        if (!Number.isFinite(Number(exercise.numero))) errors.push(`${exerciseLabel}: el número es obligatorio.`);
+        if (!String(exercise.nombre || "").trim()) errors.push(`${exerciseLabel}: el nombre es obligatorio.`);
+        if (!String(exercise.nombreCorto || "").trim()) errors.push(`${exerciseLabel}: el nombre corto es obligatorio.`);
+        if (!String(exercise.musculo || "").trim()) errors.push(`${exerciseLabel}: el músculo es obligatorio.`);
+        if (!String(exercise.grupoMuscular || "").trim()) errors.push(`${exerciseLabel}: el grupo muscular es obligatorio.`);
+        if (!String(exercise.specs || "").trim()) errors.push(`${exerciseLabel}: las series/reps son obligatorias.`);
+        if (!String(exercise.video || "").startsWith("/videos/")) errors.push(`${exerciseLabel}: el vídeo debe estar en /videos/.`);
+        if (!String(exercise.thumbnail || "").startsWith("/thumbnails/")) errors.push(`${exerciseLabel}: la miniatura debe estar en /thumbnails/.`);
+      });
     });
   });
 

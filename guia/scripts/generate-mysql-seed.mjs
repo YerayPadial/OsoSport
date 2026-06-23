@@ -38,6 +38,11 @@ statements.push("DROP TABLE IF EXISTS diet_foods;");
 statements.push("DROP TABLE IF EXISTS diet_meals;");
 statements.push("DROP TABLE IF EXISTS diet_days;");
 statements.push("DROP TABLE IF EXISTS diet_plans;");
+statements.push("DROP TABLE IF EXISTS training_workout_exercise_tips;");
+statements.push("DROP TABLE IF EXISTS training_workout_exercises;");
+statements.push("DROP TABLE IF EXISTS training_workout_days;");
+statements.push("DROP TABLE IF EXISTS training_workout_notes;");
+statements.push("DROP TABLE IF EXISTS training_workouts;");
 statements.push("DROP TABLE IF EXISTS training_exercise_tips;");
 statements.push("DROP TABLE IF EXISTS training_exercises;");
 statements.push("DROP TABLE IF EXISTS training_level_notes;");
@@ -55,53 +60,63 @@ statements.push(`CREATE TABLE IF NOT EXISTS admin_users (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
-statements.push(`CREATE TABLE IF NOT EXISTS training_levels (
+statements.push(`CREATE TABLE IF NOT EXISTS training_workouts (
   id INT UNSIGNED PRIMARY KEY,
-  dificultad VARCHAR(50) NOT NULL,
-  sexo VARCHAR(50) NOT NULL,
-  nombre VARCHAR(120) NOT NULL,
+  level_number INT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
   slug VARCHAR(140) NOT NULL,
-  duracion VARCHAR(80) NOT NULL,
-  estructura VARCHAR(120) NOT NULL,
-  calentamiento TEXT NULL,
-  enfriamiento TEXT NULL,
-  color VARCHAR(20) NULL,
+  audience VARCHAR(50) NOT NULL,
+  duration VARCHAR(80) NOT NULL,
+  structure VARCHAR(120) NOT NULL,
+  warmup TEXT NULL,
+  cooldown TEXT NULL,
+  card_color VARCHAR(20) NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
-statements.push(`CREATE TABLE IF NOT EXISTS training_level_notes (
+statements.push(`CREATE TABLE IF NOT EXISTS training_workout_notes (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  level_id INT UNSIGNED NOT NULL,
+  workout_id INT UNSIGNED NOT NULL,
   text TEXT NOT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
-  CONSTRAINT fk_training_level_notes_level FOREIGN KEY (level_id) REFERENCES training_levels(id) ON DELETE CASCADE
+  CONSTRAINT fk_training_workout_notes_workout FOREIGN KEY (workout_id) REFERENCES training_workouts(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
-statements.push(`CREATE TABLE IF NOT EXISTS training_exercises (
+statements.push(`CREATE TABLE IF NOT EXISTS training_workout_days (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  workout_id INT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  is_default TINYINT(1) NOT NULL DEFAULT 0,
+  sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+  CONSTRAINT fk_training_workout_days_workout FOREIGN KEY (workout_id) REFERENCES training_workouts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
+
+statements.push(`CREATE TABLE IF NOT EXISTS training_workout_exercises (
   id VARCHAR(40) NOT NULL,
-  level_id INT UNSIGNED NOT NULL,
-  numero INT UNSIGNED NOT NULL,
-  dia VARCHAR(120) NULL,
-  nombre VARCHAR(160) NOT NULL,
-  nombre_corto VARCHAR(100) NOT NULL,
-  musculo VARCHAR(160) NOT NULL,
-  grupo_muscular VARCHAR(120) NOT NULL,
+  workout_id INT UNSIGNED NOT NULL,
+  day_id INT UNSIGNED NOT NULL,
+  number INT UNSIGNED NOT NULL,
+  name VARCHAR(160) NOT NULL,
+  short_name VARCHAR(100) NOT NULL,
+  muscle VARCHAR(160) NOT NULL,
+  muscle_group VARCHAR(120) NOT NULL,
   specs VARCHAR(120) NOT NULL,
   video VARCHAR(255) NOT NULL,
   thumbnail VARCHAR(255) NOT NULL,
-  descripcion TEXT NULL,
+  description TEXT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (level_id, id),
-  CONSTRAINT fk_training_exercises_level FOREIGN KEY (level_id) REFERENCES training_levels(id) ON DELETE CASCADE
+  PRIMARY KEY (workout_id, id),
+  CONSTRAINT fk_training_workout_exercises_workout FOREIGN KEY (workout_id) REFERENCES training_workouts(id) ON DELETE CASCADE,
+  CONSTRAINT fk_training_workout_exercises_day FOREIGN KEY (day_id) REFERENCES training_workout_days(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
-statements.push(`CREATE TABLE IF NOT EXISTS training_exercise_tips (
+statements.push(`CREATE TABLE IF NOT EXISTS training_workout_exercise_tips (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  level_id INT UNSIGNED NOT NULL,
+  workout_id INT UNSIGNED NOT NULL,
   exercise_id VARCHAR(40) NOT NULL,
   text TEXT NOT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
-  CONSTRAINT fk_training_exercise_tips_exercise FOREIGN KEY (level_id, exercise_id) REFERENCES training_exercises(level_id, id) ON DELETE CASCADE
+  CONSTRAINT fk_training_workout_exercise_tips_exercise FOREIGN KEY (workout_id, exercise_id) REFERENCES training_workout_exercises(workout_id, id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
 statements.push(`CREATE TABLE IF NOT EXISTS diet_plans (
@@ -139,10 +154,10 @@ statements.push(`CREATE TABLE IF NOT EXISTS diet_foods (
 const levelRows = rutinasData.niveles.map((level, index) =>
   row([
     level.id,
-    level.dificultad,
-    level.sexo,
+    Number(level.nivel ?? level.dificultad) || 0,
     level.nombre,
     level.slug,
+    level.sexo,
     level.duracion,
     level.estructura,
     level.calentamiento,
@@ -151,50 +166,62 @@ const levelRows = rutinasData.niveles.map((level, index) =>
     index + 1,
   ])
 );
-statements.push(`INSERT INTO training_levels (id, dificultad, sexo, nombre, slug, duracion, estructura, calentamiento, enfriamiento, color, sort_order) VALUES\n${levelRows.join(",\n")};`);
+statements.push(`INSERT INTO training_workouts (id, level_number, name, slug, audience, duration, structure, warmup, cooldown, card_color, sort_order) VALUES\n${levelRows.join(",\n")};`);
 
 const noteRows = [];
+const trainingDayRows = [];
 const exerciseRows = [];
 const tipRows = [];
+let trainingDayId = 1;
 
 rutinasData.niveles.forEach((level) => {
   level.notas?.forEach((note, index) => {
     noteRows.push(row([level.id, note, index + 1]));
   });
 
-  level.ejercicios.forEach((exercise, index) => {
-    exerciseRows.push(
-      row([
-        exercise.id,
-        level.id,
-        exercise.numero,
-        exercise.dia,
-        exercise.nombre,
-        exercise.nombreCorto,
-        exercise.musculo,
-        exercise.grupoMuscular,
-        exercise.specs,
-        exercise.video,
-        exercise.thumbnail,
-        exercise.descripcion,
-        index + 1,
-      ])
-    );
+  const dayMap = new Map();
 
-    exercise.consejos?.forEach((tip, tipIndex) => {
-      tipRows.push(row([level.id, exercise.id, tip, tipIndex + 1]));
-    });
+  level.ejercicios.forEach((exercise, index) => {
+    const legacyDay = String(exercise.dia || "").trim();
+    const dayName = legacyDay || "Entreno completo";
+    const dayKey = dayName.toLowerCase();
+
+    if (!dayMap.has(dayKey)) {
+      const currentDayId = trainingDayId;
+      dayMap.set(dayKey, currentDayId);
+      trainingDayRows.push(row([currentDayId, level.id, dayName, legacyDay ? 0 : 1, dayMap.size]));
+      trainingDayId += 1;
+    }
+
+    exerciseRows.push(row([
+      exercise.id,
+      level.id,
+      dayMap.get(dayKey),
+      exercise.numero,
+      exercise.nombre,
+      exercise.nombreCorto,
+      exercise.musculo,
+      exercise.grupoMuscular,
+      exercise.specs,
+      exercise.video,
+      exercise.thumbnail,
+      exercise.descripcion,
+      index + 1,
+    ]));
+
+    exercise.consejos?.forEach((tip, tipIndex) => tipRows.push(row([level.id, exercise.id, tip, tipIndex + 1])));
   });
 });
 
 if (noteRows.length) {
-  statements.push(`INSERT INTO training_level_notes (level_id, text, sort_order) VALUES\n${noteRows.join(",\n")};`);
+  statements.push(`INSERT INTO training_workout_notes (workout_id, text, sort_order) VALUES\n${noteRows.join(",\n")};`);
 }
 
-statements.push(`INSERT INTO training_exercises (id, level_id, numero, dia, nombre, nombre_corto, musculo, grupo_muscular, specs, video, thumbnail, descripcion, sort_order) VALUES\n${exerciseRows.join(",\n")};`);
+statements.push(`INSERT INTO training_workout_days (id, workout_id, name, is_default, sort_order) VALUES\n${trainingDayRows.join(",\n")};`);
+statements.push(`INSERT INTO training_workout_exercises (id, workout_id, day_id, number, name, short_name, muscle, muscle_group, specs, video, thumbnail, description, sort_order) VALUES\n${exerciseRows.join(",\n")};`);
 
 if (tipRows.length) {
-  statements.push(`INSERT INTO training_exercise_tips (level_id, exercise_id, text, sort_order) VALUES\n${tipRows.join(",\n")};`);
+  statements.push(`INSERT INTO training_workout_exercise_tips (workout_id, exercise_id, text, sort_order) VALUES\n${tipRows.join(",\n")};`);
 }
 
 const planRows = dietasData.planes.map((plan, index) =>

@@ -8,6 +8,16 @@ DROP TABLE IF EXISTS diet_days;
 
 DROP TABLE IF EXISTS diet_plans;
 
+DROP TABLE IF EXISTS training_workout_exercise_tips;
+
+DROP TABLE IF EXISTS training_workout_exercises;
+
+DROP TABLE IF EXISTS training_workout_days;
+
+DROP TABLE IF EXISTS training_workout_notes;
+
+DROP TABLE IF EXISTS training_workouts;
+
 DROP TABLE IF EXISTS training_exercise_tips;
 
 DROP TABLE IF EXISTS training_exercises;
@@ -30,53 +40,63 @@ CREATE TABLE IF NOT EXISTS admin_users (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS training_levels (
+CREATE TABLE IF NOT EXISTS training_workouts (
   id INT UNSIGNED PRIMARY KEY,
-  dificultad VARCHAR(50) NOT NULL,
-  sexo VARCHAR(50) NOT NULL,
-  nombre VARCHAR(120) NOT NULL,
+  level_number INT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
   slug VARCHAR(140) NOT NULL,
-  duracion VARCHAR(80) NOT NULL,
-  estructura VARCHAR(120) NOT NULL,
-  calentamiento TEXT NULL,
-  enfriamiento TEXT NULL,
-  color VARCHAR(20) NULL,
+  audience VARCHAR(50) NOT NULL,
+  duration VARCHAR(80) NOT NULL,
+  structure VARCHAR(120) NOT NULL,
+  warmup TEXT NULL,
+  cooldown TEXT NULL,
+  card_color VARCHAR(20) NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS training_level_notes (
+CREATE TABLE IF NOT EXISTS training_workout_notes (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  level_id INT UNSIGNED NOT NULL,
+  workout_id INT UNSIGNED NOT NULL,
   text TEXT NOT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
-  CONSTRAINT fk_training_level_notes_level FOREIGN KEY (level_id) REFERENCES training_levels(id) ON DELETE CASCADE
+  CONSTRAINT fk_training_workout_notes_workout FOREIGN KEY (workout_id) REFERENCES training_workouts(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS training_exercises (
+CREATE TABLE IF NOT EXISTS training_workout_days (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  workout_id INT UNSIGNED NOT NULL,
+  name VARCHAR(120) NOT NULL,
+  is_default TINYINT(1) NOT NULL DEFAULT 0,
+  sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+  CONSTRAINT fk_training_workout_days_workout FOREIGN KEY (workout_id) REFERENCES training_workouts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS training_workout_exercises (
   id VARCHAR(40) NOT NULL,
-  level_id INT UNSIGNED NOT NULL,
-  numero INT UNSIGNED NOT NULL,
-  dia VARCHAR(120) NULL,
-  nombre VARCHAR(160) NOT NULL,
-  nombre_corto VARCHAR(100) NOT NULL,
-  musculo VARCHAR(160) NOT NULL,
-  grupo_muscular VARCHAR(120) NOT NULL,
+  workout_id INT UNSIGNED NOT NULL,
+  day_id INT UNSIGNED NOT NULL,
+  number INT UNSIGNED NOT NULL,
+  name VARCHAR(160) NOT NULL,
+  short_name VARCHAR(100) NOT NULL,
+  muscle VARCHAR(160) NOT NULL,
+  muscle_group VARCHAR(120) NOT NULL,
   specs VARCHAR(120) NOT NULL,
   video VARCHAR(255) NOT NULL,
   thumbnail VARCHAR(255) NOT NULL,
-  descripcion TEXT NULL,
+  description TEXT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (level_id, id),
-  CONSTRAINT fk_training_exercises_level FOREIGN KEY (level_id) REFERENCES training_levels(id) ON DELETE CASCADE
+  PRIMARY KEY (workout_id, id),
+  CONSTRAINT fk_training_workout_exercises_workout FOREIGN KEY (workout_id) REFERENCES training_workouts(id) ON DELETE CASCADE,
+  CONSTRAINT fk_training_workout_exercises_day FOREIGN KEY (day_id) REFERENCES training_workout_days(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS training_exercise_tips (
+CREATE TABLE IF NOT EXISTS training_workout_exercise_tips (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  level_id INT UNSIGNED NOT NULL,
+  workout_id INT UNSIGNED NOT NULL,
   exercise_id VARCHAR(40) NOT NULL,
   text TEXT NOT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
-  CONSTRAINT fk_training_exercise_tips_exercise FOREIGN KEY (level_id, exercise_id) REFERENCES training_exercises(level_id, id) ON DELETE CASCADE
+  CONSTRAINT fk_training_workout_exercise_tips_exercise FOREIGN KEY (workout_id, exercise_id) REFERENCES training_workout_exercises(workout_id, id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS diet_plans (
@@ -111,14 +131,14 @@ CREATE TABLE IF NOT EXISTS diet_foods (
   CONSTRAINT fk_diet_foods_meal FOREIGN KEY (meal_id) REFERENCES diet_meals(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO training_levels (id, dificultad, sexo, nombre, slug, duracion, estructura, calentamiento, enfriamiento, color, sort_order) VALUES
-(5, '0', 'Unisex', 'Bajar Peso y Quema Grasa', 'bajar-peso-quema-grasa', '3 meses', 'Dividida (Opciones de Cardio)', NULL, NULL, '#4B5563', 1),
-(1, '1', 'Hombre', 'Principiantes', 'principiantes-hombres', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#166534', 2),
-(2, '1', 'Mujer', 'Principiantes', 'principiantes-mujeres', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#DB2777', 3),
-(3, 2, 'Unixex', 'Intermedia', 'intermedia', '2 a 3 meses', 'Dividida (Lunes/Jueves y Martes/Viernes)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#B45309', 4),
-(4, 3, 'Unisex', 'Avanzada', 'avanzada', '4 a 6 meses', 'Dividida (Lunes, Martes, Miércoles - se repite el ciclo)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#B91C1C', 5);
+INSERT INTO training_workouts (id, level_number, name, slug, audience, duration, structure, warmup, cooldown, card_color, sort_order) VALUES
+(5, 0, 'Bajar Peso y Quema Grasa', 'bajar-peso-quema-grasa', 'Unisex', '3 meses', 'Dividida (Opciones de Cardio)', NULL, NULL, '#4B5563', 1),
+(1, 1, 'Principiantes', 'principiantes-hombres', 'Hombre', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#166534', 2),
+(2, 1, 'Principiantes', 'principiantes-mujeres', 'Mujer', '1 mes', 'Full Body', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#DB2777', 3),
+(3, 2, 'Intermedia', 'intermedia', 'Unixex', '2 a 3 meses', 'Dividida (Lunes/Jueves y Martes/Viernes)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#B45309', 4),
+(4, 3, 'Avanzada', 'avanzada', 'Unisex', '4 a 6 meses', 'Dividida (Lunes, Martes, Miércoles - se repite el ciclo)', 'Calentamiento en bicicleta 10 minutos.', 'Enfriamiento en bicicleta o cinta: De 10 a 15 minutos.', '#B91C1C', 5);
 
-INSERT INTO training_level_notes (level_id, text, sort_order) VALUES
+INSERT INTO training_workout_notes (workout_id, text, sort_order) VALUES
 (5, 'Opción Bajar de Peso: Circuito aeróbico para mejorar la forma física general y fortalecer el core (realizar de 2 a 5 veces).', 1),
 (5, 'Opción Quema Grasa (HIIT): Hazlo 3-4 veces por semana después de tu entrenamiento principal.', 2),
 (5, 'En la cinta, cada nivel extra de inclinación aumenta la quema de calorías un 4% aprox.', 3),
@@ -129,79 +149,90 @@ INSERT INTO training_level_notes (level_id, text, sort_order) VALUES
 (4, 'Hacer abdomen: 3 x 20 rep (días alternos).', 1),
 (4, 'Repetir rutina a partir del Jueves.', 2);
 
-INSERT INTO training_exercises (id, level_id, numero, dia, nombre, nombre_corto, musculo, grupo_muscular, specs, video, thumbnail, descripcion, sort_order) VALUES
-('n5_01', 5, 1, 'Bajar de Peso', 'Cinta', 'Cinta', 'Full body', 'Core', '3 min a 5 min', '/videos/cinta-2.mp4', '/thumbnails/cinta-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 1),
-('n5_02', 5, 2, 'Bajar de Peso', 'Eliptica', 'Eliptica', 'Full body', 'Core', '3 min a 5 min', '/videos/eliptica-2.mp4', '/thumbnails/eliptica-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 2),
-('n5_03', 5, 3, 'Bajar de Peso', 'SkiErg', 'Ski', 'Full body', 'Core', '3 min a 5 min', '/videos/skierg-2.mp4', '/thumbnails/skierg-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 3),
-('n5_04', 5, 4, 'Bajar de Peso', 'Air Bike', 'Air Bike', 'Full body', 'Core', '3 min a 5 min', '/videos/air-bike-2.mp4', '/thumbnails/air-bike-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 4),
-('n5_05', 5, 5, 'Bajar de Peso', 'Ergometro', 'Ergometro', 'Full body', 'Core', '3 min a 5 min', '/videos/ergometro-2.mp4', '/thumbnails/ergometro-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 5),
-('n5_06', 5, 1, 'Quema Grasa', 'HIIT en Cinta (Intervalos)', 'Cinta HIIT', 'Cardio', 'Cardio', '25 min', '/videos/cinta-2.mp4', '/thumbnails/cinta-2.png', 'El truco de cardio que te hará perder grasa el triple de rápido.', 6),
-('n1_01', 1, 1, NULL, 'Abdominal (encogimiento)', 'Encogimiento', 'Abdominal (Abdomen)', 'Core', '3x20 rep', '/videos/abdominal-encogimiento.mp4', '/thumbnails/abdominal-encogimiento.png', 'Rutina completa para principiantes.', 1),
-('n1_02', 1, 2, NULL, 'Abdominal (elevaciones)', 'Elevaciones', 'Abdominal (Abdomen)', 'Core', '3x15 rep', '/videos/abdominal-elevaciones.mp4', '/thumbnails/abdominal-elevaciones.png', 'Rutina completa para principiantes.', 2),
-('n1_03', 1, 3, NULL, 'Press Banca', 'Press Banca', 'Pectoral', 'Pecho', '3x15 rep', '/videos/press-banca-1.mp4', '/thumbnails/press-banca-1.png', 'Rutina completa para principiantes.', 3),
-('n1_04', 1, 4, NULL, 'Jalón Nuca', 'Jalón Nuca', 'Dorsal', 'Espalda', '3x15 rep', '/videos/jalon-nuca.mp4', '/thumbnails/jalon-nuca.png', 'Rutina completa para principiantes.', 4),
-('n1_05', 1, 5, NULL, 'Press Militar', 'Press Militar', 'Hombro', 'Hombros', '3x12 rep', '/videos/press-militar-1.mp4', '/thumbnails/press-militar-1.png', 'Rutina completa para principiantes.', 5),
-('n1_06', 1, 6, NULL, 'Extensiones de Cuádriceps', 'Ext. Cuádriceps', 'Cuádriceps', 'Pierna', '3x15 rep', '/videos/extensiones-cuadriceps-1.mp4', '/thumbnails/extensiones-cuadriceps-1.png', 'Rutina completa para principiantes.', 6),
-('n1_07', 1, 7, NULL, 'Femoral', 'Femoral', 'Femoral', 'Pierna', '3x15 rep', '/videos/femoral.mp4', '/thumbnails/femoral.png', 'Rutina completa para principiantes.', 7),
-('n1_08', 1, 8, NULL, 'Curl con Barra', 'Curl Barra', 'Bíceps', 'Brazos', '3x12 rep', '/videos/curl-barra.mp4', '/thumbnails/curl-barra.png', 'Rutina completa para principiantes.', 8),
-('n1_09', 1, 9, NULL, 'Extensiones de Tríceps', 'Ext. Tríceps', 'Tríceps', 'Brazos', '3x12 rep', '/videos/extensiones-triceps.mp4', '/thumbnails/extensiones-triceps.png', 'Rutina completa para principiantes.', 9),
-('n1_10', 1, 10, NULL, 'Gemelos de Pie', 'Gemelos Pie', 'Gemelos', 'Pierna', '3x15 rep', '/videos/gemelos-pie.mp4', '/thumbnails/gemelos-pie.png', 'Rutina completa para principiantes.', 10),
-('n2_01', 2, 1, NULL, 'Abdominal (encogimiento)', 'Encogimiento', 'Abdomen', 'Core', '3x20 rep', '/videos/abdominal-encogimiento-2.mp4', '/thumbnails/abdominal-encogimiento-2.png', 'Fortalece el abdomen superior.', 1),
-('n2_02', 2, 2, NULL, 'Abdominal (elevaciones)', 'Elevaciones', 'Abdomen', 'Core', '3x15 rep', '/videos/abdominal-elevaciones.mp4', '/thumbnails/abdominal-elevaciones.png', 'Enfocado en el abdomen inferior.', 2),
-('n2_03', 2, 3, NULL, 'Press banca', 'Press Banca', 'Pectoral', 'Pecho', '3x15 rep', '/videos/press-banca-2.mp4', '/thumbnails/press-banca-2.png', 'Tonificación de pectorales y tríceps.', 3),
-('n2_04', 2, 4, NULL, 'Extensiones de cuádriceps', 'Ext. Cuádriceps', 'Cuádriceps', 'Pierna', '3x15 rep', '/videos/extensiones-cuadriceps-2.mp4', '/thumbnails/extensiones-cuadriceps-2.png', 'Activa la parte frontal de las piernas.', 4),
-('n2_05', 2, 5, NULL, 'Sentadilla sumo', 'Sent. Sumo', 'Glúteos y Aductores', 'Pierna / Glúteos', '4x20 rep', '/videos/sentadilla-sumo.mp4', '/thumbnails/sentadilla-sumo.png', 'Tonifica glúteos y aductores.', 5),
-('n2_06', 2, 6, NULL, 'Zancadas alternas', 'Zancadas', 'Cuádriceps/Glúteos', 'Pierna / Glúteos', '4x12 rep', '/videos/zancadas.mp4', '/thumbnails/zancadas.png', 'Trabaja equilibrio y fuerza unilateral.', 6),
-('n2_07', 2, 7, NULL, 'Curl femoral trasero (máquina)', 'Curl Femoral', 'Femoral', 'Pierna', '4x15 rep', '/videos/curl-femoral-trasero.mp4', '/thumbnails/curl-femoral-trasero.png', 'Fortalece la zona trasera de las piernas y glúteos.', 7),
-('n2_08', 2, 8, NULL, 'Aductores (máquina)', 'Aductores', 'Aductor', 'Pierna', '4x15 rep', '/videos/aductor.mp4', '/thumbnails/aductor.png', 'Fortalece la zona interna de las piernas.', 8),
-('n2_09', 2, 9, NULL, 'Abductores exterior (máquina)', 'Abductores', 'Abductor', 'Pierna', '4x15 rep', '/videos/abductor-exterior.mp4', '/thumbnails/abductor-exterior.png', 'Fortalece la zona externa de las piernas.', 9),
-('n2_10', 2, 10, NULL, 'Femoral', 'Femoral', 'Femoral', 'Pierna', '3x15 rep', '/videos/femoral-2.mp4', '/thumbnails/femoral-2.png', 'Enfocado en la parte posterior del muslo.', 10),
-('n2_11', 2, 11, NULL, 'Gemelos de pie', 'Gemelos Pie', 'Gemelos', 'Pierna', '3x15 rep', '/videos/gemelos-pie-2.mp4', '/thumbnails/gemelos-pie-2.png', 'Define y fortalece los gemelos.', 11),
-('n2_12', 2, 12, NULL, 'Jalón tras nuca', 'Jalón Nuca', 'Dorsal', 'Espalda', '3x12 rep', '/videos/jalon-nuca2.mp4', '/thumbnails/jalon-nuca-2.png', 'Trabaja la amplitud de la espalda y los dorsales.', 12),
-('n2_13', 2, 13, NULL, 'Curl de bíceps con barra Z', 'Curl Barra Z', 'Bíceps', 'Brazos', '3x10 rep', '/videos/curl-barra-2.mp4', '/thumbnails/curl-barra-2.png', 'Aumenta el volumen y la fuerza de los bíceps reduciendo la tensión en las muñecas.', 13),
-('n2_14', 2, 14, NULL, 'Extensiones de tríceps', 'Ext. Tríceps', 'Tríceps', 'Brazos', '3x12 rep', '/videos/extensiones-triceps-2.mp4', '/thumbnails/extensiones-triceps-2.png', 'Mejora la tonificación del brazo.', 14),
-('n2_15', 2, 15, NULL, 'Press militar', 'Press Militar', 'Hombros', 'Tren Superior', '3x10 rep', '/videos/press-militar-2.mp4', '/thumbnails/press-militar-2.png', 'Desarrolla la fuerza, el volumen y la estabilidad de los hombros.', 15),
-('n2_01', 3, 1, 'Lunes y Jueves', 'Press banca', 'Press Banca', 'Pectoral', 'Pecho', '3x15-12-10 rep', '/videos/press-banca-1.mp4', '/thumbnails/press-banca-1.png', NULL, 1),
-('n2_02', 3, 2, 'Lunes y Jueves', 'Aperturas', 'Aperturas', 'Pectoral', 'Pecho', '3x12 rep', '/videos/aperturas.mp4', '/thumbnails/aperturas.png', NULL, 2),
-('n2_03', 3, 3, 'Lunes y Jueves', 'Press militar', 'Press Militar', 'Hombro', 'Hombros', '3x15-12-10 rep', '/videos/press-militar-1.mp4', '/thumbnails/press-militar-1.png', NULL, 3),
-('n2_04', 3, 4, 'Lunes y Jueves', 'Elevaciones laterales', 'Elev. Laterales', 'Hombro', 'Hombros', '3x12 rep', '/videos/elevaciones-laterales.mp4', '/thumbnails/elevaciones-laterales.png', NULL, 4),
-('n2_05', 3, 5, 'Lunes y Jueves', 'Curl con barra', 'Curl Barra', 'Bíceps', 'Brazos', '3x8 rep', '/videos/curl-barra.mp4', '/thumbnails/curl-barra.png', NULL, 5),
-('n2_06', 3, 6, 'Lunes y Jueves', 'Curl Scott', 'Curl Scott', 'Bíceps', 'Brazos', '3x10 rep', '/videos/curl-scott.mp4', '/thumbnails/curl-scott.png', NULL, 6),
-('n2_07', 3, 7, 'Lunes y Jueves', 'Elevaciones maquina (Abdomen)', 'Elev. Abdomen', 'Abdomen', 'Core', '3x15 rep', '/videos/abdominal-elevaciones-maquina.mp4', '/thumbnails/abdominal-elevaciones-maquina.png', NULL, 7),
-('n2_08', 3, 8, 'Lunes y Jueves', 'Elevaciones (Abdomen)', 'Elev. Abdomen', 'Abdomen', 'Core', '3x15 rep', '/videos/abdominal-elevaciones.mp4', '/thumbnails/abdominal-elevaciones.png', NULL, 8),
-('n2_09', 3, 9, 'Lunes y Jueves', 'Encogimiento (Abdomen)', 'Encogimiento', 'Abdomen', 'Core', '3x50 rep', '/videos/abdominal-encogimiento.mp4', '/thumbnails/abdominal-encogimiento.png', NULL, 9),
-('n2_10', 3, 1, 'Martes y Viernes', 'Jalón tras nuca', 'Jalón Nuca', 'Dorsales', 'Espalda', '3x15-12-10 rep', '/videos/jalon-nuca.mp4', '/thumbnails/jalon-nuca.png', NULL, 10),
-('n2_11', 3, 2, 'Martes y Viernes', 'Remo mancuerna', 'Remo Mancuerna', 'Dorsales', 'Espalda', '3x12 rep', '/videos/remo-mancuerna.mp4', '/thumbnails/remo-mancuerna.png', NULL, 11),
-('n2_12', 3, 3, 'Martes y Viernes', 'Sentadillas', 'Sentadillas', 'Cuádriceps', 'Pierna', '3x15-12-10 rep', '/videos/sentadillas.mp4', '/thumbnails/sentadillas.png', NULL, 12),
-('n2_13', 3, 4, 'Martes y Viernes', 'Extensiones (Cuádriceps)', 'Ext. Cuádriceps', 'Cuádriceps', 'Pierna', '3x12 rep', '/videos/extensiones-cuadriceps-1.mp4', '/thumbnails/extensiones-cuadriceps-1.png', NULL, 13),
-('n2_14', 3, 5, 'Martes y Viernes', 'Peso muerto', 'Peso Muerto', 'Femoral', 'Pierna', '3x12 rep', '/videos/peso-muerto.mp4', '/thumbnails/peso-muerto.png', NULL, 14),
-('n2_15', 3, 6, 'Martes y Viernes', 'Gemelos sentado', 'Gemelos Sentado', 'Gemelos', 'Pierna', '3x12 rep', '/videos/gemelos-sentado.mp4', '/thumbnails/gemelos-sentado.png', NULL, 15),
-('n2_16', 3, 7, 'Martes y Viernes', 'Press francés', 'Press Francés', 'Tríceps', 'Brazos', '3x15-12-10 rep', '/videos/press-frances.mp4', '/thumbnails/press-frances.png', NULL, 16),
-('n2_17', 3, 8, 'Martes y Viernes', 'Jalón de tríceps', 'Jalón Tríceps', 'Tríceps', 'Brazos', '3x12 rep', '/videos/extensiones-triceps.mp4', '/thumbnails/extensiones-triceps.png', NULL, 17),
-('n3_01', 4, 1, 'Lunes', 'Press banca', 'Press Banca', 'Pectorales', 'Pecho', '4x12-10-8-6 rep', '/videos/press-banca-1.mp4', '/thumbnails/press-banca-1.png', 'Día Lunes: Pectorales y Bíceps', 1),
-('n3_02', 4, 2, 'Lunes', 'Press superior', 'Press Superior', 'Pectorales', 'Pecho', '3x12-10-8 rep', '/videos/press-superior.mp4', '/thumbnails/press-superior.png', 'Día Lunes: Pectorales y Bíceps', 2),
-('n3_03', 4, 3, 'Lunes', 'Fondos', 'Fondos', 'Pectorales', 'Pecho', '3x12 rep', '/videos/fondo.mp4', '/thumbnails/fondo.png', 'Día Lunes: Pectorales y Bíceps', 3),
-('n3_04', 4, 4, 'Lunes', 'Apertura', 'Apertura', 'Pectorales', 'Pecho', '3x12 rep', '/videos/aperturas.mp4', '/thumbnails/aperturas.png', 'Día Lunes: Pectorales y Bíceps', 4),
-('n3_05', 4, 5, 'Lunes', 'Curl barra', 'Curl Barra', 'Bíceps', 'Brazos', '3x8 rep', '/videos/curl-barra.mp4', '/thumbnails/curl-barra.png', 'Día Lunes: Pectorales y Bíceps', 5),
-('n3_06', 4, 6, 'Lunes', 'Curl mancuerna', 'Curl Mancuerna', 'Bíceps', 'Brazos', '3x8 rep', '/videos/curl-mancuerna.mp4', '/thumbnails/curl-mancuerna.png', 'Día Lunes: Pectorales y Bíceps', 6),
-('n3_07', 4, 7, 'Lunes', 'Curl Scott', 'Curl Scott', 'Bíceps', 'Brazos', '3x10 rep', '/videos/curl-scott.mp4', '/thumbnails/curl-scott.png', 'Día Lunes: Pectorales y Bíceps', 7),
-('n3_08', 4, 1, 'Martes', 'Dominadas', 'Dominadas', 'Dorsales', 'Espalda', '4x8 rep', '/videos/dominadas.mp4', '/thumbnails/dominadas.png', 'Día Martes: Dorsales y Tríceps', 8),
-('n3_09', 4, 2, 'Martes', 'Jalón tras nuca', 'Jalón Nuca', 'Dorsales', 'Espalda', '3x12-10-8 rep', '/videos/jalon-nuca.mp4', '/thumbnails/jalon-nuca.png', 'Día Martes: Dorsales y Tríceps', 9),
-('n3_10', 4, 3, 'Martes', 'Remo barra', 'Remo Barra', 'Dorsales', 'Espalda', '3x8 rep', '/videos/remo-barra.mp4', '/thumbnails/remo-barra.png', 'Día Martes: Dorsales y Tríceps', 10),
-('n3_11', 4, 4, 'Martes', 'Remo mancuerna', 'Remo Mancuerna', 'Dorsales', 'Espalda', '3x12 rep', '/videos/remo-mancuerna.mp4', '/thumbnails/remo-mancuerna.png', 'Día Martes: Dorsales y Tríceps', 11),
-('n3_12', 4, 5, 'Martes', 'Press francés', 'Press Francés', 'Tríceps', 'Brazos', '3x8 rep', '/videos/press-frances.mp4', '/thumbnails/press-frances.png', 'Día Martes: Dorsales y Tríceps', 12),
-('n3_13', 4, 6, 'Martes', 'Press francés de pie', 'Francés de pie', 'Tríceps', 'Brazos', '3x8 rep', '/videos/frances-de-pie.mp4', '/thumbnails/frances-de-pie.png', 'Día Martes: Dorsales y Tríceps', 13),
-('n3_14', 4, 7, 'Martes', 'Jalón de tríceps', 'Jalón Tríceps', 'Tríceps', 'Brazos', '3x10 rep', '/videos/extensiones-triceps.mp4', '/thumbnails/extensiones-triceps.png', 'Día Martes: Dorsales y Tríceps', 14),
-('n3_15', 4, 1, 'Miércoles', 'Sentadillas', 'Sentadillas', 'Piernas', 'Pierna', '3x15-12-10 rep', '/videos/sentadillas.mp4', '/thumbnails/sentadillas.png', 'Día Miércoles: Piernas y Hombros', 15),
-('n3_16', 4, 2, 'Miércoles', 'Prensa', 'Prensa', 'Piernas', 'Pierna', '3x15-12-10 rep', '/videos/prensa.mp4', '/thumbnails/prensa.png', 'Día Miércoles: Piernas y Hombros', 16),
-('n3_17', 4, 3, 'Miércoles', 'Extensiones', 'Extensiones', 'Cuádriceps', 'Pierna', '3x12 rep', '/videos/extensiones-cuadriceps-1.mp4', '/thumbnails/extensiones-cuadriceps-1.png', 'Día Miércoles: Piernas y Hombros', 17),
-('n3_18', 4, 4, 'Miércoles', 'Femoral', 'Femoral', 'Femoral', 'Pierna', '3x15 rep', '/videos/femoral.mp4', '/thumbnails/femoral.png', 'Día Miércoles: Piernas y Hombros', 18),
-('n3_19', 4, 5, 'Miércoles', 'Gemelos', 'Gemelos', 'Gemelos', 'Pierna', '3x15 rep', '/videos/gemelos-sentado.mp4', '/thumbnails/gemelos-sentado.png', 'Día Miércoles: Piernas y Hombros', 19),
-('n3_20', 4, 6, 'Miércoles', 'Press militar', 'Press Militar', 'Hombros', 'Hombros', '4x12-10-8-6 rep', '/videos/press-militar-1.mp4', '/thumbnails/press-militar-1.png', 'Día Miércoles: Piernas y Hombros', 20),
-('n3_21', 4, 7, 'Miércoles', 'Elevaciones laterales', 'Elev. Laterales', 'Hombros', 'Hombros', '3x10 rep', '/videos/elevaciones-laterales.mp4', '/thumbnails/elevaciones-laterales.png', 'Día Miércoles: Piernas y Hombros', 21),
-('n3_22', 4, 8, 'Miércoles', 'Elevaciones frontales', 'Elev. Frontales', 'Hombros', 'Hombros', '3x10 rep', '/videos/elevaciones-frontales.mp4', '/thumbnails/elevaciones-frontales.png', 'Día Miércoles: Piernas y Hombros', 22);
+INSERT INTO training_workout_days (id, workout_id, name, is_default, sort_order) VALUES
+(1, 5, 'Bajar de Peso', 0, 1),
+(2, 5, 'Quema Grasa', 0, 2),
+(3, 1, 'Entreno completo', 1, 1),
+(4, 2, 'Entreno completo', 1, 1),
+(5, 3, 'Lunes y Jueves', 0, 1),
+(6, 3, 'Martes y Viernes', 0, 2),
+(7, 4, 'Lunes', 0, 1),
+(8, 4, 'Martes', 0, 2),
+(9, 4, 'Miércoles', 0, 3);
 
-INSERT INTO training_exercise_tips (level_id, exercise_id, text, sort_order) VALUES
+INSERT INTO training_workout_exercises (id, workout_id, day_id, number, name, short_name, muscle, muscle_group, specs, video, thumbnail, description, sort_order) VALUES
+('n5_01', 5, 1, 1, 'Cinta', 'Cinta', 'Full body', 'Core', '3 min a 5 min', '/videos/cinta-2.mp4', '/thumbnails/cinta-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 1),
+('n5_02', 5, 1, 2, 'Eliptica', 'Eliptica', 'Full body', 'Core', '3 min a 5 min', '/videos/eliptica-2.mp4', '/thumbnails/eliptica-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 2),
+('n5_03', 5, 1, 3, 'SkiErg', 'Ski', 'Full body', 'Core', '3 min a 5 min', '/videos/skierg-2.mp4', '/thumbnails/skierg-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 3),
+('n5_04', 5, 1, 4, 'Air Bike', 'Air Bike', 'Full body', 'Core', '3 min a 5 min', '/videos/air-bike-2.mp4', '/thumbnails/air-bike-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 4),
+('n5_05', 5, 1, 5, 'Ergometro', 'Ergometro', 'Full body', 'Core', '3 min a 5 min', '/videos/ergometro-2.mp4', '/thumbnails/ergometro-2.png', 'Circuito de ejercicios aeróbicos para mejorar la forma física general.', 5),
+('n5_06', 5, 2, 1, 'HIIT en Cinta (Intervalos)', 'Cinta HIIT', 'Cardio', 'Cardio', '25 min', '/videos/cinta-2.mp4', '/thumbnails/cinta-2.png', 'El truco de cardio que te hará perder grasa el triple de rápido.', 6),
+('n1_01', 1, 3, 1, 'Abdominal (encogimiento)', 'Encogimiento', 'Abdominal (Abdomen)', 'Core', '3x20 rep', '/videos/abdominal-encogimiento.mp4', '/thumbnails/abdominal-encogimiento.png', 'Rutina completa para principiantes.', 1),
+('n1_02', 1, 3, 2, 'Abdominal (elevaciones)', 'Elevaciones', 'Abdominal (Abdomen)', 'Core', '3x15 rep', '/videos/abdominal-elevaciones.mp4', '/thumbnails/abdominal-elevaciones.png', 'Rutina completa para principiantes.', 2),
+('n1_03', 1, 3, 3, 'Press Banca', 'Press Banca', 'Pectoral', 'Pecho', '3x15 rep', '/videos/press-banca-1.mp4', '/thumbnails/press-banca-1.png', 'Rutina completa para principiantes.', 3),
+('n1_04', 1, 3, 4, 'Jalón Nuca', 'Jalón Nuca', 'Dorsal', 'Espalda', '3x15 rep', '/videos/jalon-nuca.mp4', '/thumbnails/jalon-nuca.png', 'Rutina completa para principiantes.', 4),
+('n1_05', 1, 3, 5, 'Press Militar', 'Press Militar', 'Hombro', 'Hombros', '3x12 rep', '/videos/press-militar-1.mp4', '/thumbnails/press-militar-1.png', 'Rutina completa para principiantes.', 5),
+('n1_06', 1, 3, 6, 'Extensiones de Cuádriceps', 'Ext. Cuádriceps', 'Cuádriceps', 'Pierna', '3x15 rep', '/videos/extensiones-cuadriceps-1.mp4', '/thumbnails/extensiones-cuadriceps-1.png', 'Rutina completa para principiantes.', 6),
+('n1_07', 1, 3, 7, 'Femoral', 'Femoral', 'Femoral', 'Pierna', '3x15 rep', '/videos/femoral.mp4', '/thumbnails/femoral.png', 'Rutina completa para principiantes.', 7),
+('n1_08', 1, 3, 8, 'Curl con Barra', 'Curl Barra', 'Bíceps', 'Brazos', '3x12 rep', '/videos/curl-barra.mp4', '/thumbnails/curl-barra.png', 'Rutina completa para principiantes.', 8),
+('n1_09', 1, 3, 9, 'Extensiones de Tríceps', 'Ext. Tríceps', 'Tríceps', 'Brazos', '3x12 rep', '/videos/extensiones-triceps.mp4', '/thumbnails/extensiones-triceps.png', 'Rutina completa para principiantes.', 9),
+('n1_10', 1, 3, 10, 'Gemelos de Pie', 'Gemelos Pie', 'Gemelos', 'Pierna', '3x15 rep', '/videos/gemelos-pie.mp4', '/thumbnails/gemelos-pie.png', 'Rutina completa para principiantes.', 10),
+('n2_01', 2, 4, 1, 'Abdominal (encogimiento)', 'Encogimiento', 'Abdomen', 'Core', '3x20 rep', '/videos/abdominal-encogimiento-2.mp4', '/thumbnails/abdominal-encogimiento-2.png', 'Fortalece el abdomen superior.', 1),
+('n2_02', 2, 4, 2, 'Abdominal (elevaciones)', 'Elevaciones', 'Abdomen', 'Core', '3x15 rep', '/videos/abdominal-elevaciones.mp4', '/thumbnails/abdominal-elevaciones.png', 'Enfocado en el abdomen inferior.', 2),
+('n2_03', 2, 4, 3, 'Press banca', 'Press Banca', 'Pectoral', 'Pecho', '3x15 rep', '/videos/press-banca-2.mp4', '/thumbnails/press-banca-2.png', 'Tonificación de pectorales y tríceps.', 3),
+('n2_04', 2, 4, 4, 'Extensiones de cuádriceps', 'Ext. Cuádriceps', 'Cuádriceps', 'Pierna', '3x15 rep', '/videos/extensiones-cuadriceps-2.mp4', '/thumbnails/extensiones-cuadriceps-2.png', 'Activa la parte frontal de las piernas.', 4),
+('n2_05', 2, 4, 5, 'Sentadilla sumo', 'Sent. Sumo', 'Glúteos y Aductores', 'Pierna / Glúteos', '4x20 rep', '/videos/sentadilla-sumo.mp4', '/thumbnails/sentadilla-sumo.png', 'Tonifica glúteos y aductores.', 5),
+('n2_06', 2, 4, 6, 'Zancadas alternas', 'Zancadas', 'Cuádriceps/Glúteos', 'Pierna / Glúteos', '4x12 rep', '/videos/zancadas.mp4', '/thumbnails/zancadas.png', 'Trabaja equilibrio y fuerza unilateral.', 6),
+('n2_07', 2, 4, 7, 'Curl femoral trasero (máquina)', 'Curl Femoral', 'Femoral', 'Pierna', '4x15 rep', '/videos/curl-femoral-trasero.mp4', '/thumbnails/curl-femoral-trasero.png', 'Fortalece la zona trasera de las piernas y glúteos.', 7),
+('n2_08', 2, 4, 8, 'Aductores (máquina)', 'Aductores', 'Aductor', 'Pierna', '4x15 rep', '/videos/aductor.mp4', '/thumbnails/aductor.png', 'Fortalece la zona interna de las piernas.', 8),
+('n2_09', 2, 4, 9, 'Abductores exterior (máquina)', 'Abductores', 'Abductor', 'Pierna', '4x15 rep', '/videos/abductor-exterior.mp4', '/thumbnails/abductor-exterior.png', 'Fortalece la zona externa de las piernas.', 9),
+('n2_10', 2, 4, 10, 'Femoral', 'Femoral', 'Femoral', 'Pierna', '3x15 rep', '/videos/femoral-2.mp4', '/thumbnails/femoral-2.png', 'Enfocado en la parte posterior del muslo.', 10),
+('n2_11', 2, 4, 11, 'Gemelos de pie', 'Gemelos Pie', 'Gemelos', 'Pierna', '3x15 rep', '/videos/gemelos-pie-2.mp4', '/thumbnails/gemelos-pie-2.png', 'Define y fortalece los gemelos.', 11),
+('n2_12', 2, 4, 12, 'Jalón tras nuca', 'Jalón Nuca', 'Dorsal', 'Espalda', '3x12 rep', '/videos/jalon-nuca2.mp4', '/thumbnails/jalon-nuca-2.png', 'Trabaja la amplitud de la espalda y los dorsales.', 12),
+('n2_13', 2, 4, 13, 'Curl de bíceps con barra Z', 'Curl Barra Z', 'Bíceps', 'Brazos', '3x10 rep', '/videos/curl-barra-2.mp4', '/thumbnails/curl-barra-2.png', 'Aumenta el volumen y la fuerza de los bíceps reduciendo la tensión en las muñecas.', 13),
+('n2_14', 2, 4, 14, 'Extensiones de tríceps', 'Ext. Tríceps', 'Tríceps', 'Brazos', '3x12 rep', '/videos/extensiones-triceps-2.mp4', '/thumbnails/extensiones-triceps-2.png', 'Mejora la tonificación del brazo.', 14),
+('n2_15', 2, 4, 15, 'Press militar', 'Press Militar', 'Hombros', 'Tren Superior', '3x10 rep', '/videos/press-militar-2.mp4', '/thumbnails/press-militar-2.png', 'Desarrolla la fuerza, el volumen y la estabilidad de los hombros.', 15),
+('n2_01', 3, 5, 1, 'Press banca', 'Press Banca', 'Pectoral', 'Pecho', '3x15-12-10 rep', '/videos/press-banca-1.mp4', '/thumbnails/press-banca-1.png', NULL, 1),
+('n2_02', 3, 5, 2, 'Aperturas', 'Aperturas', 'Pectoral', 'Pecho', '3x12 rep', '/videos/aperturas.mp4', '/thumbnails/aperturas.png', NULL, 2),
+('n2_03', 3, 5, 3, 'Press militar', 'Press Militar', 'Hombro', 'Hombros', '3x15-12-10 rep', '/videos/press-militar-1.mp4', '/thumbnails/press-militar-1.png', NULL, 3),
+('n2_04', 3, 5, 4, 'Elevaciones laterales', 'Elev. Laterales', 'Hombro', 'Hombros', '3x12 rep', '/videos/elevaciones-laterales.mp4', '/thumbnails/elevaciones-laterales.png', NULL, 4),
+('n2_05', 3, 5, 5, 'Curl con barra', 'Curl Barra', 'Bíceps', 'Brazos', '3x8 rep', '/videos/curl-barra.mp4', '/thumbnails/curl-barra.png', NULL, 5),
+('n2_06', 3, 5, 6, 'Curl Scott', 'Curl Scott', 'Bíceps', 'Brazos', '3x10 rep', '/videos/curl-scott.mp4', '/thumbnails/curl-scott.png', NULL, 6),
+('n2_07', 3, 5, 7, 'Elevaciones maquina (Abdomen)', 'Elev. Abdomen', 'Abdomen', 'Core', '3x15 rep', '/videos/abdominal-elevaciones-maquina.mp4', '/thumbnails/abdominal-elevaciones-maquina.png', NULL, 7),
+('n2_08', 3, 5, 8, 'Elevaciones (Abdomen)', 'Elev. Abdomen', 'Abdomen', 'Core', '3x15 rep', '/videos/abdominal-elevaciones.mp4', '/thumbnails/abdominal-elevaciones.png', NULL, 8),
+('n2_09', 3, 5, 9, 'Encogimiento (Abdomen)', 'Encogimiento', 'Abdomen', 'Core', '3x50 rep', '/videos/abdominal-encogimiento.mp4', '/thumbnails/abdominal-encogimiento.png', NULL, 9),
+('n2_10', 3, 6, 1, 'Jalón tras nuca', 'Jalón Nuca', 'Dorsales', 'Espalda', '3x15-12-10 rep', '/videos/jalon-nuca.mp4', '/thumbnails/jalon-nuca.png', NULL, 10),
+('n2_11', 3, 6, 2, 'Remo mancuerna', 'Remo Mancuerna', 'Dorsales', 'Espalda', '3x12 rep', '/videos/remo-mancuerna.mp4', '/thumbnails/remo-mancuerna.png', NULL, 11),
+('n2_12', 3, 6, 3, 'Sentadillas', 'Sentadillas', 'Cuádriceps', 'Pierna', '3x15-12-10 rep', '/videos/sentadillas.mp4', '/thumbnails/sentadillas.png', NULL, 12),
+('n2_13', 3, 6, 4, 'Extensiones (Cuádriceps)', 'Ext. Cuádriceps', 'Cuádriceps', 'Pierna', '3x12 rep', '/videos/extensiones-cuadriceps-1.mp4', '/thumbnails/extensiones-cuadriceps-1.png', NULL, 13),
+('n2_14', 3, 6, 5, 'Peso muerto', 'Peso Muerto', 'Femoral', 'Pierna', '3x12 rep', '/videos/peso-muerto.mp4', '/thumbnails/peso-muerto.png', NULL, 14),
+('n2_15', 3, 6, 6, 'Gemelos sentado', 'Gemelos Sentado', 'Gemelos', 'Pierna', '3x12 rep', '/videos/gemelos-sentado.mp4', '/thumbnails/gemelos-sentado.png', NULL, 15),
+('n2_16', 3, 6, 7, 'Press francés', 'Press Francés', 'Tríceps', 'Brazos', '3x15-12-10 rep', '/videos/press-frances.mp4', '/thumbnails/press-frances.png', NULL, 16),
+('n2_17', 3, 6, 8, 'Jalón de tríceps', 'Jalón Tríceps', 'Tríceps', 'Brazos', '3x12 rep', '/videos/extensiones-triceps.mp4', '/thumbnails/extensiones-triceps.png', NULL, 17),
+('n3_01', 4, 7, 1, 'Press banca', 'Press Banca', 'Pectorales', 'Pecho', '4x12-10-8-6 rep', '/videos/press-banca-1.mp4', '/thumbnails/press-banca-1.png', 'Día Lunes: Pectorales y Bíceps', 1),
+('n3_02', 4, 7, 2, 'Press superior', 'Press Superior', 'Pectorales', 'Pecho', '3x12-10-8 rep', '/videos/press-superior.mp4', '/thumbnails/press-superior.png', 'Día Lunes: Pectorales y Bíceps', 2),
+('n3_03', 4, 7, 3, 'Fondos', 'Fondos', 'Pectorales', 'Pecho', '3x12 rep', '/videos/fondo.mp4', '/thumbnails/fondo.png', 'Día Lunes: Pectorales y Bíceps', 3),
+('n3_04', 4, 7, 4, 'Apertura', 'Apertura', 'Pectorales', 'Pecho', '3x12 rep', '/videos/aperturas.mp4', '/thumbnails/aperturas.png', 'Día Lunes: Pectorales y Bíceps', 4),
+('n3_05', 4, 7, 5, 'Curl barra', 'Curl Barra', 'Bíceps', 'Brazos', '3x8 rep', '/videos/curl-barra.mp4', '/thumbnails/curl-barra.png', 'Día Lunes: Pectorales y Bíceps', 5),
+('n3_06', 4, 7, 6, 'Curl mancuerna', 'Curl Mancuerna', 'Bíceps', 'Brazos', '3x8 rep', '/videos/curl-mancuerna.mp4', '/thumbnails/curl-mancuerna.png', 'Día Lunes: Pectorales y Bíceps', 6),
+('n3_07', 4, 7, 7, 'Curl Scott', 'Curl Scott', 'Bíceps', 'Brazos', '3x10 rep', '/videos/curl-scott.mp4', '/thumbnails/curl-scott.png', 'Día Lunes: Pectorales y Bíceps', 7),
+('n3_08', 4, 8, 1, 'Dominadas', 'Dominadas', 'Dorsales', 'Espalda', '4x8 rep', '/videos/dominadas.mp4', '/thumbnails/dominadas.png', 'Día Martes: Dorsales y Tríceps', 8),
+('n3_09', 4, 8, 2, 'Jalón tras nuca', 'Jalón Nuca', 'Dorsales', 'Espalda', '3x12-10-8 rep', '/videos/jalon-nuca.mp4', '/thumbnails/jalon-nuca.png', 'Día Martes: Dorsales y Tríceps', 9),
+('n3_10', 4, 8, 3, 'Remo barra', 'Remo Barra', 'Dorsales', 'Espalda', '3x8 rep', '/videos/remo-barra.mp4', '/thumbnails/remo-barra.png', 'Día Martes: Dorsales y Tríceps', 10),
+('n3_11', 4, 8, 4, 'Remo mancuerna', 'Remo Mancuerna', 'Dorsales', 'Espalda', '3x12 rep', '/videos/remo-mancuerna.mp4', '/thumbnails/remo-mancuerna.png', 'Día Martes: Dorsales y Tríceps', 11),
+('n3_12', 4, 8, 5, 'Press francés', 'Press Francés', 'Tríceps', 'Brazos', '3x8 rep', '/videos/press-frances.mp4', '/thumbnails/press-frances.png', 'Día Martes: Dorsales y Tríceps', 12),
+('n3_13', 4, 8, 6, 'Press francés de pie', 'Francés de pie', 'Tríceps', 'Brazos', '3x8 rep', '/videos/frances-de-pie.mp4', '/thumbnails/frances-de-pie.png', 'Día Martes: Dorsales y Tríceps', 13),
+('n3_14', 4, 8, 7, 'Jalón de tríceps', 'Jalón Tríceps', 'Tríceps', 'Brazos', '3x10 rep', '/videos/extensiones-triceps.mp4', '/thumbnails/extensiones-triceps.png', 'Día Martes: Dorsales y Tríceps', 14),
+('n3_15', 4, 9, 1, 'Sentadillas', 'Sentadillas', 'Piernas', 'Pierna', '3x15-12-10 rep', '/videos/sentadillas.mp4', '/thumbnails/sentadillas.png', 'Día Miércoles: Piernas y Hombros', 15),
+('n3_16', 4, 9, 2, 'Prensa', 'Prensa', 'Piernas', 'Pierna', '3x15-12-10 rep', '/videos/prensa.mp4', '/thumbnails/prensa.png', 'Día Miércoles: Piernas y Hombros', 16),
+('n3_17', 4, 9, 3, 'Extensiones', 'Extensiones', 'Cuádriceps', 'Pierna', '3x12 rep', '/videos/extensiones-cuadriceps-1.mp4', '/thumbnails/extensiones-cuadriceps-1.png', 'Día Miércoles: Piernas y Hombros', 17),
+('n3_18', 4, 9, 4, 'Femoral', 'Femoral', 'Femoral', 'Pierna', '3x15 rep', '/videos/femoral.mp4', '/thumbnails/femoral.png', 'Día Miércoles: Piernas y Hombros', 18),
+('n3_19', 4, 9, 5, 'Gemelos', 'Gemelos', 'Gemelos', 'Pierna', '3x15 rep', '/videos/gemelos-sentado.mp4', '/thumbnails/gemelos-sentado.png', 'Día Miércoles: Piernas y Hombros', 19),
+('n3_20', 4, 9, 6, 'Press militar', 'Press Militar', 'Hombros', 'Hombros', '4x12-10-8-6 rep', '/videos/press-militar-1.mp4', '/thumbnails/press-militar-1.png', 'Día Miércoles: Piernas y Hombros', 20),
+('n3_21', 4, 9, 7, 'Elevaciones laterales', 'Elev. Laterales', 'Hombros', 'Hombros', '3x10 rep', '/videos/elevaciones-laterales.mp4', '/thumbnails/elevaciones-laterales.png', 'Día Miércoles: Piernas y Hombros', 21),
+('n3_22', 4, 9, 8, 'Elevaciones frontales', 'Elev. Frontales', 'Hombros', 'Hombros', '3x10 rep', '/videos/elevaciones-frontales.mp4', '/thumbnails/elevaciones-frontales.png', 'Día Miércoles: Piernas y Hombros', 22);
+
+INSERT INTO training_workout_exercise_tips (workout_id, exercise_id, text, sort_order) VALUES
 (5, 'n5_01', 'Mantén la mirada al frente y los hombros relajados. Evita sujetarte de los pasamanos para aumentar la activación del core y el gasto calórico.', 1),
 (5, 'n5_02', 'Mantén los talones pegados a los pedales para activar los glúteos. Usa los bastones móviles con fuerza para trabajar también la espalda y los brazos.', 1),
 (5, 'n5_03', 'Extiéndete por completo arriba y usa tu peso corporal al bajar. La fuerza debe nacer de una contracción abdominal explosiva, no solo de tirar con los brazos.', 1),
