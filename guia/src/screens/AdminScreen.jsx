@@ -375,6 +375,7 @@ const AdminScreen = ({ onGoBack }) => {
   const [selectedMealIndex, setSelectedMealIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [quickLevel, setQuickLevel] = useState({
@@ -422,6 +423,22 @@ const AdminScreen = ({ onGoBack }) => {
     setError("");
     setMessage("");
   }, [authMode]);
+
+  useEffect(() => {
+    if (!message) {
+      setSuccessModalOpen(false);
+      return undefined;
+    }
+
+    setSuccessModalOpen(true);
+    const closeTimer = window.setTimeout(() => setSuccessModalOpen(false), 1800);
+    const clearTimer = window.setTimeout(() => setMessage(""), 2200);
+
+    return () => {
+      window.clearTimeout(closeTimer);
+      window.clearTimeout(clearTimer);
+    };
+  }, [message]);
 
   useEffect(() => {
     window.dispatchEvent(new Event("ososport-auth-change"));
@@ -1017,6 +1034,14 @@ const AdminScreen = ({ onGoBack }) => {
 
   return (
     <AdminShell onGoBack={onGoBack}>
+      <SuccessModal
+        message={message}
+        open={successModalOpen}
+        onClose={() => {
+          setSuccessModalOpen(false);
+          window.setTimeout(() => setMessage(""), 250);
+        }}
+      />
       <div className="mx-auto max-w-[1500px] grid lg:grid-cols-[260px_minmax(0,1fr)] gap-4">
         <aside className="lg:sticky lg:top-24 lg:self-start bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden">
           <div className="p-4 border-b border-borde-claro dark:border-borde-oscuro">
@@ -1074,7 +1099,6 @@ const AdminScreen = ({ onGoBack }) => {
             </div>
           </div>
 
-          {message && <Alert tone="success">{message}</Alert>}
           {error && <Alert tone="error">{error}</Alert>}
 
           {activeArea === "perfil" || !isAdmin ? (
@@ -2544,6 +2568,43 @@ const Alert = ({ tone, children }) => {
     <div className={`border rounded-xl px-4 py-3 font-bold flex items-center gap-2 ${toneClass}`}>
       {tone === "success" && <Check className="w-5 h-5" />}
       {children}
+    </div>
+  );
+};
+
+const SuccessModal = ({ message, open, onClose }) => {
+  if (!message) return null;
+
+  return (
+    <div
+      className={`fixed inset-0 z-[80] flex items-center justify-center px-4 transition-all duration-300 ease-out ${
+        open ? "opacity-100 backdrop-blur-sm" : "pointer-events-none opacity-0"
+      }`}
+      role="status"
+      aria-live="polite"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/35" />
+      <div
+        className={`relative w-full max-w-sm overflow-hidden rounded-2xl border border-green-200/80 bg-white/95 p-5 text-center shadow-2xl transition-all duration-300 ease-out dark:border-green-800/80 dark:bg-fondo-oscuro/95 ${
+          open ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-95 opacity-0"
+        }`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner dark:bg-green-900/70 dark:text-green-100">
+          <Check className="h-7 w-7" />
+        </div>
+        <p className="text-sm font-black uppercase tracking-wide text-green-700 dark:text-green-200">
+          Guardado
+        </p>
+        <p className="mt-1 text-lg font-black text-texto-claro dark:text-texto-oscuro">{message}</p>
+        <div className="mt-5 h-1 overflow-hidden rounded-full bg-green-100 dark:bg-green-950">
+          <div
+            className="h-full rounded-full bg-green-600 transition-[width] duration-[2000ms] ease-linear dark:bg-green-300"
+            style={{ width: open ? "0%" : "100%" }}
+          />
+        </div>
+      </div>
     </div>
   );
 };
