@@ -704,6 +704,16 @@ function splitDisplayName(string $displayName): array
 
 function publicUser(array $user): array
 {
+    $avatarPath = $user['avatar_path'];
+
+    if ($avatarPath !== null && $avatarPath !== '') {
+        $avatarFile = dirname(__DIR__) . '/' . ltrim((string) $avatarPath, '/');
+
+        if (!is_file($avatarFile)) {
+            $avatarPath = null;
+        }
+    }
+
     return [
         'id' => (int) $user['id'],
         'username' => $user['username'],
@@ -712,7 +722,7 @@ function publicUser(array $user): array
         'lastName' => $user['last_name'],
         'displayName' => $user['display_name'],
         'role' => $user['role'],
-        'avatarPath' => $user['avatar_path'],
+        'avatarPath' => $avatarPath,
         'active' => (bool) $user['active'],
     ];
 }

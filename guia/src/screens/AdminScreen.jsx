@@ -18,6 +18,7 @@ import {
   Search,
   Sparkles,
   Trash2,
+  Users,
   UserRound,
 } from "lucide-react";
 import { useAppData } from "../data/useAppData";
@@ -1042,24 +1043,37 @@ const AdminScreen = ({ onGoBack }) => {
           window.setTimeout(() => setMessage(""), 250);
         }}
       />
-      <div className="mx-auto max-w-[1500px] grid lg:grid-cols-[260px_minmax(0,1fr)] gap-4">
-        <aside className="lg:sticky lg:top-24 lg:self-start bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden">
+      <div className={`mx-auto max-w-[1500px] ${isAdmin ? "grid lg:grid-cols-[260px_minmax(0,1fr)] gap-4" : "space-y-4"}`}>
+        <aside className={`${isAdmin ? "lg:sticky lg:top-24 lg:self-start" : ""} bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden`}>
           <div className="p-4 border-b border-borde-claro dark:border-borde-oscuro">
-            <div className="flex items-center gap-3">
-              <SessionAvatar user={auth.user} />
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
-                  Sesión
-                </p>
-                <p className="font-black truncate">{auth.user?.displayName || auth.user?.username}</p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <SessionAvatar user={auth.user} />
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                    Sesión
+                  </p>
+                  <p className="font-black truncate">{auth.user?.displayName || auth.user?.username}</p>
+                </div>
               </div>
+              {!isAdmin && (
+                <button
+                  onClick={handleLogout}
+                  className="min-h-touch-target px-3 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro text-sm font-bold flex items-center justify-center gap-2 text-texto-secundario-claro dark:text-texto-secundario-oscuro flex-shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Cerrar sesión
+                </button>
+              )}
             </div>
           </div>
-          <AdminNavigation
-            value={activeArea}
-            onChange={setActiveArea}
-            items={visibleNavItems}
-          />
+          {isAdmin && (
+            <AdminNavigation
+              value={activeArea}
+              onChange={setActiveArea}
+              items={visibleNavItems}
+            />
+          )}
           {isAdmin && (
             <div className="p-4 grid grid-cols-2 gap-2">
               <Stat label="Entrenos" value={stats.niveles} />
@@ -1071,33 +1085,35 @@ const AdminScreen = ({ onGoBack }) => {
         </aside>
 
         <div className="min-w-0 space-y-4">
-          <div className="sticky top-20 z-30 bg-fondo-claro/95 dark:bg-fondo-oscuro/95 backdrop-blur border border-borde-claro dark:border-borde-oscuro rounded-2xl p-3 shadow-lg">
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
-                  {activeArea === "rapido" ? "Creación guiada" : "Gestión de contenido"}
-                </p>
-                <h1 className="text-2xl md:text-3xl font-black">
-                  {visibleNavItems.find((item) => item.value === activeArea)?.label || "Perfil"}
-                </h1>
-              </div>
-              <div className="grid grid-cols-1 gap-2 sm:flex">
-                <div className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center text-sm text-texto-secundario-claro dark:text-texto-secundario-oscuro">
-                  Guarda desde cada tarjeta
+          {isAdmin ? (
+            <div className="sticky top-20 z-30 bg-fondo-claro/95 dark:bg-fondo-oscuro/95 backdrop-blur border border-borde-claro dark:border-borde-oscuro rounded-2xl p-3 shadow-lg">
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                    {activeArea === "rapido" ? "Creación guiada" : "Gestión de contenido"}
+                  </p>
+                  <h1 className="text-2xl md:text-3xl font-black">
+                    {visibleNavItems.find((item) => item.value === activeArea)?.label || "Perfil"}
+                  </h1>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center gap-2"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Cerrar sesión
-                </button>
+                <div className="grid grid-cols-1 gap-2 sm:flex">
+                  <div className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center text-sm text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+                    Guarda desde cada tarjeta
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Cerrar sesión
+                  </button>
+                </div>
+              </div>
+              <div className="lg:hidden mt-3">
+                <MobileAdminSelect value={activeArea} onChange={setActiveArea} options={visibleNavItems} />
               </div>
             </div>
-            <div className="lg:hidden mt-3">
-              <SegmentedControl value={activeArea} onChange={setActiveArea} options={visibleNavItems} />
-            </div>
-          </div>
+          ) : null}
 
           {error && <Alert tone="error">{error}</Alert>}
 
@@ -1112,6 +1128,7 @@ const AdminScreen = ({ onGoBack }) => {
               showNewPassword={showProfileNewPassword}
               setShowNewPassword={setShowProfileNewPassword}
               user={auth.user}
+              showRole={isAdmin}
               onSaveProfile={handleSaveProfile}
               onChangePassword={handleChangePassword}
               onAvatarUpload={handleAvatarUpload}
@@ -1268,7 +1285,7 @@ const adminNavItems = [
   { value: "rapido", label: "Añadir rápido", icon: Sparkles },
   { value: "rutinas", label: "Rutinas", icon: Dumbbell },
   { value: "dietas", label: "Dietas", icon: ReceiptText },
-  { value: "usuarios", label: "Usuarios", emoji: "👥" },
+  { value: "usuarios", label: "Usuarios", icon: Users },
   { value: "perfil", label: "Perfil", icon: UserRound },
 ];
 
@@ -1663,6 +1680,7 @@ const ProfilePanel = ({
   showNewPassword,
   setShowNewPassword,
   user,
+  showRole,
   onSaveProfile,
   onChangePassword,
   onAvatarUpload,
@@ -1675,7 +1693,7 @@ const ProfilePanel = ({
           <Field label="Nombre" value={profileForm.firstName} onChange={(value) => setProfileForm((current) => ({ ...current, firstName: value }))} required />
           <Field label="Apellidos" value={profileForm.lastName} onChange={(value) => setProfileForm((current) => ({ ...current, lastName: value }))} required />
           <Field label="Email" type="email" value={profileForm.email} onChange={(value) => setProfileForm((current) => ({ ...current, email: value }))} required />
-          <Field label="Rol" value={user?.role || "user"} onChange={() => {}} />
+          {showRole && <Field label="Rol" value={user?.role || "user"} onChange={() => {}} />}
         </div>
       </div>
     </CollapsiblePanel>
@@ -2531,6 +2549,23 @@ const SegmentedControl = ({ value, onChange, options }) => (
       );
     })}
   </div>
+);
+
+const MobileAdminSelect = ({ value, onChange, options }) => (
+  <label className="block">
+    <span className="sr-only">Sección</span>
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="w-full min-h-touch-target rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura px-4 font-black text-texto-claro dark:text-texto-oscuro outline-none focus:ring-2 focus:ring-nivel-1-claro dark:focus:ring-nivel-1-oscuro"
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </label>
 );
 
 const Stat = ({ label, value }) => (

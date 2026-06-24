@@ -27,7 +27,6 @@ const InstallPrompt = () => {
 
     // 3. Escuchar el evento de instalación en Android/Desktop (Chrome, Edge)
     const handler = (e) => {
-      e.preventDefault(); // Prevenir el aviso automático del navegador
       setInstallEvent(e); // Guardar el evento
       setPromptType("android"); // Indicar que podemos mostrar nuestro botón
     };
