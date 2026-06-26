@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./components/layout/Header";
 import InstallPrompt from "./components/ui/InstallPrompt";
 import SideMenu from "./components/layout/SideMenu";
+import BottomNavigation from "./components/layout/BottomNavigation";
 import HomeScreen from "./screens/HomeScreen";
 import LevelScreen from "./screens/LevelScreen";
 import ExerciseListScreen from "./screens/ExerciseListScreen";
@@ -10,26 +11,26 @@ import DietasHomeScreen from "./screens/DietasHomeScreen";
 import DietasPlanScreen from "./screens/DietasPlanScreen";
 import DietasDetailScreen from "./screens/DietasDetailScreen";
 import AdminScreen from "./screens/AdminScreen";
+import UserTrainingScreen from "./screens/UserTrainingScreen";
+import { useAppData } from "./data/useAppData";
+import { normalizeSettings, themeStyleFromSettings } from "./utils/appSettings";
 
 function App() {
-  // --- 1. ESTADO DEL TEMA ---
-  // El modo oscuro es el predeterminado
-  const [theme, setTheme] = useState("dark");
+  const { settings: rawSettings } = useAppData();
+  const settings = normalizeSettings(rawSettings);
+  const showDietas = settings.navigation.showDietas;
 
-  // --- 2. EFECTO PARA ACTUALIZAR EL HTML ---
   useEffect(() => {
-    const root = document.documentElement; //etiqueta <html>
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme]); // Se ejecuta cada vez que 'theme' cambia
+    document.documentElement.classList.add("dark");
+  }, []);
 
-  // --- 3. FUNCIÓN PARA CAMBIAR EL 'theme'---
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  useEffect(() => {
+    if (!showDietas && mainView === "dietas") {
+      handleSelectMainView("rutinas");
+    }
+  // handleSelectMainView intentionally depends on current component state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showDietas, mainView]);
 
   //Estado del menú lateral
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,6 +42,7 @@ function App() {
 
   // 'mainView' decide si vemos 'rutinas' o 'dietas'
   const [mainView, setMainView] = useState("rutinas");
+  const [trainingInitialTab, setTrainingInitialTab] = useState("perfil");
 
   // 'navigation' controla la pantalla *dentro* de la vista principal
   const [navigation, setNavigation] = useState({
@@ -70,6 +72,9 @@ function App() {
 
   // Se llama al cambiar en el SideMenu
   const handleSelectMainView = (view) => {
+    if (view === "dietas" && !showDietas) {
+      view = "rutinas";
+    }
     setMainView(view); // 'rutinas' o 'dietas'
     resetNavigation(view);
     setIsMenuOpen(false); // Cerrar el menú
@@ -91,6 +96,34 @@ function App() {
       diaDieta: null,
     });
     setIsMenuOpen(false);
+  };
+
+  const handleUserTrainingClick = (tab = "perfil") => {
+    setTrainingInitialTab(tab);
+    setMainView("misRutinas");
+    setNavigation({
+      screen: "misRutinas",
+      nivelId: null,
+      dia: null,
+      ejercicioId: null,
+      planId: null,
+      diaDieta: null,
+    });
+    setIsMenuOpen(false);
+  };
+
+  const handleStartOfficialWorkout = async ({ workoutId, dayName = "" }) => {
+    setTrainingInitialTab("activo");
+    window.sessionStorage.setItem("ososport-pending-official-workout", JSON.stringify({ workoutId, dayName }));
+    setMainView("misRutinas");
+    setNavigation({
+      screen: "misRutinas",
+      nivelId: null,
+      dia: null,
+      ejercicioId: null,
+      planId: null,
+      diaDieta: null,
+    });
   };
 
   // --- NAVEGACIÓN RUTINAS ---
@@ -142,6 +175,10 @@ function App() {
   const renderScreen = () => {
     const { screen } = navigation;
 
+    if (mainView === "dietas" && !showDietas) {
+      return <HomeScreen onSelectLevel={handleSelectLevel} />;
+    }
+
     // Vistas de Rutinas
     if (mainView === "rutinas") {
       switch (screen) {
@@ -154,6 +191,7 @@ function App() {
               onSelectDay={handleSelectDay}
               onSelectExercise={handleSelectExercise}
               onGoBack={handleGoBackToHome}
+              onStartWorkout={handleStartOfficialWorkout}
             />
           );
         case "exerciseList":
@@ -162,6 +200,7 @@ function App() {
               navigation={navigation}
               onSelectExercise={handleSelectExercise}
               onGoBack={handleGoBackToLevel}
+              onStartWorkout={handleStartOfficialWorkout}
             />
           );
         case "exerciseDetail":
@@ -204,15 +243,28 @@ function App() {
     if (mainView === "admin") {
       return <AdminScreen onGoBack={() => handleSelectMainView("rutinas")} />;
     }
+
+    if (mainView === "misRutinas") {
+      return (
+        <UserTrainingScreen
+          initialTab={trainingInitialTab}
+          onTabChange={setTrainingInitialTab}
+          onGoBack={() => handleSelectMainView("rutinas")}
+          onLoginClick={handleAdminClick}
+        />
+      );
+    }
   };
 
   return (
-    <div className="min-h-screen bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro">
+    <div
+      className="min-h-screen bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro"
+      style={themeStyleFromSettings(settings)}
+    >
       <Header
         navigation={navigation}
+        currentView={mainView}
         onLogoClick={handleLogoClick}
-        theme={theme}
-        toggleTheme={toggleTheme}
         onMenuClick={toggleMenu}
         onAdminClick={handleAdminClick}
       />
@@ -220,10 +272,17 @@ function App() {
         isOpen={isMenuOpen}
         onClose={toggleMenu}
         onSelectView={handleSelectMainView}
-        onSelectAdmin={handleAdminClick}
+        onSelectUserTraining={handleUserTrainingClick}
         currentView={mainView}
+        showDietas={showDietas}
       />
       <main>{renderScreen()}</main>
+      <BottomNavigation
+        currentView={mainView}
+        onSelectView={handleSelectMainView}
+        onSelectUserTraining={handleUserTrainingClick}
+        showDietas={showDietas}
+      />
       <InstallPrompt />
     </div>
   );

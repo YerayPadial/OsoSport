@@ -9,7 +9,7 @@ function startAdminSession(): void
     }
 
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-    $cookiePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/';
+    $cookiePath = getenv('OSOSPORT_COOKIE_PATH') ?: rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/';
 
     session_set_cookie_params([
         'lifetime' => 0,
@@ -41,7 +41,7 @@ function rememberCurrentSession(bool $remember): void
     }
 
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-    $cookiePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/';
+    $cookiePath = getenv('OSOSPORT_COOKIE_PATH') ?: rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/') . '/';
 
     setcookie(session_name(), session_id(), [
         'expires' => $remember ? time() + (30 * 24 * 60 * 60) : 0,

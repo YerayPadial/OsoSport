@@ -4,6 +4,7 @@ import ExerciseCard from "../components/ui/ExerciseCard";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
 import { getLevelColor } from "../utils/contentColors";
+import Badge from "../components/ui/Badge";
 
 //Pantalla para listar ejercicios que no tienen dias o seleccionar dias
 
@@ -38,7 +39,7 @@ const LevelScreen = ({
   const renderContent = () => {
     if (nivelActual.estructura === "Full Body") {
       return (
-        <div className="space-y-4">
+        <div className="grid gap-3 lg:grid-cols-2">
           {nivelActual.ejercicios.map((ejercicio, index) => (
             <ExerciseCard
               key={ejercicio.id}
@@ -79,23 +80,29 @@ const LevelScreen = ({
   };
 
   return (
-    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="app-page">
+      <div className="app-container max-w-5xl">
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="app-focus mb-5 flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Niveles
       </button>
 
-      <h1 className="text-4xl font-black mb-2" style={{ color: levelColor }}>
-        {nivelActual.nombre}
-      </h1>
+      <header className="mb-6">
+        <Badge tone={nivelActual.dificultad <= 1 ? "success" : nivelActual.dificultad >= 3 ? "danger" : "warning"}>
+          Nivel {nivelActual.dificultad} · {nivelActual.sexo}
+        </Badge>
+        <h1 className="mt-3 text-4xl font-black text-texto-claro dark:text-texto-oscuro sm:text-5xl">
+          {nivelActual.nombre}
+        </h1>
+      </header>
 
       {nivelActual.estructura === "Full Body" && (nivelActual.calentamiento ||
         nivelActual.enfriamiento ||
         (nivelActual.notas && nivelActual.notas.length > 0)) && (
-        <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
+        <div className="app-card mb-6 space-y-4 p-5">
           
           {/* Sección de Calentamiento */}
           {nivelActual.calentamiento && (
@@ -164,6 +171,7 @@ const LevelScreen = ({
       )}
 
       {renderContent()}
+      </div>
     </div>
   );
 };

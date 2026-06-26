@@ -2,11 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  background: #11131b;
+}
+
 body {
-  font-size: 18px;
-  line-height: 1.6;
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top left, rgba(45, 98, 237, 0.12), transparent 34rem),
+    #11131b;
+  color: #e2e1ed;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+@layer components {
+  .app-page {
+    @apply min-h-screen bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro pb-24 md:pb-8;
+  }
+
+  .app-container {
+    @apply mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8;
+  }
+
+  .app-card {
+    @apply rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura shadow-none;
+  }
+
+  .app-card-high {
+    @apply rounded-xl border border-borde-claro dark:border-borde-oscuro bg-surface-card-high shadow-none;
+  }
+
+  .app-chip {
+    @apply inline-flex items-center rounded-md bg-surface-variant px-2 py-1 text-xs font-bold uppercase tracking-wide text-texto-secundario-claro dark:text-texto-secundario-oscuro;
+  }
+
+  .app-focus {
+    @apply outline-none ring-0 focus-visible:ring-2 focus-visible:ring-primary-vanguard focus-visible:ring-offset-2 focus-visible:ring-offset-fondo-oscuro;
+  }
 }
 
 /* Ocultar botón de volumen y barra de volumen en navegadores WebKit (Chrome, Safari, iOS, Android) */

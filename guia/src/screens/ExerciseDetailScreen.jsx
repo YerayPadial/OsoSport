@@ -3,6 +3,7 @@ import { useAppData } from "../data/useAppData";
 import VideoPlayer from "../components/ui/VideoPlayer";
 import { ArrowLeft, CheckCircle, Info, Zap } from "lucide-react";
 import { getLevelColor } from "../utils/contentColors";
+import Badge from "../components/ui/Badge";
 
 // Screen para detalle de un ejercicio específico
 
@@ -38,29 +39,34 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
   const levelColor = getLevelColor(nivelActual);
 
   return (
-    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen pb-20">
-      <div className="p-4 max-w-4xl mx-auto">
+    <div className="app-page">
+      <div className="app-container max-w-5xl pb-4">
         <button
           onClick={onGoBack}
-          className="mb-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+          className="app-focus mb-4 flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver a la Lista
         </button>
       </div>
 
-      <VideoPlayer src={videoUrl} poster={thumbnailUrl} />
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-xl border border-borde-oscuro bg-surface-low">
+          <VideoPlayer src={videoUrl} poster={thumbnailUrl} />
+        </div>
+      </div>
 
-      <div className="p-4 max-w-4xl mx-auto">
-        <h1 className="text-4xl font-black mt-4" style={{ color: levelColor }}>
+      <div className="app-container max-w-5xl pt-5">
+        <Badge tone="primary">{ejercicioActual.musculo}</Badge>
+        <h1 className="mt-3 text-4xl font-black text-texto-claro dark:text-texto-oscuro sm:text-5xl">
           {ejercicioActual.nombre}
         </h1>
-        <p className="text-2xl font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mt-2 mb-8">
+        <p className="font-numeric text-lg font-bold text-primary-soft mt-2 mb-6">
           {ejercicioActual.specs}
         </p>
 
-        <div className="space-y-6">
-          <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura p-5 rounded-2xl shadow-lg">
+        <div className="grid gap-4 lg:grid-cols-[1fr_420px]">
+          <div className="app-card p-5">
             <div className="flex items-start gap-3">
               <Info className="w-8 h-8 text-blue-500 flex-shrink-0" />
               <div>
@@ -90,7 +96,7 @@ const ExerciseDetailScreen = ({ navigation, onGoBack }) => {
           </div>
 
           {ejercicioActual.consejos && ejercicioActual.consejos.length > 0 && (
-            <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura p-5 rounded-2xl shadow-lg">
+            <div className="app-card p-5">
               <h2 className="text-xl font-bold mb-4 text-texto-claro dark:text-texto-oscuro">
                 Consejos
               </h2>

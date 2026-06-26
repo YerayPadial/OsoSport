@@ -2,6 +2,7 @@ import React from "react";
 import { useAppData } from "../data/useAppData";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { getDietColor } from "../utils/contentColors";
+import Badge from "../components/ui/Badge";
 
 const DietasDetailScreen = ({ navigation, onGoBack }) => {
   const { dietasData } = useAppData();
@@ -19,28 +20,29 @@ const DietasDetailScreen = ({ navigation, onGoBack }) => {
   const planColor = getDietColor(planActual);
 
   return (
-    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto pb-20">
+    <div className="app-page">
+      <div className="app-container max-w-5xl">
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="app-focus mb-5 flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Días
       </button>
 
-      <h1 className="text-4xl font-black mt-4" style={{ color: planColor }}>
-        {diaActual.nombre}
-      </h1>
-      <p className="text-2xl font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro mt-2 mb-8">
-        Plan: {planActual.nombre}
-      </p>
+      <header className="mb-6">
+        <Badge tone="primary">{planActual.nombre}</Badge>
+        <h1 className="mt-3 text-4xl font-black text-texto-claro dark:text-texto-oscuro sm:text-5xl">
+          {diaActual.nombre}
+        </h1>
+      </header>
 
       {/* Lista de comidas */}
-      <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-2">
         {diaActual.comidas.map((comida, index) => (
           <div
             key={index}
-            className="bg-tarjeta-clara dark:bg-tarjeta-oscura p-5 rounded-2xl shadow-lg"
+            className="app-card p-5"
           >
             <h2 className="text-2xl font-bold mb-4 text-texto-claro dark:text-texto-oscuro">
               {comida.tipo}
@@ -57,6 +59,7 @@ const DietasDetailScreen = ({ navigation, onGoBack }) => {
             </ul>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

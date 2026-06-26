@@ -1,6 +1,7 @@
 import React from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Utensils } from "lucide-react";
 import { getDietColor } from "../../utils/contentColors";
+import Badge from "./Badge";
 
 const DietPlanCard = ({ plan, onClick }) => {
   const bgColor = getDietColor(plan);
@@ -8,27 +9,22 @@ const DietPlanCard = ({ plan, onClick }) => {
   return (
     <button
       onClick={() => onClick(plan.id)}
-      className={`
-        w-full p-6 rounded-2xl
-        flex justify-between items-center
-        text-white text-left 
-        shadow-lg transition-all duration-300 transform
-        hover:scale-105 active:scale-98
-        min-h-touch-target
-        relative overflow-hidden
-      `}
-      style={{ backgroundColor: bgColor }}
+      className="app-focus app-card-high group relative flex w-full min-h-[118px] items-center justify-between overflow-hidden p-4 text-left transition hover:bg-surface-bright active:scale-[0.99]"
       aria-label={`Seleccionar plan: ${plan.nombre}`}
     >
-      <div className="z-10">
-        <span className="block text-3xl font-black">{plan.nombre}</span>
-        <span className="block text-xl font-normal text-white/80 mt-1">
+      <span className="absolute -right-4 -bottom-5 text-8xl font-black opacity-10" style={{ color: bgColor }}>
+        <Utensils className="h-24 w-24" />
+      </span>
+      <div className="z-10 space-y-2">
+        <Badge tone="primary">Nutrición</Badge>
+        <span className="block text-2xl font-black text-texto-claro dark:text-texto-oscuro">{plan.nombre}</span>
+        <span className="block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
           {plan.descripcion}
         </span>
       </div>
 
-      <div className="z-10 flex-shrink-0 w-12 h-12 rounded-full bg-white/30 flex items-center justify-center">
-        <ArrowRight className="w-6 h-6 text-white" />
+      <div className="z-10 flex-shrink-0 w-11 h-11 rounded-full bg-primary-vanguard flex items-center justify-center text-white">
+        <ArrowRight className="w-5 h-5" />
       </div>
     </button>
   );

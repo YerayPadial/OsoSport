@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
+import Badge from "./Badge";
 
 const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
   const thumbnailUrl = `/guia${ejercicio.thumbnail}`;
@@ -8,11 +9,10 @@ const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
     <button
       onClick={() => onClick(ejercicio.id)}
       className={`
-        w-full bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl shadow-lg
-        flex items-center p-4 gap-4
+        app-focus app-card-high
+        w-full flex items-center p-3 gap-4
         min-h-touch-target transition-all duration-200
-        transform active:scale-98 border-2
-        outline-none
+        hover:bg-surface-bright active:scale-[0.99] border
       `}
       style={{ borderColor: "transparent", "--exercise-accent": color }}
       aria-label={`Ver ejercicio ${ejercicio.nombre}`}
@@ -20,9 +20,9 @@ const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
       <div
         className={`
           flex-shrink-0
-          w-20 h-20 sm:w-24 sm:h-24
-          rounded-full
-          bg-fondo-claro dark:bg-tarjeta-oscura 
+          w-16 h-16 sm:w-20 sm:h-20
+          rounded-lg
+          bg-surface-variant
           overflow-hidden relative
           flex items-center justify-center
         `}
@@ -38,11 +38,10 @@ const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
           <div
             className={`
             absolute top-0 left-0
-            w-11 h-11 rounded-br-full
+            w-8 h-8 rounded-br-lg
             flex items-center justify-center
-            text-white text-lg font-extrabold
-            z-10
-            shadow-lg
+            text-white text-sm font-black
+            z-10 font-numeric
           `}
             style={{ backgroundColor: color }}
         >
@@ -51,18 +50,18 @@ const ExerciseCard = ({ ejercicio, numero, onClick, color = "#166534" }) => {
       </div>
 
       <div className="flex-1 text-left overflow-hidden">
-        <h3 className="text-xl font-semibold text-texto-claro dark:text-texto-oscuro truncate">
+        <h3 className="text-lg font-black text-texto-claro dark:text-texto-oscuro truncate">
           {ejercicio.nombreCorto}
         </h3>
-        <p className="text-base text-texto-secundario-claro dark:text-texto-secundario-oscuro truncate">
-          {ejercicio.musculo}
-        </p>
-        <p className="text-lg font-bold mt-1 truncate text-[var(--exercise-accent)] dark:text-texto-oscuro">
+        <div className="mt-1 flex items-center gap-2 overflow-hidden">
+          <Badge>{ejercicio.musculo}</Badge>
+        </div>
+        <p className="mt-2 truncate font-numeric text-sm font-bold text-primary-soft">
           {ejercicio.specs}
         </p>
       </div>
 
-      <ChevronRight className="flex-shrink-0 w-8 h-8 text-gray-400 dark:text-gray-500" />
+      <ChevronRight className="flex-shrink-0 w-6 h-6 text-texto-secundario-claro dark:text-texto-secundario-oscuro" />
     </button>
   );
 };

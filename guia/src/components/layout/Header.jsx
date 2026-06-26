@@ -1,26 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Dumbbell, Sun, Moon, UserRound } from "lucide-react";
+import { Dumbbell, Menu, UserRound } from "lucide-react";
 
-const Logo = () => (
-  <div className="flex items-center gap-2">
-    <Dumbbell className="w-8 h-8 text-texto-claro dark:text-texto-oscuro" />{" "}
-    <div className="flex flex-col -space-y-2 text-left">
-      <span className="text-2xl font-black text-texto-claro dark:text-texto-oscuro">
-        OSOSPORT
-      </span>
-      <span className="text-xl font-light text-texto-claro dark:text-texto-oscuro">
-        GYM
-      </span>
-    </div>
-  </div>
-);
+const titles = {
+  rutinas: "Rutinas",
+  dietas: "Dietas",
+  misRutinas: "Marca personal",
+  admin: "Perfil",
+};
 
 const Header = ({
   navigation,
+  currentView,
   onLogoClick,
-  theme,
-  toggleTheme,
   onAdminClick,
+  onMenuClick,
 }) => {
   const [sessionUser, setSessionUser] = useState(null);
   const isHome =
@@ -28,6 +21,7 @@ const Header = ({
   const avatarUrl = sessionUser?.avatarPath?.startsWith("/")
     ? `/guia${sessionUser.avatarPath}`
     : sessionUser?.avatarPath;
+  const title = titles[currentView] ?? "OsoSport";
 
   useEffect(() => {
     const loadSession = () => {
@@ -50,63 +44,46 @@ const Header = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-tarjeta-clara dark:bg-fondo-oscuro border-b border-borde-claro dark:border-borde-oscuro">
-      <div className="flex items-center justify-between h-20 px-4 max-w-4xl mx-auto">
-        {/* Logo*/}
-        {isHome ? (
-          <div className="cursor-default" aria-label="Estás en el inicio">
-            <Logo />
-          </div>
-        ) : (
-          <button
-            onClick={onLogoClick}
-            className="transition-opacity hover:opacity-80 active:opacity-60"
-            aria-label="Volver al inicio"
-          >
-            <Logo />
-          </button>
-        )}
+    <header className="sticky top-0 z-50 w-full border-b border-borde-oscuro/80 bg-fondo-oscuro/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <button
+          onClick={isHome ? undefined : onLogoClick}
+          className="app-focus flex items-center gap-3 rounded-lg pr-2 text-left transition hover:opacity-90"
+          aria-label={isHome ? "Inicio" : "Volver al inicio"}
+        >
+          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-borde-oscuro bg-surface-card-high">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <Dumbbell className="h-5 w-5 text-primary-soft" />
+            )}
+          </span>
+          <span>
+            <span className="block text-xl font-black leading-tight text-texto-oscuro">
+              {title}
+            </span>
+            <span className="hidden text-xs font-bold uppercase tracking-wide text-texto-secundario-oscuro sm:block">
+              OsoSport Gym
+            </span>
+          </span>
+        </button>
+
         <div className="flex items-center gap-2">
           <button
             onClick={onAdminClick}
-            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
+            className="app-focus flex h-10 w-10 items-center justify-center rounded-full text-texto-secundario-oscuro transition hover:bg-surface-card-high hover:text-texto-oscuro"
             aria-label="Abrir cuenta"
             title="Cuenta"
           >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
-            ) : (
-              <UserRound className="w-6 h-6" />
-            )}
+            <UserRound className="h-5 w-5" />
           </button>
-          {/* Botón theme*/}
           <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
-            aria-label={
-              theme === "dark" ? "Activar modo claro" : "Activar modo oscuro"
-            }
-          >
-            {theme === "dark" ? (
-              <Sun className="w-6 h-6" />
-            ) : (
-              <Moon className="w-6 h-6" />
-            )}
-          </button>
-          {/* Botón menú*/}
-          {
-            /*
-            
-            <button
             onClick={onMenuClick}
-            className="p-2 rounded-full text-texto-claro dark:text-texto-oscuro hover:bg-fondo-claro dark:hover:bg-tarjeta-oscura transition-colors min-h-touch-target min-w-touch-target flex items-center justify-center"
+            className="app-focus flex h-10 w-10 items-center justify-center rounded-full text-primary-soft transition hover:bg-surface-card-high"
             aria-label="Abrir menú de navegación"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="h-6 w-6" />
           </button>
-            
-            */
-          }
         </div>
       </div>
     </header>

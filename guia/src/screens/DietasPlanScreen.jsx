@@ -3,6 +3,7 @@ import { useAppData } from "../data/useAppData";
 import DayCard from "../components/ui/DayCard";
 import { ArrowLeft } from "lucide-react";
 import { getDietColor } from "../utils/contentColors";
+import Badge from "../components/ui/Badge";
 
 const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
   const { dietasData } = useAppData();
@@ -15,20 +16,24 @@ const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
   const planColor = getDietColor(planActual);
 
   return (
-    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="app-page">
+      <div className="app-container max-w-5xl">
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="app-focus mb-5 flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Planes
       </button>
 
-      <h1 className="text-4xl font-black mb-6" style={{ color: planColor }}>
-        {planActual.nombre}
-      </h1>
+      <header className="mb-6">
+        <Badge tone="primary">Plan nutricional</Badge>
+        <h1 className="mt-3 text-4xl font-black text-texto-claro dark:text-texto-oscuro sm:text-5xl">
+          {planActual.nombre}
+        </h1>
+      </header>
 
-      <div className="space-y-5">
+      <div className="grid gap-3 md:grid-cols-2">
         {planActual.dias.map((diaInfo) => (
           <DayCard
             key={diaInfo.nombre}
@@ -38,6 +43,7 @@ const DietasPlanScreen = ({ navigation, onSelectDay, onGoBack }) => {
             onClick={onSelectDay}
           />
         ))}
+      </div>
       </div>
     </div>
   );

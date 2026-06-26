@@ -1,12 +1,13 @@
 import React from "react";
 import { useAppData } from "../data/useAppData";
 import ExerciseCard from "../components/ui/ExerciseCard";
-import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
+import { ArrowLeft, Flame, Snowflake, ClipboardList, Play } from "lucide-react";
 import { getLevelColor } from "../utils/contentColors";
+import Badge from "../components/ui/Badge";
 
 // Screen para lista de ejercicios de un día específico
 
-const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
+const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack, onStartWorkout }) => {
   const { rutinasData } = useAppData();
   const nivelActual = rutinasData.niveles.find(
     (n) => n.id === navigation.nivelId
@@ -34,25 +35,36 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
   }
 
   return (
-    <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="app-page">
+      <div className="app-container max-w-5xl">
       {/* --- BOTÓN DE VOLVER --- */}
       <button
         onClick={onGoBack}
-        className="mb-4 p-3 bg-tarjeta-clara dark:bg-tarjeta-oscura text-texto-claro dark:text-texto-oscuro font-medium rounded-lg flex items-center gap-2 min-h-touch-target"
+        className="app-focus mb-5 flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black"
       >
         <ArrowLeft className="w-5 h-5" />
         Volver a Días
       </button>
 
       {/* --- TÍTULO --- */}
-      <h1 className="text-4xl font-black mb-6" style={{ color: levelColor }}>
-        {navigation.dia}
-      </h1>
+      <header className="mb-6">
+        <Badge tone="primary">{nivelActual.nombre}</Badge>
+        <h1 className="mt-3 text-4xl font-black text-texto-claro dark:text-texto-oscuro sm:text-5xl">
+          {navigation.dia}
+        </h1>
+        <button
+          onClick={() => onStartWorkout?.({ workoutId: nivelActual.id, dayName: navigation.dia })}
+          className="app-focus mt-4 flex min-h-touch-target w-full items-center justify-center gap-2 rounded-lg bg-primary-vanguard px-4 font-black text-white sm:w-auto"
+        >
+          <Play className="h-5 w-5" />
+          Empezar entrenamiento
+        </button>
+      </header>
 
       {(nivelActual.calentamiento ||
         nivelActual.enfriamiento ||
         (nivelActual.notas && nivelActual.notas.length > 0)) && (
-        <div className="bg-tarjeta-clara dark:bg-tarjeta-oscura rounded-2xl p-5 mb-6 shadow-lg space-y-4">
+        <div className="app-card mb-6 space-y-4 p-5">
           {/* Sección de Calentamiento (solo si existe) */}
           {nivelActual.calentamiento && (
             <div className="flex items-start gap-3">
@@ -120,7 +132,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
       )}
 
       {/* --- LISTA DE EJERCICIOS --- */}
-      <div className="space-y-4">
+      <div className="grid gap-3 lg:grid-cols-2">
         {ejerciciosDelDia.map((ejercicio) => (
           <ExerciseCard
             key={ejercicio.id}
@@ -130,6 +142,7 @@ const ExerciseListScreen = ({ navigation, onSelectExercise, onGoBack }) => {
             color={levelColor}
           />
         ))}
+      </div>
       </div>
     </div>
   );

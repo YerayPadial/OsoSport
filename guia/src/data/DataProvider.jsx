@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AppDataContext, defaultAppData } from "./AppDataContext";
+import { normalizeSettings } from "../utils/appSettings";
 
 const API_URL = `${import.meta.env.BASE_URL}api/content.php`;
 
@@ -14,6 +15,7 @@ export const DataProvider = ({ children }) => {
     setData({
       rutinasData: content.rutinas,
       dietasData: content.dietas,
+      settings: normalizeSettings(content.settings),
       source: "api",
       error: null,
     });
@@ -42,6 +44,7 @@ export const DataProvider = ({ children }) => {
         setData({
           rutinasData: content.rutinas,
           dietasData: content.dietas,
+          settings: normalizeSettings(content.settings),
           source: "api",
           error: null,
         });

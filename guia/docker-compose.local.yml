@@ -1,0 +1,56 @@
+services:
+  database:
+    image: mysql:8.4
+    container_name: ososport-guia-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: ososport_local
+      MYSQL_USER: ososport
+      MYSQL_PASSWORD: ososport
+    ports:
+      - "55433:3306"
+    volumes:
+      - ososport_guia_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-ptest"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/local/php.Dockerfile
+    container_name: ososport-guia-api
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      OSOSPORT_DB_HOST: database
+      OSOSPORT_DB_PORT: 3306
+      OSOSPORT_DB_DATABASE: ososport_local
+      OSOSPORT_DB_USERNAME: ososport
+      OSOSPORT_DB_PASSWORD: ososport
+      OSOSPORT_COOKIE_PATH: /guia/api/
+    ports:
+      - "8091:8091"
+    volumes:
+      - .:/app
+    command: php -S 0.0.0.0:8091 -t public
+
+  vite:
+    image: node:22-alpine
+    container_name: ososport-guia-vite
+    depends_on:
+      - api
+    environment:
+      OSOSPORT_API_TARGET: http://api:8091
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  ososport_guia_mysql:

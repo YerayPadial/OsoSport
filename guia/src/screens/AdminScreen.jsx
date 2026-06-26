@@ -13,9 +13,11 @@ import {
   LogOut,
   Plus,
   Play,
+  Palette,
   ReceiptText,
   Save,
   Search,
+  Settings,
   Sparkles,
   Trash2,
   Users,
@@ -23,6 +25,7 @@ import {
 } from "lucide-react";
 import { useAppData } from "../data/useAppData";
 import { defaultDietColors, defaultLevelColors, getDietColor, getLevelColor } from "../utils/contentColors";
+import { defaultThemeColors, normalizeSettings } from "../utils/appSettings";
 
 const emptyLevel = (id) => ({
   id,
@@ -161,6 +164,7 @@ const normalizeAdminContent = (payload) => {
   normalized.rutinas.entrenos = normalized.rutinas.niveles;
   normalized.dietas = normalized.dietas || { planes: [] };
   normalized.dietas.planes = normalized.dietas.planes || [];
+  normalized.settings = normalizeSettings(normalized.settings);
   return normalized;
 };
 
@@ -353,14 +357,14 @@ const api = {
 };
 
 const AdminScreen = ({ onGoBack }) => {
-  const { rutinasData, dietasData, updateContent } = useAppData();
+  const { rutinasData, dietasData, settings, updateContent } = useAppData();
   const [auth, setAuth] = useState({ checking: true, authenticated: false, user: null });
   const [authMode, setAuthMode] = useState("login");
   const [credentials, setCredentials] = useState({ username: "", password: "", remember: false });
   const [registerForm, setRegisterForm] = useState({ firstName: "", lastName: "", email: "", password: "", remember: false });
   const [showPassword, setShowPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-  const [content, setContent] = useState(() => normalizeAdminContent({ rutinas: rutinasData, dietas: dietasData }));
+  const [content, setContent] = useState(() => normalizeAdminContent({ rutinas: rutinasData, dietas: dietasData, settings }));
   const [activeArea, setActiveArea] = useState("rutinas");
   const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", email: "", avatarPath: "" });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
@@ -582,6 +586,21 @@ const AdminScreen = ({ onGoBack }) => {
       const plan = draft.dietas.planes.find((item) => item.id === selectedPlan.id);
       plan.dias[selectedDayIndex].comidas[selectedMealIndex][key] =
         key === "alimentos" ? linesToArray(value) : value;
+    });
+  };
+
+  const updateSettings = (path, value) => {
+    patchContent((draft) => {
+      draft.settings = normalizeSettings(draft.settings);
+      if (path === "navigation.showDietas") {
+        draft.settings.navigation.showDietas = Boolean(value);
+        return;
+      }
+
+      if (path.startsWith("theme.colors.")) {
+        const colorKey = path.replace("theme.colors.", "");
+        draft.settings.theme.colors[colorKey] = value;
+      }
     });
   };
 
@@ -1086,7 +1105,7 @@ const AdminScreen = ({ onGoBack }) => {
 
         <div className="min-w-0 space-y-4">
           {isAdmin ? (
-            <div className="sticky top-20 z-30 bg-fondo-claro/95 dark:bg-fondo-oscuro/95 backdrop-blur border border-borde-claro dark:border-borde-oscuro rounded-2xl p-3 shadow-lg">
+            <div className="bg-fondo-claro dark:bg-fondo-oscuro border border-borde-claro dark:border-borde-oscuro rounded-2xl p-3 shadow-lg">
               <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
@@ -1097,9 +1116,6 @@ const AdminScreen = ({ onGoBack }) => {
                   </h1>
                 </div>
                 <div className="grid grid-cols-1 gap-2 sm:flex">
-                  <div className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center text-sm text-texto-secundario-claro dark:text-texto-secundario-oscuro">
-                    Guarda desde cada tarjeta
-                  </div>
                   <button
                     onClick={handleLogout}
                     className="min-h-touch-target px-4 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura font-bold flex items-center justify-center gap-2"
@@ -1242,6 +1258,13 @@ const AdminScreen = ({ onGoBack }) => {
               saving={saving}
               onSave={handleSave}
             />
+          ) : activeArea === "ajustes" ? (
+            <SettingsEditor
+              settings={content.settings}
+              updateSettings={updateSettings}
+              saving={saving}
+              onSave={handleSave}
+            />
           ) : (
             <DietEditor
               plans={plans}
@@ -1286,10 +1309,41 @@ const adminNavItems = [
   { value: "rutinas", label: "Rutinas", icon: Dumbbell },
   { value: "dietas", label: "Dietas", icon: ReceiptText },
   { value: "usuarios", label: "Usuarios", icon: Users },
+  { value: "ajustes", label: "Ajustes", icon: Settings },
   { value: "perfil", label: "Perfil", icon: UserRound },
 ];
 
 const userNavItems = [{ value: "perfil", label: "Perfil", icon: UserRound }];
+
+const themeColorFields = [
+  ["fondo-oscuro", "Fondo principal"],
+  ["tarjeta-oscura", "Tarjetas"],
+  ["surface-low", "Superficie baja"],
+  ["surface-card-high", "Tarjetas destacadas"],
+  ["surface-bright", "Superficie brillante"],
+  ["surface-variant", "Fondos secundarios"],
+  ["texto-oscuro", "Texto principal"],
+  ["texto-secundario-oscuro", "Texto secundario"],
+  ["borde-oscuro", "Bordes"],
+  ["primary-vanguard", "Color principal"],
+  ["primary-soft", "Color principal suave"],
+  ["success-vanguard", "Color de éxito"],
+  ["success-soft", "Color de éxito suave"],
+  ["nivel-0-claro", "Nivel 0"],
+  ["nivel-0-oscuro", "Nivel 0 oscuro"],
+  ["nivel-1-claro", "Botones principales"],
+  ["nivel-1-oscuro", "Botones principales oscuro"],
+  ["nivel-1Fem-claro", "Nivel 1 femenino"],
+  ["nivel-1Fem-oscuro", "Nivel 1 femenino oscuro"],
+  ["nivel-2-claro", "Nivel 2"],
+  ["nivel-2-oscuro", "Nivel 2 oscuro"],
+  ["nivel-3-claro", "Nivel 3"],
+  ["nivel-3-oscuro", "Nivel 3 oscuro"],
+  ["dieta-ganar-claro", "Dietas ganar"],
+  ["dieta-ganar-oscuro", "Dietas ganar oscuro"],
+  ["dieta-perder-claro", "Dietas perder"],
+  ["dieta-perder-oscuro", "Dietas perder oscuro"],
+];
 
 const AdminShell = ({ children, onGoBack }) => (
   <div className="bg-fondo-claro dark:bg-fondo-oscuro min-h-screen p-3 md:p-4 pb-24">
@@ -1669,6 +1723,54 @@ const DietEditor = ({
     )}
   </div>
 );
+
+const SettingsEditor = ({ settings, updateSettings, saving, onSave }) => {
+  const normalized = normalizeSettings(settings);
+
+  return (
+    <div className="space-y-4">
+      <CollapsiblePanel
+        title="Navegación"
+        onSave={() => onSave("Navegación")}
+        saving={saving}
+      >
+        <div className="space-y-3">
+          <CheckboxField
+            label="Mostrar Dietas en la navegación"
+            checked={normalized.navigation.showDietas}
+            onChange={(value) => updateSettings("navigation.showDietas", value)}
+          />
+          <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+            Si lo desactivas, Dietas desaparece del menú lateral y de la navegación inferior.
+          </p>
+        </div>
+      </CollapsiblePanel>
+
+      <CollapsiblePanel
+        title="Colores globales"
+        onSave={() => onSave("Colores globales")}
+        saving={saving}
+      >
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-borde-claro dark:border-borde-oscuro bg-fondo-claro dark:bg-fondo-oscuro p-3">
+          <Palette className="h-5 w-5 text-nivel-1-claro dark:text-nivel-1-oscuro" />
+          <p className="font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
+            Estos colores afectan a toda la interfaz. Los colores específicos de cada entreno o plan siguen en sus tarjetas.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {themeColorFields.map(([key, label]) => (
+            <ColorField
+              key={key}
+              label={label}
+              value={normalized.theme.colors[key] ?? defaultThemeColors[key]}
+              onChange={(value) => updateSettings(`theme.colors.${key}`, value)}
+            />
+          ))}
+        </div>
+      </CollapsiblePanel>
+    </div>
+  );
+};
 
 const ProfilePanel = ({
   profileForm,
@@ -2648,6 +2750,7 @@ const validateContent = (content) => {
   const errors = [];
   const levels = content.rutinas?.niveles ?? [];
   const plans = content.dietas?.planes ?? [];
+  const settings = normalizeSettings(content.settings);
   const hexColor = /^#[0-9a-f]{6}$/i;
   const normalizeKey = (value) => String(value ?? "").trim().toLowerCase();
   const findDuplicates = (items, getter) => {
@@ -2759,6 +2862,12 @@ const validateContent = (content) => {
         }
       });
     });
+  });
+
+  Object.entries(settings.theme.colors).forEach(([key, value]) => {
+    if (!hexColor.test(value || "")) {
+      errors.push(`Ajustes: el color ${key} debe tener formato #RRGGBB.`);
+    }
   });
 
   return errors;
