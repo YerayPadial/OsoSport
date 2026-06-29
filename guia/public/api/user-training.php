@@ -14,6 +14,12 @@ try {
     $action = $_GET['action'] ?? 'bootstrap';
     $pdo = db();
     ensureUserTrainingSchema($pdo);
+    $user = currentUserSession();
+
+    if ($method === 'GET' && $action === 'bootstrap' && !$user) {
+        respondJson(emptyTrainingBootstrap());
+    }
+
     $user = requireTrainingUser();
     $userId = (int) $user['id'];
 
@@ -142,6 +148,43 @@ function trainingBootstrap(PDO $pdo, int $userId): array
         'history' => loadWorkoutHistory($pdo, $userId),
         'progress' => trainingProgress($pdo, $userId),
         'bodyProfile' => loadBodyProfile($pdo, $userId),
+    ];
+}
+
+function emptyTrainingBootstrap(): array
+{
+    return [
+        'routines' => [],
+        'activeSession' => null,
+        'history' => [],
+        'progress' => emptyTrainingProgress(),
+        'bodyProfile' => [
+            'heightCm' => null,
+            'weightKg' => null,
+        ],
+    ];
+}
+
+function emptyTrainingProgress(): array
+{
+    return [
+        'stats' => [
+            'totalWorkouts' => 0,
+            'totalSets' => 0,
+            'totalVolume' => 0,
+            'trainedDays' => 0,
+            'currentStreak' => 0,
+            'bestStreak' => 0,
+            'totalSeconds' => 0,
+            'lastWorkoutAt' => null,
+        ],
+        'records' => [],
+        'achievements' => [],
+        'muscles' => [
+            'lastSession' => [],
+            'week' => [],
+            'month' => [],
+        ],
     ];
 }
 
