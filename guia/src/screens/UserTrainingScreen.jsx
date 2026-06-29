@@ -60,6 +60,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const saveTimer = useRef(null);
   const elapsedRef = useRef(0);
+  const previousRestTimerRef = useRef(restTimer);
 
   const exerciseLibrary = useMemo(() => flattenGymExercises(rutinasData), [rutinasData]);
   const activeSession = payload.activeSession;
@@ -169,6 +170,19 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
 
     return () => window.clearInterval(interval);
   }, [restTimer.running, restTimer.seconds]);
+
+  useEffect(() => {
+    const previousTimer = previousRestTimerRef.current;
+    if (
+      previousTimer.running &&
+      previousTimer.seconds > 0 &&
+      restTimer.seconds === 0 &&
+      !restTimer.running
+    ) {
+      notifyRestFinished();
+    }
+    previousRestTimerRef.current = restTimer;
+  }, [restTimer]);
 
   const loadTraining = async () => {
     setLoading(true);
@@ -345,6 +359,22 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
     );
   };
 
+  const requestRemoveExercise = (exerciseIndex, exerciseName) => {
+    setConfirmDialog({
+      title: "Eliminar ejercicio",
+      text: `Se quitará ${exerciseName || "este ejercicio"} del entreno activo y perderás sus series no guardadas.`,
+      actionLabel: "Eliminar ejercicio",
+      danger: true,
+      onConfirm: async () => {
+        if (!activeSession) return;
+        updateSession({
+          ...activeSession,
+          exercises: activeSession.exercises.filter((_, itemIndex) => itemIndex !== exerciseIndex),
+        });
+      },
+    });
+  };
+
   const filteredExercises = exerciseLibrary;
 
   if (loading) {
@@ -503,7 +533,7 @@ const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAd
               exercise={exercise}
               bodyProfile={bodyProfile}
               onChange={(nextExercise) => updateExercise(index, nextExercise)}
-              onRemove={() => onChange({ ...session, exercises: session.exercises.filter((_, itemIndex) => itemIndex !== index) })}
+              onRemove={() => requestRemoveExercise(index, exercise.exerciseName)}
               onStartRest={(seconds, label) => setRestTimer({ seconds, running: true, label })}
             />
           ))
@@ -603,7 +633,8 @@ const RestTimer = ({ timer, setTimer }) => (
         <p className="font-numeric text-3xl font-black text-primary-soft">{formatDuration(timer.seconds)}</p>
       </div>
     </div>
-    <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-3 sm:grid-cols-5">
+
+    <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] gap-2 sm:hidden">
       <IconButton
         label="Pausar/reanudar"
         disabled={timer.seconds <= 0}
@@ -611,8 +642,58 @@ const RestTimer = ({ timer, setTimer }) => (
       >
         {timer.running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
       </IconButton>
+
+      <div className="grid grid-cols-3 gap-2">
+        <PresetButton
+          label="+15 segundos"
+          onClick={() => setTimer((current) => ({
+            ...current,
+            seconds: current.seconds + 15,
+            running: true,
+            label: current.label || "Descanso",
+          }))}
+        >
+          +15
+        </PresetButton>
+        <PresetButton
+          label="+30 segundos"
+          onClick={() => setTimer((current) => ({
+            ...current,
+            seconds: current.seconds + 30,
+            running: true,
+            label: current.label || "Descanso",
+          }))}
+        >
+          +30
+        </PresetButton>
+        <PresetButton
+          label="+60 segundos"
+          onClick={() => setTimer((current) => ({
+            ...current,
+            seconds: current.seconds + 60,
+            running: true,
+            label: current.label || "Descanso",
+          }))}
+        >
+          +60
+        </PresetButton>
+      </div>
+
+      <IconButton label="Reiniciar" onClick={() => setTimer({ seconds: 0, running: false, label: "" })}>
+        <RotateCcw className="w-4 h-4" />
+      </IconButton>
+    </div>
+
+    <div className="hidden grid-cols-5 gap-2 sm:grid">
       <IconButton
-        label="Añadir 15 segundos"
+        label="Pausar/reanudar"
+        disabled={timer.seconds <= 0}
+        onClick={() => setTimer((current) => ({ ...current, running: !current.running }))}
+      >
+        {timer.running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+      </IconButton>
+      <PresetButton
+        label="+15 segundos"
         onClick={() => setTimer((current) => ({
           ...current,
           seconds: current.seconds + 15,
@@ -621,10 +702,32 @@ const RestTimer = ({ timer, setTimer }) => (
         }))}
       >
         +15
+      </PresetButton>
+      <PresetButton
+        label="+30 segundos"
+        onClick={() => setTimer((current) => ({
+          ...current,
+          seconds: current.seconds + 30,
+          running: true,
+          label: current.label || "Descanso",
+        }))}
+      >
+        +30
+      </PresetButton>
+      <PresetButton
+        label="+60 segundos"
+        onClick={() => setTimer((current) => ({
+          ...current,
+          seconds: current.seconds + 60,
+          running: true,
+          label: current.label || "Descanso",
+        }))}
+      >
+        +60
+      </PresetButton>
+      <IconButton label="Reiniciar" onClick={() => setTimer({ seconds: 0, running: false, label: "" })}>
+        <RotateCcw className="w-4 h-4" />
       </IconButton>
-      <IconButton label="60 segundos" onClick={() => setTimer({ seconds: 60, running: true, label: "Descanso" })}>60</IconButton>
-      <IconButton label="90 segundos" onClick={() => setTimer({ seconds: 90, running: true, label: "Descanso" })}>90</IconButton>
-      <IconButton label="Saltar" onClick={() => setTimer({ seconds: 0, running: false, label: "" })}><RotateCcw className="w-4 h-4" /></IconButton>
     </div>
   </div>
 );
@@ -1227,6 +1330,18 @@ const ActionButton = ({ children, onClick, icon: Icon, danger = false, disabled 
   </button>
 );
 
+const PresetButton = ({ children, onClick, label }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={label}
+    title={label}
+    className="app-focus flex h-10 min-w-0 items-center justify-center rounded-lg border border-borde-claro bg-surface-low px-2 text-sm font-black dark:border-borde-oscuro hover:bg-surface-card-high sm:h-11"
+  >
+    {children}
+  </button>
+);
+
 const IconButton = ({ children, onClick, label, danger = false, disabled = false }) => (
   <button type="button" onClick={onClick} title={label} aria-label={label} disabled={disabled} className={`app-focus w-10 h-10 rounded-lg border flex items-center justify-center transition disabled:cursor-not-allowed disabled:opacity-35 ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro hover:bg-surface-card-high"}`}>
     {children}
@@ -1416,6 +1531,43 @@ function autoResizeTextarea(element) {
   if (!element) return;
   element.style.height = "0px";
   element.style.height = `${element.scrollHeight}px`;
+}
+
+function notifyRestFinished() {
+  try {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate([250, 120, 250, 120, 450]);
+    }
+  } catch {
+    // Ignore vibration failures on unsupported devices.
+  }
+
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const durations = [0, 0.22, 0.44];
+
+    durations.forEach((offset, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = index === durations.length - 1 ? 980 : 740;
+      gain.gain.setValueAtTime(0.0001, context.currentTime + offset);
+      gain.gain.exponentialRampToValueAtTime(0.18, context.currentTime + offset + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + offset + 0.18);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(context.currentTime + offset);
+      oscillator.stop(context.currentTime + offset + 0.2);
+    });
+
+    window.setTimeout(() => {
+      context.close().catch(() => {});
+    }, 1200);
+  } catch {
+    // Ignore audio failures when the browser blocks autoplay audio.
+  }
 }
 
 function blankToNull(value) {
