@@ -352,7 +352,7 @@ function App() {
 
   return (
     <div
-      className="min-h-screen bg-fondo-claro dark:bg-fondo-oscuro text-texto-claro dark:text-texto-oscuro"
+      className="min-h-screen overflow-x-hidden bg-fondo-claro text-texto-claro dark:bg-fondo-oscuro dark:text-texto-oscuro"
       style={themeStyleFromSettings(settings, isDark)}
     >
       <Header
@@ -372,7 +372,7 @@ function App() {
         currentView={mainView}
         showDietas={showDietas}
       />
-      <main>{renderScreen()}</main>
+      <main className="overflow-x-hidden">{renderScreen()}</main>
       <BottomNavigation
         currentView={mainView}
         onSelectView={handleSelectMainView}

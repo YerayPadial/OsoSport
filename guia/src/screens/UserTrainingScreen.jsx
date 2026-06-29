@@ -427,7 +427,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
 };
 
 const TrainingShell = ({ children, onGoBack }) => (
-  <div className="app-page">
+  <div className="app-page overflow-x-hidden">
     <div className="app-container max-w-[1500px] px-3 sm:px-6 lg:px-8">
     <div className="mb-4">
       <button onClick={onGoBack} className="app-focus flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black">
@@ -464,18 +464,21 @@ const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAd
     <div className="grid xl:grid-cols-[minmax(0,1fr)_340px] gap-4">
       <div className="space-y-4" data-workout-dropzone>
         <Panel>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
+          <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">Entreno activo</p>
-              <input
+              <textarea
+                rows={1}
                 value={session.name}
                 onChange={(event) => onChange({ ...session, name: event.target.value })}
+                onInput={(event) => autoResizeTextarea(event.currentTarget)}
+                ref={autoResizeTextarea}
                 aria-label="Nombre del entrenamiento"
-                className="app-focus w-full min-w-0 bg-transparent text-2xl font-black sm:text-3xl"
+                className="app-focus mt-1 block w-full min-w-0 resize-none overflow-hidden bg-transparent text-2xl font-black leading-tight sm:text-3xl"
               />
               <p className="font-numeric mt-1 text-lg font-black text-primary-soft">{formatDuration(elapsedSeconds)}</p>
             </div>
-            <div className="grid grid-cols-3 gap-2 md:flex">
+            <div className="grid min-w-0 grid-cols-3 gap-2 md:flex">
               <ActionButton onClick={onSave} icon={Save} disabled={saving}>Guardar</ActionButton>
               <ActionButton onClick={onFinish} icon={Check} disabled={saving}>Finalizar</ActionButton>
               <ActionButton onClick={onCancel} icon={X} danger disabled={saving}>Cancelar</ActionButton>
@@ -540,8 +543,8 @@ const SessionExercise = ({ exercise, bodyProfile, onChange, onRemove, onStartRes
   return (
     <Panel>
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div>
-          <h3 className="text-xl font-black">{exercise.exerciseName}</h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="break-words text-xl font-black">{exercise.exerciseName}</h3>
           <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{exercise.muscle || exercise.muscleGroup || "General"}</p>
         </div>
         <IconButton onClick={onRemove} label="Eliminar ejercicio" danger><Trash2 className="w-4 h-4" /></IconButton>
@@ -549,22 +552,22 @@ const SessionExercise = ({ exercise, bodyProfile, onChange, onRemove, onStartRes
       <div className="space-y-2">
         {exercise.sets.map((set, index) => (
           <div key={set.id ?? set.localId ?? index} className={`rounded-lg border p-3 ${set.completed ? "border-success-vanguard/40 bg-success-vanguard/15" : "border-borde-claro bg-surface-low dark:border-borde-oscuro"}`}>
-            <div className="mb-3 flex items-center justify-between sm:hidden">
+            <div className="mb-3 flex items-center justify-between gap-3 sm:hidden">
               <span className="font-numeric font-black">Serie {index + 1}</span>
               <button
                 onClick={() => updateSet(index, "completed", !set.completed)}
-                className={`app-focus flex min-h-touch-target items-center gap-2 rounded-lg border px-3 font-black ${set.completed ? "border-success-vanguard bg-success-vanguard text-green-950" : "border-borde-claro dark:border-borde-oscuro"}`}
+                className={`app-focus flex min-h-touch-target flex-shrink-0 items-center gap-2 rounded-lg border px-3 font-black ${set.completed ? "border-success-vanguard bg-success-vanguard text-green-950" : "border-borde-claro dark:border-borde-oscuro"}`}
               >
                 <Check className="h-5 w-5" />
                 {set.completed ? "Hecha" : "Marcar"}
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-[36px_repeat(4,minmax(0,1fr))_44px] sm:items-end sm:gap-2">
+            <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-[36px_repeat(4,minmax(0,1fr))_44px] sm:items-end sm:gap-2">
               <div className="hidden h-11 items-center justify-center font-numeric font-black sm:flex">{index + 1}</div>
-              <MiniField label="Peso (kg)" type="number" value={set.weight ?? ""} onChange={(value) => updateSet(index, "weight", value)} />
-              <MiniField label="Repeticiones" type="number" value={set.reps ?? ""} onChange={(value) => updateSet(index, "reps", value)} />
-              <MiniField label="Tiempo (seg.)" type="number" value={set.timeSeconds ?? ""} onChange={(value) => updateSet(index, "timeSeconds", value)} />
-              <MiniField label="Esfuerzo 1-10" type="number" value={set.rpe ?? ""} onChange={(value) => updateSet(index, "rpe", value)} />
+              <MiniField label="Peso" type="number" value={set.weight ?? ""} onChange={(value) => updateSet(index, "weight", value)} />
+              <MiniField label="Reps" type="number" value={set.reps ?? ""} onChange={(value) => updateSet(index, "reps", value)} />
+              <MiniField label="Tiempo" type="number" value={set.timeSeconds ?? ""} onChange={(value) => updateSet(index, "timeSeconds", value)} />
+              <MiniField label="RPE" type="number" value={set.rpe ?? ""} onChange={(value) => updateSet(index, "rpe", value)} />
               <button
                 onClick={() => updateSet(index, "completed", !set.completed)}
                 aria-label={set.completed ? "Desmarcar serie" : "Completar serie"}
@@ -585,16 +588,16 @@ const SessionExercise = ({ exercise, bodyProfile, onChange, onRemove, onStartRes
 
 const RestTimer = ({ timer, setTimer }) => (
   <div className="app-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
-    <div className="flex items-center gap-3">
+    <div className="flex min-w-0 items-center gap-3">
       <div className="w-12 h-12 rounded-lg bg-surface-low flex items-center justify-center text-primary-soft">
         <Clock className="w-6 h-6" />
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{timer.label || "Descanso"}</p>
         <p className="font-numeric text-3xl font-black text-primary-soft">{formatDuration(timer.seconds)}</p>
       </div>
     </div>
-    <div className="grid grid-cols-5 gap-2">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
       <IconButton
         label="Pausar/reanudar"
         disabled={timer.seconds <= 0}
@@ -1122,7 +1125,7 @@ const ExercisePicker = ({ query, setQuery, exercises, onPick, compact = false })
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar ejercicio" className="app-focus w-full min-h-touch-target bg-transparent font-bold" />
       </label>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
         {exerciseCategories.map((item) => (
           <button
             key={item.value}
@@ -1199,8 +1202,8 @@ const Field = ({ label, value, onChange, type = "text", required = false, placeh
 
 const MiniField = ({ label, value, onChange, type = "text" }) => (
   <label className="block min-w-0">
-    <span className="block text-xs font-black opacity-70 mb-1">{label}</span>
-    <input type={type} min="0" value={value ?? ""} onChange={(event) => onChange(event.target.value)} className="app-focus w-full h-11 rounded-lg bg-surface-low border border-borde-claro dark:border-borde-oscuro px-2 font-numeric font-bold" />
+    <span className="mb-1 block text-[11px] font-black uppercase tracking-[0.02em] opacity-70 sm:text-xs sm:normal-case sm:tracking-normal">{label}</span>
+    <input type={type} min="0" value={value ?? ""} onChange={(event) => onChange(event.target.value)} className="app-focus w-full min-w-0 h-11 rounded-lg bg-surface-card border border-borde-claro dark:border-borde-oscuro px-2 text-sm font-numeric font-bold sm:bg-surface-low" />
   </label>
 );
 
@@ -1212,7 +1215,7 @@ const TextArea = ({ label, value, onChange }) => (
 );
 
 const ActionButton = ({ children, onClick, icon: Icon, danger = false, disabled = false }) => (
-  <button onClick={onClick} disabled={disabled} className={`app-focus min-h-touch-target min-w-0 rounded-lg border px-1 text-xs font-black flex flex-col items-center justify-center gap-1 disabled:opacity-50 sm:flex-row sm:gap-2 sm:px-4 sm:text-base ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro bg-surface-low hover:bg-surface-card-high"}`}>
+  <button onClick={onClick} disabled={disabled} className={`app-focus min-h-touch-target min-w-0 rounded-lg border px-1 text-[11px] font-black flex flex-col items-center justify-center gap-1 leading-tight disabled:opacity-50 sm:flex-row sm:gap-2 sm:px-4 sm:text-base sm:leading-normal ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro bg-surface-low hover:bg-surface-card-high"}`}>
     {React.createElement(Icon, { className: "w-5 h-5" })}
     {children}
   </button>
@@ -1226,7 +1229,7 @@ const IconButton = ({ children, onClick, label, danger = false, disabled = false
 
 const Alert = ({ children, tone, onClose }) => (
   <div className={`rounded-lg border p-3 font-bold flex items-center justify-between gap-3 ${tone === "error" ? "bg-red-950 text-red-100 border-red-700" : "bg-green-950 text-green-100 border-green-700"}`}>
-    <span>{children}</span>
+    <span className="min-w-0 break-words">{children}</span>
     {onClose && <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center"><X className="w-4 h-4" /></button>}
   </div>
 );
@@ -1401,6 +1404,12 @@ function serializeSession(session) {
       })),
     })),
   };
+}
+
+function autoResizeTextarea(element) {
+  if (!element) return;
+  element.style.height = "0px";
+  element.style.height = `${element.scrollHeight}px`;
 }
 
 function blankToNull(value) {
