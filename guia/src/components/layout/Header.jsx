@@ -47,21 +47,21 @@ const Header = ({
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-borde-claro bg-tarjeta-clara/95 backdrop-blur dark:border-borde-oscuro dark:bg-fondo-oscuro/95">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 min-w-0 max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
         <button
           onClick={isHome ? undefined : onLogoClick}
-          className="app-focus flex items-center gap-3 rounded-lg pr-2 text-left transition hover:opacity-90"
+          className="app-focus flex min-w-0 flex-1 items-center gap-3 rounded-lg pr-2 text-left transition hover:opacity-90"
           aria-label={isHome ? "Inicio" : "Volver al inicio"}
         >
-          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-borde-claro bg-surface-card-high dark:border-borde-oscuro">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-borde-claro bg-surface-card-high dark:border-borde-oscuro">
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
             ) : (
               <Dumbbell className="h-5 w-5 text-primary-soft" />
             )}
           </span>
-          <span>
-            <span className="block text-xl font-black leading-tight text-texto-claro dark:text-texto-oscuro">
+          <span className="min-w-0">
+            <span className="block truncate text-xl font-black leading-tight text-texto-claro dark:text-texto-oscuro">
               {title}
             </span>
             <span className="hidden text-xs font-bold uppercase tracking-wide text-texto-secundario-claro dark:text-texto-secundario-oscuro sm:block">
@@ -70,7 +70,7 @@ const Header = ({
           </span>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
           <button
             onClick={onToggleTheme}
             className="app-focus flex h-10 w-10 items-center justify-center rounded-full text-texto-secundario-claro transition hover:bg-surface-card-high hover:text-texto-claro dark:text-texto-secundario-oscuro dark:hover:text-texto-oscuro"

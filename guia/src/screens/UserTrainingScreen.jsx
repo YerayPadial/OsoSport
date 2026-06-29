@@ -428,7 +428,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
 
 const TrainingShell = ({ children, onGoBack }) => (
   <div className="app-page overflow-x-hidden">
-    <div className="app-container max-w-[1500px] px-3 sm:px-6 lg:px-8">
+    <div className="app-container max-w-[1500px]">
     <div className="mb-4">
       <button onClick={onGoBack} className="app-focus flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black">
         <ArrowLeft className="w-5 h-5" />
@@ -441,6 +441,12 @@ const TrainingShell = ({ children, onGoBack }) => (
 );
 
 const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAddExercise, onChange, onSave, onFinish, onCancel, saving, elapsedSeconds, bodyProfile, restTimer, setRestTimer }) => {
+  const titleRef = useRef(null);
+
+  useEffect(() => {
+    autoResizeTextarea(titleRef.current);
+  }, [session?.name]);
+
   if (!session) {
     return (
       <Panel title="Entreno activo" icon={Timer}>
@@ -468,17 +474,17 @@ const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAd
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">Entreno activo</p>
               <textarea
+                ref={titleRef}
                 rows={1}
                 value={session.name}
                 onChange={(event) => onChange({ ...session, name: event.target.value })}
                 onInput={(event) => autoResizeTextarea(event.currentTarget)}
-                ref={autoResizeTextarea}
                 aria-label="Nombre del entrenamiento"
-                className="app-focus mt-1 block w-full min-w-0 resize-none overflow-hidden bg-transparent text-2xl font-black leading-tight sm:text-3xl"
+                className="app-focus mt-1 block w-full max-w-full min-w-0 resize-none overflow-hidden whitespace-pre-wrap break-words bg-transparent text-xl font-black leading-tight sm:text-2xl md:text-3xl"
               />
               <p className="font-numeric mt-1 text-lg font-black text-primary-soft">{formatDuration(elapsedSeconds)}</p>
             </div>
-            <div className="grid min-w-0 grid-cols-3 gap-2 md:flex">
+            <div className="grid min-w-0 w-full grid-cols-1 gap-2 min-[420px]:grid-cols-3 md:w-auto md:flex">
               <ActionButton onClick={onSave} icon={Save} disabled={saving}>Guardar</ActionButton>
               <ActionButton onClick={onFinish} icon={Check} disabled={saving}>Finalizar</ActionButton>
               <ActionButton onClick={onCancel} icon={X} danger disabled={saving}>Cancelar</ActionButton>
@@ -587,7 +593,7 @@ const SessionExercise = ({ exercise, bodyProfile, onChange, onRemove, onStartRes
 };
 
 const RestTimer = ({ timer, setTimer }) => (
-  <div className="app-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
+  <div className="app-card flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center">
     <div className="flex min-w-0 items-center gap-3">
       <div className="w-12 h-12 rounded-lg bg-surface-low flex items-center justify-center text-primary-soft">
         <Clock className="w-6 h-6" />
@@ -597,7 +603,7 @@ const RestTimer = ({ timer, setTimer }) => (
         <p className="font-numeric text-3xl font-black text-primary-soft">{formatDuration(timer.seconds)}</p>
       </div>
     </div>
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-3 sm:grid-cols-5">
       <IconButton
         label="Pausar/reanudar"
         disabled={timer.seconds <= 0}
@@ -1182,7 +1188,7 @@ const ExercisePicker = ({ query, setQuery, exercises, onPick, compact = false })
 };
 
 const Panel = ({ title, icon: Icon, children }) => (
-  <section className="app-card p-4">
+  <section className="app-card min-w-0 overflow-hidden p-4">
     {title && (
       <div className="flex items-center gap-2 mb-4">
         {Icon && <Icon className="w-5 h-5 text-primary-soft" />}
@@ -1214,8 +1220,8 @@ const TextArea = ({ label, value, onChange }) => (
   </label>
 );
 
-const ActionButton = ({ children, onClick, icon: Icon, danger = false, disabled = false }) => (
-  <button onClick={onClick} disabled={disabled} className={`app-focus min-h-touch-target min-w-0 rounded-lg border px-1 text-[11px] font-black flex flex-col items-center justify-center gap-1 leading-tight disabled:opacity-50 sm:flex-row sm:gap-2 sm:px-4 sm:text-base sm:leading-normal ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro bg-surface-low hover:bg-surface-card-high"}`}>
+const ActionButton = ({ children, onClick, icon: Icon, danger = false, disabled = false, className = "" }) => (
+  <button onClick={onClick} disabled={disabled} className={`app-focus flex min-h-touch-target w-full min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-[11px] font-black leading-tight disabled:opacity-50 sm:flex-row sm:gap-2 sm:px-4 sm:text-base sm:leading-normal ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro bg-surface-low hover:bg-surface-card-high"} ${className}`}>
     {React.createElement(Icon, { className: "w-5 h-5" })}
     {children}
   </button>
