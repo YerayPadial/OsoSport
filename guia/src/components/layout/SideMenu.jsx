@@ -1,14 +1,14 @@
 import React from "react";
 import { X, Dumbbell, ReceiptText, ClipboardList } from "lucide-react";
 
-const SideMenu = ({ isOpen, onClose, onSelectView, onSelectUserTraining, currentView, showDietas = true }) => {
+const SideMenu = ({ isOpen, onClose, onSelectView, onSelectUserTraining, currentView, showDietas = false }) => {
   return (
     <>
       {/* 1. Overlay oscuro */}
       <div
         onClick={onClose}
         className={`
-          fixed inset-0 bg-black/70 z-50 backdrop-blur-sm
+          fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm
           transition-opacity duration-300
           ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
         `}
@@ -16,28 +16,28 @@ const SideMenu = ({ isOpen, onClose, onSelectView, onSelectUserTraining, current
       />
 
       {/* 2. Panel del Menú */}
-      <div
+      <aside
         className={`
           fixed top-0 right-0 h-full w-72 max-w-[80vw]
-          bg-surface-card border-l border-borde-oscuro shadow-2xl z-50
+          z-[70] isolate border-l border-borde-claro bg-tarjeta-clara text-texto-claro shadow-2xl dark:border-borde-oscuro dark:bg-fondo-oscuro dark:text-texto-oscuro
           transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "translate-x-full"}
+          ${isOpen ? "translate-x-0 visible" : "translate-x-full invisible"}
         `}
         role="dialog"
         aria-modal="true"
         aria-label="Menú principal"
       >
         {/* Cabecera del Menú */}
-        <div className="flex items-center justify-between h-20 px-4 border-b border-borde-oscuro">
+        <div className="flex items-center justify-between h-20 px-4 border-b border-borde-claro dark:border-borde-oscuro">
           <div>
             <span className="block text-xl font-black">Menú</span>
-            <span className="text-xs font-bold uppercase tracking-wide text-texto-secundario-oscuro">
+            <span className="text-xs font-bold uppercase tracking-wide text-texto-secundario-claro dark:text-texto-secundario-oscuro">
               OsoSport Gym
             </span>
           </div>
           <button
             onClick={onClose}
-            className="app-focus p-2 rounded-full text-texto-oscuro hover:bg-surface-card-high transition-colors"
+            className="app-focus p-2 rounded-full text-texto-claro hover:bg-surface-card-high transition-colors dark:text-texto-oscuro"
             aria-label="Cerrar menú"
           >
             <X className="w-6 h-6" />
@@ -67,7 +67,7 @@ const SideMenu = ({ isOpen, onClose, onSelectView, onSelectUserTraining, current
             isActive={currentView === "misRutinas"}
           />
         </nav>
-      </div>
+      </aside>
     </>
   );
 };
@@ -76,7 +76,7 @@ const SideMenu = ({ isOpen, onClose, onSelectView, onSelectUserTraining, current
 const MenuItem = ({ label, icon, onClick, isActive }) => {
   const activeClass = isActive
     ? "bg-primary-vanguard text-white font-black"
-    : "hover:bg-surface-card-high text-texto-secundario-oscuro";
+    : "hover:bg-surface-card-high text-texto-secundario-claro dark:text-texto-secundario-oscuro";
 
   return (
     <button

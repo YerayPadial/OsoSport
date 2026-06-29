@@ -3,20 +3,24 @@
 @tailwind utilities;
 
 html {
-  background: #11131b;
+  background: #f4f6fb;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at top left, rgba(45, 98, 237, 0.12), transparent 34rem),
-    #11131b;
-  color: #e2e1ed;
+  background: #f4f6fb;
+  color: #171923;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html.dark,
+html.dark body {
+  background: #11131b;
+  color: #e2e1ed;
 }
 
 button,

@@ -1,4 +1,16 @@
 export const defaultThemeColors = {
+  "fondo-claro": "#F4F6FB",
+  "tarjeta-clara": "#FFFFFF",
+  "texto-claro": "#171923",
+  "texto-secundario-claro": "#5E6474",
+  "borde-claro": "#D8DCE6",
+  "surface-low-claro": "#EEF1F6",
+  "surface-card-claro": "#FFFFFF",
+  "surface-card-high-claro": "#E7EBF2",
+  "surface-bright-claro": "#DDE3EC",
+  "surface-variant-claro": "#E5E9F0",
+  "primary-soft-claro": "#244BC5",
+  "success-soft-claro": "#087A34",
   "fondo-oscuro": "#11131B",
   "tarjeta-oscura": "#1D1F28",
   "texto-oscuro": "#E2E1ED",
@@ -31,7 +43,7 @@ export const defaultThemeColors = {
 
 export const defaultSettings = {
   navigation: {
-    showDietas: true,
+    showDietas: false,
   },
   theme: {
     colors: defaultThemeColors,
@@ -55,10 +67,26 @@ export const normalizeSettings = (settings = {}) => ({
 
 export const themeVariableName = (key) => `--color-${key}`;
 
-export const themeStyleFromSettings = (settings) => {
+export const themeStyleFromSettings = (settings, isDark = true) => {
   const normalized = normalizeSettings(settings);
-
-  return Object.fromEntries(
-    Object.entries(normalized.theme.colors).map(([key, value]) => [themeVariableName(key), value])
+  const colors = normalized.theme.colors;
+  const style = Object.fromEntries(
+    Object.entries(colors).map(([key, value]) => [themeVariableName(key), value])
   );
+  const modeSuffix = isDark ? "" : "-claro";
+  const mappedColors = ["surface-low", "surface-card", "surface-card-high", "surface-bright", "surface-variant"];
+
+  mappedColors.forEach((key) => {
+    style[themeVariableName(key)] = colors[`${key}${modeSuffix}`] ?? colors[key];
+  });
+  style[themeVariableName("surface")] = isDark ? colors["fondo-oscuro"] : colors["fondo-claro"];
+  style[themeVariableName("on-surface")] = isDark ? colors["texto-oscuro"] : colors["texto-claro"];
+  style[themeVariableName("on-surface-muted")] = isDark
+    ? colors["texto-secundario-oscuro"]
+    : colors["texto-secundario-claro"];
+  style[themeVariableName("outline-vanguard")] = isDark ? colors["borde-oscuro"] : colors["borde-claro"];
+  style[themeVariableName("primary-soft")] = isDark ? colors["primary-soft"] : colors["primary-soft-claro"];
+  style[themeVariableName("success-soft")] = isDark ? colors["success-soft"] : colors["success-soft-claro"];
+
+  return style;
 };

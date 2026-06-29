@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Dumbbell, Menu, UserRound } from "lucide-react";
+import { Dumbbell, Menu, Moon, Sun, UserRound } from "lucide-react";
 
 const titles = {
   rutinas: "Rutinas",
@@ -14,6 +14,8 @@ const Header = ({
   onLogoClick,
   onAdminClick,
   onMenuClick,
+  isDark,
+  onToggleTheme,
 }) => {
   const [sessionUser, setSessionUser] = useState(null);
   const isHome =
@@ -44,14 +46,14 @@ const Header = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-borde-oscuro/80 bg-fondo-oscuro/95 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-borde-claro bg-tarjeta-clara/95 backdrop-blur dark:border-borde-oscuro dark:bg-fondo-oscuro/95">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <button
           onClick={isHome ? undefined : onLogoClick}
           className="app-focus flex items-center gap-3 rounded-lg pr-2 text-left transition hover:opacity-90"
           aria-label={isHome ? "Inicio" : "Volver al inicio"}
         >
-          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-borde-oscuro bg-surface-card-high">
+          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-borde-claro bg-surface-card-high dark:border-borde-oscuro">
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -59,10 +61,10 @@ const Header = ({
             )}
           </span>
           <span>
-            <span className="block text-xl font-black leading-tight text-texto-oscuro">
+            <span className="block text-xl font-black leading-tight text-texto-claro dark:text-texto-oscuro">
               {title}
             </span>
-            <span className="hidden text-xs font-bold uppercase tracking-wide text-texto-secundario-oscuro sm:block">
+            <span className="hidden text-xs font-bold uppercase tracking-wide text-texto-secundario-claro dark:text-texto-secundario-oscuro sm:block">
               OsoSport Gym
             </span>
           </span>
@@ -70,8 +72,16 @@ const Header = ({
 
         <div className="flex items-center gap-2">
           <button
+            onClick={onToggleTheme}
+            className="app-focus flex h-10 w-10 items-center justify-center rounded-full text-texto-secundario-claro transition hover:bg-surface-card-high hover:text-texto-claro dark:text-texto-secundario-oscuro dark:hover:text-texto-oscuro"
+            aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+            title={isDark ? "Modo claro" : "Modo oscuro"}
+          >
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
+          <button
             onClick={onAdminClick}
-            className="app-focus flex h-10 w-10 items-center justify-center rounded-full text-texto-secundario-oscuro transition hover:bg-surface-card-high hover:text-texto-oscuro"
+            className="app-focus flex h-10 w-10 items-center justify-center rounded-full text-texto-secundario-claro transition hover:bg-surface-card-high hover:text-texto-claro dark:text-texto-secundario-oscuro dark:hover:text-texto-oscuro"
             aria-label="Abrir cuenta"
             title="Cuenta"
           >

@@ -59,6 +59,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
   const [restTimer, setRestTimer] = useState({ seconds: 0, running: false, label: "" });
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const saveTimer = useRef(null);
+  const elapsedRef = useRef(0);
 
   const exerciseLibrary = useMemo(() => flattenGymExercises(rutinasData), [rutinasData]);
   const activeSession = payload.activeSession;
@@ -110,22 +111,51 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
   }, [message]);
 
   useEffect(() => {
+    if (!activeSession) return undefined;
+
+    const preserveLocalProgress = () => {
+      persistActiveSession({
+        ...activeSession,
+        durationSeconds: elapsedRef.current,
+      });
+    };
+
+    window.addEventListener("pagehide", preserveLocalProgress);
+    return () => window.removeEventListener("pagehide", preserveLocalProgress);
+  }, [activeSession]);
+
+  useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
   useEffect(() => {
     if (!activeSessionId || activeSessionStatus !== "active") {
       setElapsedSeconds(0);
+      elapsedRef.current = 0;
       return undefined;
     }
 
-    setElapsedSeconds(Number(activeSessionDuration) || 0);
-    const interval = window.setInterval(() => {
-      setElapsedSeconds((current) => current + 1);
-    }, 1000);
+    const initialSeconds = Number(activeSessionDuration) || 0;
+    const anchoredAt = Date.now();
+    const updateElapsed = () => {
+      const next = initialSeconds + Math.floor((Date.now() - anchoredAt) / 1000);
+      elapsedRef.current = next;
+      setElapsedSeconds(next);
+    };
 
-    return () => window.clearInterval(interval);
-  }, [activeSessionId, activeSessionDuration, activeSessionStatus]);
+    updateElapsed();
+    const interval = window.setInterval(() => {
+      updateElapsed();
+    }, 1000);
+    document.addEventListener("visibilitychange", updateElapsed);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", updateElapsed);
+    };
+  // The server duration initializes the timer only when the active session changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSessionId, activeSessionStatus]);
 
   useEffect(() => {
     if (!restTimer.running || restTimer.seconds <= 0) return;
@@ -139,15 +169,6 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
 
     return () => window.clearInterval(interval);
   }, [restTimer.running, restTimer.seconds]);
-
-  useEffect(() => {
-    if (!activeSession || activeSession.status !== "active") return;
-    window.clearTimeout(saveTimer.current);
-    saveTimer.current = window.setTimeout(() => saveActiveSession(activeSession, { silent: true }), 900);
-    return () => window.clearTimeout(saveTimer.current);
-  // Autosave is intentionally debounced from the current session snapshot.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSession]);
 
   const loadTraining = async () => {
     setLoading(true);
@@ -164,7 +185,10 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
       const data = await api("bootstrap");
       setPayload(normalizeBootstrap(data));
       if (data.activeSession) {
+        persistActiveSession(data.activeSession);
         changeTab("activo");
+      } else {
+        clearActiveSessionBackup();
       }
     } catch (apiError) {
       setError(apiError.message);
@@ -177,9 +201,11 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
     setSaving(true);
     try {
       const data = await api("start-session", { method: "POST", body: { name: "Entreno libre" } });
-      setPayload((current) => ({ ...current, activeSession: hydrateSession(data.session) }));
+      const session = hydrateSession(data.session);
+      setPayload((current) => ({ ...current, activeSession: session }));
+      persistActiveSession(session);
       changeTab("activo");
-      setMessage("Entreno iniciado.");
+      setMessage(data.resumed ? "Ya tenías un entrenamiento activo. Lo hemos retomado." : "Entreno iniciado.");
     } catch (apiError) {
       setError(apiError.message);
     } finally {
@@ -192,9 +218,11 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
     setError("");
     try {
       const data = await api("start-gym-workout", { method: "POST", body: { workoutId, dayName } });
-      setPayload((current) => ({ ...current, activeSession: hydrateSession(data.session) }));
+      const session = hydrateSession(data.session);
+      setPayload((current) => ({ ...current, activeSession: session }));
+      persistActiveSession(session);
       changeTab("activo");
-      setMessage("Entrenamiento iniciado.");
+      setMessage(data.resumed ? "Ya tenías un entrenamiento activo. Lo hemos retomado." : "Entrenamiento iniciado.");
     } catch (apiError) {
       if (apiError.status === 401) {
         setError("Inicia sesión para registrar este entrenamiento.");
@@ -224,8 +252,10 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
   const saveActiveSession = async (session = activeSession, options = {}) => {
     if (!session) return;
     try {
-      const data = await api("session", { method: "PUT", body: serializeSession({ ...session, durationSeconds: elapsedSeconds }) });
-      setPayload((current) => ({ ...current, activeSession: hydrateSession(data.session), progress: data.progress ?? current.progress }));
+      const data = await api("session", { method: "PUT", body: serializeSession({ ...session, durationSeconds: elapsedRef.current }) });
+      const hydratedSession = hydrateSession(data.session);
+      setPayload((current) => ({ ...current, activeSession: hydratedSession, progress: data.progress ?? current.progress }));
+      persistActiveSession(hydratedSession);
       if (!options.silent) setMessage("Entreno guardado.");
     } catch (apiError) {
       if (!options.silent) setError(apiError.message);
@@ -242,7 +272,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
     setSaving(true);
     try {
       await saveActiveSession(activeSession, { silent: true });
-      const data = await api("finish-session", { method: "POST", body: { id: activeSession.id, notes: activeSession.notes, durationSeconds: elapsedSeconds } });
+      const data = await api("finish-session", { method: "POST", body: { id: activeSession.id, notes: activeSession.notes, durationSeconds: elapsedRef.current } });
       setPayload((current) => ({
         ...current,
         activeSession: null,
@@ -250,6 +280,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
         progress: data.progress ?? current.progress,
         lastSummary: data,
       }));
+      clearActiveSessionBackup();
       changeTab("progreso");
       setMessage("Entreno finalizado. Buen trabajo.");
     } catch (apiError) {
@@ -271,8 +302,9 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
       onConfirm: async () => {
     setSaving(true);
     try {
-      const data = await api("cancel-session", { method: "POST", body: { id: activeSession.id, durationSeconds: elapsedSeconds } });
+      const data = await api("cancel-session", { method: "POST", body: { id: activeSession.id, durationSeconds: elapsedRef.current } });
       setPayload((current) => ({ ...current, activeSession: null, progress: data.progress ?? current.progress }));
+      clearActiveSessionBackup();
       setMessage("Entreno cancelado.");
     } catch (apiError) {
       setError(apiError.message);
@@ -305,11 +337,12 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
 
   const updateSession = (session) => {
     setPayload((current) => ({ ...current, activeSession: session }));
-    try {
-      window.localStorage.setItem("ososport-active-session", JSON.stringify(session));
-    } catch {
-      // Local backup is best-effort; server autosave remains the source of truth.
-    }
+    persistActiveSession(session);
+    window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(
+      () => saveActiveSession(session, { silent: true }),
+      900
+    );
   };
 
   const filteredExercises = exerciseLibrary;
@@ -327,14 +360,14 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
   return (
     <TrainingShell onGoBack={onGoBack}>
       <div className="max-w-[1500px] mx-auto space-y-4">
-        <div className="app-card p-4">
+        {activeTab !== "activo" && <div className="app-card p-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div>
               <p className="text-sm font-black uppercase tracking-wide text-primary-soft">Registro personal</p>
               <h1 className="text-4xl font-black">Marca personal</h1>
             </div>
           </div>
-        </div>
+        </div>}
 
         <SuccessModal
           message={message}
@@ -395,7 +428,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
 
 const TrainingShell = ({ children, onGoBack }) => (
   <div className="app-page">
-    <div className="app-container max-w-[1500px]">
+    <div className="app-container max-w-[1500px] px-3 sm:px-6 lg:px-8">
     <div className="mb-4">
       <button onClick={onGoBack} className="app-focus flex min-h-touch-target items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-card px-4 font-black">
         <ArrowLeft className="w-5 h-5" />
@@ -429,19 +462,20 @@ const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAd
 
   return (
     <div className="grid xl:grid-cols-[minmax(0,1fr)_340px] gap-4">
-      <div className="space-y-4">
+      <div className="space-y-4" data-workout-dropzone>
         <Panel>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
               <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">Entreno activo</p>
               <input
                 value={session.name}
                 onChange={(event) => onChange({ ...session, name: event.target.value })}
-                className="app-focus w-full bg-transparent text-3xl font-black"
+                aria-label="Nombre del entrenamiento"
+                className="app-focus w-full min-w-0 bg-transparent text-2xl font-black sm:text-3xl"
               />
-              <p className="font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{formatDuration(elapsedSeconds)}</p>
+              <p className="font-numeric mt-1 text-lg font-black text-primary-soft">{formatDuration(elapsedSeconds)}</p>
             </div>
-            <div className="grid grid-cols-2 sm:flex gap-2">
+            <div className="grid grid-cols-3 gap-2 md:flex">
               <ActionButton onClick={onSave} icon={Save} disabled={saving}>Guardar</ActionButton>
               <ActionButton onClick={onFinish} icon={Check} disabled={saving}>Finalizar</ActionButton>
               <ActionButton onClick={onCancel} icon={X} danger disabled={saving}>Cancelar</ActionButton>
@@ -514,15 +548,31 @@ const SessionExercise = ({ exercise, bodyProfile, onChange, onRemove, onStartRes
       </div>
       <div className="space-y-2">
         {exercise.sets.map((set, index) => (
-          <div key={set.id ?? set.localId ?? index} className={`grid grid-cols-[36px_repeat(4,minmax(0,1fr))_44px] gap-2 items-end rounded-lg p-2 ${set.completed ? "bg-success-vanguard/15 border border-success-vanguard/40" : "bg-surface-low border border-transparent"}`}>
-            <div className="h-11 flex items-center justify-center font-numeric font-black">{index + 1}</div>
-            <MiniField label="Kg" type="number" value={set.weight ?? ""} onChange={(value) => updateSet(index, "weight", value)} />
-            <MiniField label="Reps" type="number" value={set.reps ?? ""} onChange={(value) => updateSet(index, "reps", value)} />
-            <MiniField label="Seg." type="number" value={set.timeSeconds ?? ""} onChange={(value) => updateSet(index, "timeSeconds", value)} />
-            <MiniField label="Esfuerzo 1-10" type="number" value={set.rpe ?? ""} onChange={(value) => updateSet(index, "rpe", value)} />
-            <button onClick={() => updateSet(index, "completed", !set.completed)} className={`app-focus h-11 rounded-lg flex items-center justify-center border ${set.completed ? "bg-success-vanguard text-white border-success-vanguard" : "border-borde-claro dark:border-borde-oscuro"}`}>
-              <Check className="w-5 h-5" />
-            </button>
+          <div key={set.id ?? set.localId ?? index} className={`rounded-lg border p-3 ${set.completed ? "border-success-vanguard/40 bg-success-vanguard/15" : "border-borde-claro bg-surface-low dark:border-borde-oscuro"}`}>
+            <div className="mb-3 flex items-center justify-between sm:hidden">
+              <span className="font-numeric font-black">Serie {index + 1}</span>
+              <button
+                onClick={() => updateSet(index, "completed", !set.completed)}
+                className={`app-focus flex min-h-touch-target items-center gap-2 rounded-lg border px-3 font-black ${set.completed ? "border-success-vanguard bg-success-vanguard text-green-950" : "border-borde-claro dark:border-borde-oscuro"}`}
+              >
+                <Check className="h-5 w-5" />
+                {set.completed ? "Hecha" : "Marcar"}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-[36px_repeat(4,minmax(0,1fr))_44px] sm:items-end sm:gap-2">
+              <div className="hidden h-11 items-center justify-center font-numeric font-black sm:flex">{index + 1}</div>
+              <MiniField label="Peso (kg)" type="number" value={set.weight ?? ""} onChange={(value) => updateSet(index, "weight", value)} />
+              <MiniField label="Repeticiones" type="number" value={set.reps ?? ""} onChange={(value) => updateSet(index, "reps", value)} />
+              <MiniField label="Tiempo (seg.)" type="number" value={set.timeSeconds ?? ""} onChange={(value) => updateSet(index, "timeSeconds", value)} />
+              <MiniField label="Esfuerzo 1-10" type="number" value={set.rpe ?? ""} onChange={(value) => updateSet(index, "rpe", value)} />
+              <button
+                onClick={() => updateSet(index, "completed", !set.completed)}
+                aria-label={set.completed ? "Desmarcar serie" : "Completar serie"}
+                className={`app-focus hidden h-11 items-center justify-center rounded-lg border sm:flex ${set.completed ? "border-success-vanguard bg-success-vanguard text-green-950" : "border-borde-claro dark:border-borde-oscuro"}`}
+              >
+                <Check className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -544,8 +594,25 @@ const RestTimer = ({ timer, setTimer }) => (
         <p className="font-numeric text-3xl font-black text-primary-soft">{formatDuration(timer.seconds)}</p>
       </div>
     </div>
-    <div className="grid grid-cols-4 gap-2">
-      <IconButton label="Pausar/reanudar" onClick={() => setTimer((current) => ({ ...current, running: !current.running }))}>{timer.running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}</IconButton>
+    <div className="grid grid-cols-5 gap-2">
+      <IconButton
+        label="Pausar/reanudar"
+        disabled={timer.seconds <= 0}
+        onClick={() => setTimer((current) => ({ ...current, running: !current.running }))}
+      >
+        {timer.running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+      </IconButton>
+      <IconButton
+        label="Añadir 15 segundos"
+        onClick={() => setTimer((current) => ({
+          ...current,
+          seconds: current.seconds + 15,
+          running: true,
+          label: current.label || "Descanso",
+        }))}
+      >
+        +15
+      </IconButton>
       <IconButton label="60 segundos" onClick={() => setTimer({ seconds: 60, running: true, label: "Descanso" })}>60</IconButton>
       <IconButton label="90 segundos" onClick={() => setTimer({ seconds: 90, running: true, label: "Descanso" })}>90</IconButton>
       <IconButton label="Saltar" onClick={() => setTimer({ seconds: 0, running: false, label: "" })}><RotateCcw className="w-4 h-4" /></IconButton>
@@ -732,7 +799,7 @@ const BodyProfileCard = ({ bodyProfile, onSave, saving }) => {
 const WheelNumber = ({ label, value, min, max, step, suffix, display, onChange }) => (
   <label className="block">
     <span className="mb-2 block text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">{label}</span>
-    <div className="rounded-2xl border border-borde-claro dark:border-borde-oscuro bg-surface-low p-3">
+    <div className="rounded-xl border border-borde-claro dark:border-borde-oscuro bg-surface-low p-3">
       <div className="mb-2 text-center font-numeric text-3xl font-black text-primary-soft">{display(value)}</div>
       <input
         type="range"
@@ -974,6 +1041,7 @@ const MuscleMap = ({ groups }) => {
 
 const ExercisePicker = ({ query, setQuery, exercises, onPick, compact = false }) => {
   const [category, setCategory] = useState("todos");
+  const [flight, setFlight] = useState(null);
   const normalizedQuery = normalizeText(query);
   const counts = useMemo(() => {
     const next = Object.fromEntries(exerciseCategories.map((item) => [item.value, 0]));
@@ -991,8 +1059,64 @@ const ExercisePicker = ({ query, setQuery, exercises, onPick, compact = false })
     .filter((exercise) => normalizeText(`${exercise.nombre} ${exercise.musculo} ${exercise.grupoMuscular} ${exercise.specs}`).includes(normalizedQuery))
     .slice(0, compact ? 16 : 28);
 
+  const sendExercise = (event, exercise) => {
+    if (flight) return;
+
+    const source = event.currentTarget.getBoundingClientRect();
+    const dropzone = document.querySelector("[data-workout-dropzone]");
+    const target = dropzone?.getBoundingClientRect();
+    const targetLeft = target
+      ? target.left + Math.min(28, target.width / 2)
+      : window.innerWidth / 2;
+    const targetTop = target
+      ? Math.min(Math.max(target.bottom - 72, 16), window.innerHeight - 80)
+      : window.innerHeight + 80;
+    const nextFlight = {
+      exercise,
+      left: source.left,
+      top: source.top,
+      width: Math.min(source.width, 320),
+      x: targetLeft - source.left,
+      y: targetTop - source.top,
+      active: false,
+    };
+
+    setFlight(nextFlight);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setFlight((current) => current ? { ...current, active: true } : current);
+      });
+    });
+    window.setTimeout(() => onPick(exercise), 380);
+    window.setTimeout(() => setFlight(null), 560);
+  };
+
   return (
     <div className="space-y-3">
+      {flight && (
+        <div
+          className="pointer-events-none fixed z-[100] flex items-center gap-3 rounded-lg border border-primary-vanguard bg-tarjeta-clara p-2 text-texto-claro shadow-2xl transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] dark:bg-tarjeta-oscura dark:text-texto-oscuro"
+          style={{
+            left: flight.left,
+            top: flight.top,
+            width: flight.width,
+            opacity: flight.active ? 0 : 1,
+            transform: flight.active
+              ? `translate3d(${flight.x}px, ${flight.y}px, 0) scale(.35) rotate(5deg)`
+              : "translate3d(0, 0, 0) scale(1)",
+          }}
+          aria-hidden="true"
+        >
+          <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-surface-card-high">
+            {flight.exercise.thumbnail ? (
+              <img src={assetPath(flight.exercise.thumbnail)} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <Dumbbell className="m-3 h-6 w-6" />
+            )}
+          </div>
+          <p className="truncate font-black">{flight.exercise.nombre}</p>
+        </div>
+      )}
       <label className="flex items-center gap-2 rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-low px-3">
         <Search className="w-5 h-5 opacity-70" />
         <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar ejercicio" className="app-focus w-full min-h-touch-target bg-transparent font-bold" />
@@ -1021,8 +1145,9 @@ const ExercisePicker = ({ query, setQuery, exercises, onPick, compact = false })
           visibleExercises.map((exercise) => (
             <button
               key={`${exercise.workoutId}-${exercise.id}`}
-              onClick={() => onPick(exercise)}
-              className="app-focus w-full rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-low p-2 text-left hover:border-primary-vanguard transition-colors"
+              onClick={(event) => sendExercise(event, exercise)}
+              disabled={Boolean(flight)}
+              className="app-focus w-full rounded-lg border border-borde-claro dark:border-borde-oscuro bg-surface-low p-2 text-left hover:border-primary-vanguard transition-colors disabled:opacity-60"
             >
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-lg bg-surface-card-high overflow-hidden border border-borde-claro dark:border-borde-oscuro flex-shrink-0">
@@ -1087,14 +1212,14 @@ const TextArea = ({ label, value, onChange }) => (
 );
 
 const ActionButton = ({ children, onClick, icon: Icon, danger = false, disabled = false }) => (
-  <button onClick={onClick} disabled={disabled} className={`app-focus min-h-touch-target px-4 rounded-lg border font-black flex items-center justify-center gap-2 disabled:opacity-50 ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro bg-surface-low hover:bg-surface-card-high"}`}>
+  <button onClick={onClick} disabled={disabled} className={`app-focus min-h-touch-target min-w-0 rounded-lg border px-1 text-xs font-black flex flex-col items-center justify-center gap-1 disabled:opacity-50 sm:flex-row sm:gap-2 sm:px-4 sm:text-base ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro bg-surface-low hover:bg-surface-card-high"}`}>
     {React.createElement(Icon, { className: "w-5 h-5" })}
     {children}
   </button>
 );
 
-const IconButton = ({ children, onClick, label, danger = false }) => (
-  <button type="button" onClick={onClick} title={label} aria-label={label} className={`app-focus w-10 h-10 rounded-lg border flex items-center justify-center transition ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro hover:bg-surface-card-high"}`}>
+const IconButton = ({ children, onClick, label, danger = false, disabled = false }) => (
+  <button type="button" onClick={onClick} title={label} aria-label={label} disabled={disabled} className={`app-focus w-10 h-10 rounded-lg border flex items-center justify-center transition disabled:cursor-not-allowed disabled:opacity-35 ${danger ? "border-red-500 text-red-300 hover:bg-red-950" : "border-borde-claro dark:border-borde-oscuro hover:bg-surface-card-high"}`}>
     {children}
   </button>
 );
@@ -1120,7 +1245,7 @@ const SuccessModal = ({ message, open, onClose }) => {
     >
       <div className="absolute inset-0 bg-black/35" />
       <div
-        className={`relative w-full max-w-sm overflow-hidden rounded-2xl border border-success-vanguard/40 bg-fondo-oscuro/95 p-5 text-center shadow-2xl transition-all duration-300 ease-out ${
+        className={`app-card relative w-full max-w-sm overflow-hidden border-success-vanguard/40 p-5 text-center shadow-2xl transition-all duration-300 ease-out ${
           open ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-95 opacity-0"
         }`}
         onClick={(event) => event.stopPropagation()}
@@ -1148,7 +1273,7 @@ const ConfirmDialog = ({ dialog, onCancel, onConfirm }) => {
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-borde-claro dark:border-borde-oscuro bg-fondo-oscuro p-5 shadow-2xl">
+      <div className="app-card w-full max-w-md p-5 shadow-2xl">
         <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${dialog.danger ? "bg-red-950 text-red-200" : "bg-primary-vanguard text-white"}`}>
           {dialog.danger ? <Trash2 className="h-6 w-6" /> : <Check className="h-6 w-6" />}
         </div>
@@ -1237,6 +1362,28 @@ function hydrateSession(session) {
       sets: (exercise.sets ?? []).map((set) => ({ ...set, localId: set.localId ?? crypto.randomUUID() })),
     })),
   };
+}
+
+function persistActiveSession(session) {
+  try {
+    window.localStorage.setItem("ososport-active-session", JSON.stringify(session));
+  } catch {
+    // The server remains the source of truth when local storage is unavailable.
+  }
+  window.dispatchEvent(
+    new CustomEvent("ososport-workout-change", { detail: { session } })
+  );
+}
+
+function clearActiveSessionBackup() {
+  try {
+    window.localStorage.removeItem("ososport-active-session");
+  } catch {
+    // Nothing else is required when local storage is unavailable.
+  }
+  window.dispatchEvent(
+    new CustomEvent("ososport-workout-change", { detail: { session: null } })
+  );
 }
 
 function serializeSession(session) {

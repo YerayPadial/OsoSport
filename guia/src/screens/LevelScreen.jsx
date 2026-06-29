@@ -2,7 +2,7 @@ import React from "react";
 import { useAppData } from "../data/useAppData";
 import ExerciseCard from "../components/ui/ExerciseCard";
 import DayCard from "../components/ui/DayCard";
-import { ArrowLeft, Flame, Snowflake, ClipboardList } from "lucide-react";
+import { ArrowLeft, Flame, Snowflake, ClipboardList, Play } from "lucide-react";
 import { getLevelColor } from "../utils/contentColors";
 import Badge from "../components/ui/Badge";
 
@@ -13,6 +13,7 @@ const LevelScreen = ({
   onSelectDay,
   onSelectExercise,
   onGoBack,
+  onStartWorkout,
 }) => {
   const { rutinasData } = useAppData();
   const nivelActual = rutinasData.niveles.find(
@@ -97,6 +98,15 @@ const LevelScreen = ({
         <h1 className="mt-3 text-4xl font-black text-texto-claro dark:text-texto-oscuro sm:text-5xl">
           {nivelActual.nombre}
         </h1>
+        {nivelActual.estructura === "Full Body" && nivelActual.ejercicios.length > 0 && (
+          <button
+            onClick={() => onStartWorkout?.({ workoutId: nivelActual.id })}
+            className="app-focus mt-4 flex min-h-touch-target w-full items-center justify-center gap-2 rounded-lg bg-primary-vanguard px-4 font-black text-white sm:w-auto"
+          >
+            <Play className="h-5 w-5" />
+            Empezar entrenamiento
+          </button>
+        )}
       </header>
 
       {nivelActual.estructura === "Full Body" && (nivelActual.calentamiento ||

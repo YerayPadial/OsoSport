@@ -7,7 +7,7 @@ const baseItems = [
   { value: "marca", label: "Marca", icon: ClipboardList, trainingTab: "perfil" },
 ];
 
-const BottomNavigation = ({ currentView, onSelectView, onSelectUserTraining, showDietas = true }) => {
+const BottomNavigation = ({ currentView, onSelectView, onSelectUserTraining, showDietas = false }) => {
   const items = baseItems.filter((item) => showDietas || item.value !== "dietas");
 
   const handleClick = (item) => {

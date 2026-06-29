@@ -63,14 +63,22 @@ try {
 
     if ($method === 'POST' && $action === 'start-session') {
         $payload = readJsonBody();
-        respondJson(['session' => startWorkoutSession($pdo, $userId, $payload)]);
+        $active = loadActiveSession($pdo, $userId);
+        respondJson([
+            'session' => $active ?: startWorkoutSession($pdo, $userId, $payload),
+            'resumed' => $active !== null,
+        ]);
     }
 
     if ($method === 'POST' && $action === 'start-gym-workout') {
         $payload = readJsonBody();
         $workoutId = positiveInt($payload['workoutId'] ?? null, 'entreno');
         $dayName = cleanText($payload['dayName'] ?? '', 140);
-        respondJson(['session' => startGymWorkoutSession($pdo, $userId, $workoutId, $dayName)]);
+        $active = loadActiveSession($pdo, $userId);
+        respondJson([
+            'session' => $active ?: startGymWorkoutSession($pdo, $userId, $workoutId, $dayName),
+            'resumed' => $active !== null,
+        ]);
     }
 
     if ($method === 'PUT' && $action === 'session') {
@@ -650,7 +658,9 @@ function loadWorkoutSession(PDO $pdo, int $userId, int $sessionId): array
         'status' => $session['status'],
         'startedAt' => $session['started_at'],
         'completedAt' => $session['completed_at'],
-        'durationSeconds' => (int) $session['duration_seconds'],
+        'durationSeconds' => $session['status'] === 'active'
+            ? max((int) $session['duration_seconds'], time() - strtotime($session['started_at']))
+            : (int) $session['duration_seconds'],
         'notes' => $session['notes'] ?? '',
         'exercises' => array_map(fn (array $exercise): array => mapSessionExercise($exercise, $setsByExercise[(int) $exercise['id']] ?? []), $exercises),
     ];

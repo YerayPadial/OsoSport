@@ -96,10 +96,22 @@ function defaultAppSettings(): array
 {
     return [
         'navigation' => [
-            'showDietas' => true,
+            'showDietas' => false,
         ],
         'theme' => [
             'colors' => [
+                'fondo-claro' => '#F4F6FB',
+                'tarjeta-clara' => '#FFFFFF',
+                'texto-claro' => '#171923',
+                'texto-secundario-claro' => '#5E6474',
+                'borde-claro' => '#D8DCE6',
+                'surface-low-claro' => '#EEF1F6',
+                'surface-card-claro' => '#FFFFFF',
+                'surface-card-high-claro' => '#E7EBF2',
+                'surface-bright-claro' => '#DDE3EC',
+                'surface-variant-claro' => '#E5E9F0',
+                'primary-soft-claro' => '#244BC5',
+                'success-soft-claro' => '#087A34',
                 'fondo-oscuro' => '#11131B',
                 'tarjeta-oscura' => '#1D1F28',
                 'texto-oscuro' => '#E2E1ED',

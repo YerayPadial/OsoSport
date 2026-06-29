@@ -436,8 +436,8 @@ const AdminScreen = ({ onGoBack }) => {
     }
 
     setSuccessModalOpen(true);
-    const closeTimer = window.setTimeout(() => setSuccessModalOpen(false), 1800);
-    const clearTimer = window.setTimeout(() => setMessage(""), 2200);
+    const closeTimer = window.setTimeout(() => setSuccessModalOpen(false), 1500);
+    const clearTimer = window.setTimeout(() => setMessage(""), 1500);
 
     return () => {
       window.clearTimeout(closeTimer);
@@ -601,6 +601,15 @@ const AdminScreen = ({ onGoBack }) => {
         const colorKey = path.replace("theme.colors.", "");
         draft.settings.theme.colors[colorKey] = value;
       }
+    });
+  };
+
+  const updateContentColor = (type, id, value) => {
+    patchContent((draft) => {
+      const collection =
+        type === "level" ? draft.rutinas.niveles : draft.dietas.planes;
+      const item = collection.find((entry) => Number(entry.id) === Number(id));
+      if (item) item.color = value;
     });
   };
 
@@ -969,7 +978,7 @@ const AdminScreen = ({ onGoBack }) => {
   if (!auth.authenticated) {
     return (
       <AdminShell onGoBack={onGoBack}>
-        <div className="max-w-md mx-auto bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl p-5 shadow-lg">
+        <div className="app-card mx-auto max-w-md p-5">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-full bg-nivel-1-claro dark:bg-nivel-1-oscuro text-white flex items-center justify-center">
               <UserRound className="w-6 h-6" />
@@ -1063,7 +1072,7 @@ const AdminScreen = ({ onGoBack }) => {
         }}
       />
       <div className={`mx-auto max-w-[1500px] ${isAdmin ? "grid lg:grid-cols-[260px_minmax(0,1fr)] gap-4" : "space-y-4"}`}>
-        <aside className={`${isAdmin ? "lg:sticky lg:top-24 lg:self-start" : ""} bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden`}>
+        <aside className={`${isAdmin ? "lg:sticky lg:top-24 lg:self-start" : ""} app-card overflow-hidden`}>
           <div className="p-4 border-b border-borde-claro dark:border-borde-oscuro">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
@@ -1105,7 +1114,7 @@ const AdminScreen = ({ onGoBack }) => {
 
         <div className="min-w-0 space-y-4">
           {isAdmin ? (
-            <div className="bg-fondo-claro dark:bg-fondo-oscuro border border-borde-claro dark:border-borde-oscuro rounded-2xl p-3 shadow-lg">
+            <div className="app-card p-3">
               <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-bold text-texto-secundario-claro dark:text-texto-secundario-oscuro">
@@ -1261,7 +1270,10 @@ const AdminScreen = ({ onGoBack }) => {
           ) : activeArea === "ajustes" ? (
             <SettingsEditor
               settings={content.settings}
+              levels={levels}
+              plans={plans}
               updateSettings={updateSettings}
+              updateContentColor={updateContentColor}
               saving={saving}
               onSave={handleSave}
             />
@@ -1316,33 +1328,32 @@ const adminNavItems = [
 const userNavItems = [{ value: "perfil", label: "Perfil", icon: UserRound }];
 
 const themeColorFields = [
-  ["fondo-oscuro", "Fondo principal"],
-  ["tarjeta-oscura", "Tarjetas"],
-  ["surface-low", "Superficie baja"],
-  ["surface-card-high", "Tarjetas destacadas"],
-  ["surface-bright", "Superficie brillante"],
-  ["surface-variant", "Fondos secundarios"],
-  ["texto-oscuro", "Texto principal"],
-  ["texto-secundario-oscuro", "Texto secundario"],
-  ["borde-oscuro", "Bordes"],
+  ["fondo-claro", "Fondo claro"],
+  ["tarjeta-clara", "Tarjetas claras"],
+  ["texto-claro", "Texto claro principal"],
+  ["texto-secundario-claro", "Texto claro secundario"],
+  ["borde-claro", "Bordes claros"],
+  ["surface-low-claro", "Superficie baja clara"],
+  ["surface-card-claro", "Superficie de tarjeta clara"],
+  ["surface-card-high-claro", "Tarjeta destacada clara"],
+  ["surface-bright-claro", "Superficie brillante clara"],
+  ["surface-variant-claro", "Fondo secundario claro"],
+  ["fondo-oscuro", "Fondo oscuro"],
+  ["tarjeta-oscura", "Tarjetas oscuras"],
+  ["surface-low", "Superficie baja oscura"],
+  ["surface-card", "Superficie de tarjeta oscura"],
+  ["surface-card-high", "Tarjeta destacada oscura"],
+  ["surface-bright", "Superficie brillante oscura"],
+  ["surface-variant", "Fondo secundario oscuro"],
+  ["texto-oscuro", "Texto oscuro principal"],
+  ["texto-secundario-oscuro", "Texto oscuro secundario"],
+  ["borde-oscuro", "Bordes oscuros"],
   ["primary-vanguard", "Color principal"],
-  ["primary-soft", "Color principal suave"],
+  ["primary-soft-claro", "Color principal suave claro"],
+  ["primary-soft", "Color principal suave oscuro"],
   ["success-vanguard", "Color de éxito"],
-  ["success-soft", "Color de éxito suave"],
-  ["nivel-0-claro", "Nivel 0"],
-  ["nivel-0-oscuro", "Nivel 0 oscuro"],
-  ["nivel-1-claro", "Botones principales"],
-  ["nivel-1-oscuro", "Botones principales oscuro"],
-  ["nivel-1Fem-claro", "Nivel 1 femenino"],
-  ["nivel-1Fem-oscuro", "Nivel 1 femenino oscuro"],
-  ["nivel-2-claro", "Nivel 2"],
-  ["nivel-2-oscuro", "Nivel 2 oscuro"],
-  ["nivel-3-claro", "Nivel 3"],
-  ["nivel-3-oscuro", "Nivel 3 oscuro"],
-  ["dieta-ganar-claro", "Dietas ganar"],
-  ["dieta-ganar-oscuro", "Dietas ganar oscuro"],
-  ["dieta-perder-claro", "Dietas perder"],
-  ["dieta-perder-oscuro", "Dietas perder oscuro"],
+  ["success-soft-claro", "Color de éxito suave claro"],
+  ["success-soft", "Color de éxito suave oscuro"],
 ];
 
 const AdminShell = ({ children, onGoBack }) => (
@@ -1399,7 +1410,7 @@ const ConfirmDialog = ({ dialog, onCancel, onConfirm }) => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center">
-      <div className="w-full max-w-md rounded-2xl border border-borde-claro dark:border-borde-oscuro bg-tarjeta-clara dark:bg-tarjeta-oscura shadow-2xl p-5">
+      <div className="app-card w-full max-w-md p-5 shadow-2xl">
         <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-200 flex items-center justify-center mb-4">
           <Trash2 className="w-6 h-6" />
         </div>
@@ -1724,7 +1735,15 @@ const DietEditor = ({
   </div>
 );
 
-const SettingsEditor = ({ settings, updateSettings, saving, onSave }) => {
+const SettingsEditor = ({
+  settings,
+  levels,
+  plans,
+  updateSettings,
+  updateContentColor,
+  saving,
+  onSave,
+}) => {
   const normalized = normalizeSettings(settings);
 
   return (
@@ -1764,6 +1783,31 @@ const SettingsEditor = ({ settings, updateSettings, saving, onSave }) => {
               label={label}
               value={normalized.theme.colors[key] ?? defaultThemeColors[key]}
               onChange={(value) => updateSettings(`theme.colors.${key}`, value)}
+            />
+          ))}
+        </div>
+      </CollapsiblePanel>
+
+      <CollapsiblePanel
+        title="Colores de entrenamientos y dietas"
+        onSave={() => onSave("Colores de contenido")}
+        saving={saving}
+      >
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {levels.map((level) => (
+            <ColorField
+              key={`level-${level.id}`}
+              label={`Entreno: ${level.nombre}`}
+              value={level.color}
+              onChange={(value) => updateContentColor("level", level.id, value)}
+            />
+          ))}
+          {plans.map((plan) => (
+            <ColorField
+              key={`plan-${plan.id}`}
+              label={`Plan: ${plan.nombre}`}
+              value={plan.color}
+              onChange={(value) => updateContentColor("plan", plan.id, value)}
             />
           ))}
         </div>
@@ -1885,7 +1929,7 @@ const UsersEditor = ({
 
   return (
     <div className="space-y-4">
-      <section className="bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl shadow-lg overflow-hidden">
+      <section className="app-card overflow-hidden">
         <div className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <p className="text-sm font-black text-texto-secundario-claro dark:text-texto-secundario-oscuro">
@@ -2253,7 +2297,7 @@ const QuickAddPanel = ({
 };
 
 const Panel = ({ children }) => (
-  <section className="bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl p-4 shadow-lg">
+  <section className="app-card p-4">
     {children}
   </section>
 );
@@ -2262,7 +2306,7 @@ const CollapsiblePanel = ({ title, children, action, danger, onSave, saving = fa
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <section className="bg-tarjeta-clara dark:bg-tarjeta-oscura border border-borde-claro dark:border-borde-oscuro rounded-2xl p-4 shadow-lg min-w-0">
+    <section className="app-card min-w-0 p-4">
       <div className={`flex items-center justify-between gap-2 ${open ? "mb-4" : ""}`}>
         <button
           type="button"
@@ -2723,21 +2767,21 @@ const SuccessModal = ({ message, open, onClose }) => {
     >
       <div className="absolute inset-0 bg-black/35" />
       <div
-        className={`relative w-full max-w-sm overflow-hidden rounded-2xl border border-green-200/80 bg-white/95 p-5 text-center shadow-2xl transition-all duration-300 ease-out dark:border-green-800/80 dark:bg-fondo-oscuro/95 ${
+        className={`app-card relative w-full max-w-sm overflow-hidden border-success-vanguard/40 p-5 text-center shadow-2xl transition-all duration-300 ease-out ${
           open ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-95 opacity-0"
         }`}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-700 shadow-inner dark:bg-green-900/70 dark:text-green-100">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success-vanguard text-green-950 shadow-inner">
           <Check className="h-7 w-7" />
         </div>
-        <p className="text-sm font-black uppercase tracking-wide text-green-700 dark:text-green-200">
+        <p className="text-sm font-black uppercase tracking-wide text-success-soft">
           Guardado
         </p>
         <p className="mt-1 text-lg font-black text-texto-claro dark:text-texto-oscuro">{message}</p>
-        <div className="mt-5 h-1 overflow-hidden rounded-full bg-green-100 dark:bg-green-950">
+        <div className="mt-5 h-1 overflow-hidden rounded-full bg-surface-variant">
           <div
-            className="h-full rounded-full bg-green-600 transition-[width] duration-[2000ms] ease-linear dark:bg-green-300"
+            className="h-full rounded-full bg-success-vanguard transition-[width] duration-[1500ms] ease-linear"
             style={{ width: open ? "0%" : "100%" }}
           />
         </div>
