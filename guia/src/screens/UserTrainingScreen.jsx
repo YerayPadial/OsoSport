@@ -426,6 +426,7 @@ const UserTrainingScreen = ({ initialTab = "perfil", onTabChange, onGoBack, onLo
             setQuery={setExerciseQuery}
             onStartEmpty={() => startSession(null)}
             onAddExercise={addExerciseToSession}
+            onRemoveExercise={requestRemoveExercise}
             onChange={updateSession}
             onSave={() => saveActiveSession(activeSession)}
             onFinish={finishSession}
@@ -470,7 +471,7 @@ const TrainingShell = ({ children, onGoBack }) => (
   </div>
 );
 
-const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAddExercise, onChange, onSave, onFinish, onCancel, saving, elapsedSeconds, bodyProfile, restTimer, setRestTimer }) => {
+const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAddExercise, onRemoveExercise, onChange, onSave, onFinish, onCancel, saving, elapsedSeconds, bodyProfile, restTimer, setRestTimer }) => {
   const titleRef = useRef(null);
 
   useEffect(() => {
@@ -533,7 +534,7 @@ const ActiveWorkout = ({ session, exercises, query, setQuery, onStartEmpty, onAd
               exercise={exercise}
               bodyProfile={bodyProfile}
               onChange={(nextExercise) => updateExercise(index, nextExercise)}
-              onRemove={() => requestRemoveExercise(index, exercise.exerciseName)}
+              onRemove={() => onRemoveExercise(index, exercise.exerciseName)}
               onStartRest={(seconds, label) => setRestTimer({ seconds, running: true, label })}
             />
           ))

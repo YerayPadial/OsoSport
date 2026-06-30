@@ -175,6 +175,9 @@ try {
             session_destroy();
         }
 
+        clearCurrentAdminSessionCookie();
+        expireLegacyAdminSessionCookies();
+
         echo json_encode(['authenticated' => false], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }
